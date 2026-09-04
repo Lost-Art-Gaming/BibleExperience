@@ -1,0 +1,96 @@
+{
+  "book": "Genesis",
+  "title": "Origins",
+  "episodes": [
+    {
+      "id": "ep1",
+      "file": "Episode1.json",
+      "label": "S1E1 · In the Beginning",
+      "title": "“In the Beginning”",
+      "subtitle": "Before there was a sunrise to describe, there was silence, and Someone within it.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep2",
+      "file": "Episode2.json",
+      "label": "S1E2 · Eden",
+      "title": "“Eden”",
+      "subtitle": "The camera descends from the cosmic to the intimate: to mist, to soil, to a man opening his eyes for the first time.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep3",
+      "file": "Episode3.json",
+      "label": "S1E3 · The Serpent and the Seed",
+      "title": "“The Serpent and the Seed”",
+      "subtitle": "The first question in the Bible contains a lie. The first prophecy answers it, and takes the rest of Scripture to unfold.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep4",
+      "file": "Episode4.json",
+      "label": "S1E4 · East of Eden",
+      "title": "“East of Eden”",
+      "subtitle": "Two brothers build two altars. Heaven accepts one offering, and in a field the enmity of Eden draws first blood.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep5",
+      "file": "Episode5.json",
+      "label": "S1E5 · The Book of Adam’s Story",
+      "title": "“The Book of Adam’s Story”",
+      "subtitle": "Ten names, ten lifespans, ten verdicts. Read slowly, the chapter everyone skips becomes a countdown, a ledger of death, and two escape notes.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep6",
+      "file": "Episode6.json",
+      "label": "S1E6 · The Days of Noah",
+      "title": "“The Days of Noah”",
+      "subtitle": "Rebel spirits take on flesh, giants fill the earth with violence, and heaven sets a dated limit. In a doomed world, one man is handed a blueprint.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep7",
+      "file": "Episode7.json",
+      "label": "S1E7 · The Deluge",
+      "title": "“The Deluge”",
+      "subtitle": "Seven days of final warning. A door that Jehovah himself closes. And the most precisely dated year in early Scripture, spent inside a wooden chest on a shoreless sea.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep8",
+      "file": "Episode8.json",
+      "label": "S1E8 · The Bow in the Cloud",
+      "title": "“The Bow in the Cloud”",
+      "subtitle": "A washed world receives its founding laws: blood accounted for, life declared sacred, and a weapon hung in the sky, pointed away from the earth.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep9",
+      "file": "Episode9.json",
+      "label": "S1E9 · Babel · Season Finale",
+      "title": "“Babel”",
+      "subtitle": "One language, one plain, one tower with its top in the heavens. Mankind decides to stay together against explicit instruction, and Jehovah comes down to see the city.",
+      "season": 1,
+      "sealed": false
+    },
+    {
+      "id": "ep10",
+      "file": "Episode10.json",
+      "label": "S2E1 · Go from Your Land",
+      "title": "“Go from Your Land”",
+      "subtitle": "A prosperous man of seventy-five is told to leave everything, for a destination that is not named. He goes. And the seed promise of Eden acquires a family.",
+      "season": 2,
+      "sealed": false
+    }
+  ]
+}
