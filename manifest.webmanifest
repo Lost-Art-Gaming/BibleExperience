@@ -1,0 +1,10 @@
+{
+  "name": "The Bible Experience",
+  "short_name": "Bible Experience",
+  "description": "The Library of Jehovah — an immersive, data-driven Bible study journey.",
+  "start_url": "./index.html#library",
+  "display": "standalone",
+  "background_color": "#080b18",
+  "theme_color": "#080b18",
+  "icons": []
+}
