@@ -29,8 +29,7 @@ jobs:
         run: |
           rm -rf _site
           mkdir -p _site
-          cp index.html app.js styles.css manifest.webmanifest sw.js _site/
-          cp -R data _site/data
+          rsync -av --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
