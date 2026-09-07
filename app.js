@@ -238,7 +238,7 @@ function setupReaderProgress() {
 
 async function ensureAllEpisodesLoaded() {
   const missing = state.episodes.filter(ep => !ep.sealed && !state.cache.has(ep.id));
-  await Promise.all(missing.map(loadEpisode));
+  await Promise.all(missing.map(ep => loadEpisode(ep.id)));
 }
 
 async function renderTapestry() {
