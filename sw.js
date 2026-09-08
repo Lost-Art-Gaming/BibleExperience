@@ -1,6 +1,10 @@
-const CACHE = 'bible-experience-mvp-v3';
+const CACHE = 'bible-experience-premium-v4';
 const ASSETS = [
-  './', './index.html', './styles.css', './app.js', './manifest.webmanifest', './assets/logo.svg',
+  './', './index.html', './styles.css', './premium.css', './app.js', './manifest.webmanifest', './assets/logo.svg',
+  './assets/hero-origins.svg', './assets/map-exodus.svg', './assets/library-manuscript.svg',
+  './assets/ep1-beginning.svg', './assets/ep2-eden.svg', './assets/ep3-serpent-seed.svg', './assets/ep4-east-eden.svg',
+  './assets/ep5-adam-story.svg', './assets/ep6-noah.svg', './assets/ep7-deluge.svg', './assets/ep8-bow.svg',
+  './assets/ep9-babel.svg', './assets/ep10-abraham.svg',
   './data/Genesis/index.json', './data/timeline.json',
   './data/Genesis/Episode1.json', './data/Genesis/Episode2.json', './data/Genesis/Episode3.json',
   './data/Genesis/Episode4.json', './data/Genesis/Episode5.json', './data/Genesis/Episode6.json',
