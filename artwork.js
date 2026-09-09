@@ -14,6 +14,16 @@
     ep10: 'assets/ep10-abraham.jpg',
   };
 
+  const applyCardArt = () => {
+    document.querySelectorAll('.episode-card[data-episode]').forEach(card => {
+      const asset = ART[card.dataset.episode];
+      const art = card.querySelector('.episode-art');
+      if (!asset || !art) return;
+      art.style.backgroundImage = `url("${new URL(asset, ROOT).href}")`;
+      art.dataset.artwork = asset;
+    });
+  };
+
   const titleToId = {
     'IN THE BEGINNING': 'ep1',
     'EDEN': 'ep2',
@@ -48,7 +58,8 @@
     head.style.backgroundImage = `linear-gradient(180deg,rgba(3,8,13,.05),rgba(3,8,13,.92)), var(--reader-art)`;
   };
 
-  new MutationObserver(applyReaderArt).observe(document.documentElement, { childList: true, subtree: true });
-  window.addEventListener('pageshow', applyReaderArt);
-  applyReaderArt();
+  const applyAll = () => { applyCardArt(); applyReaderArt(); };
+  new MutationObserver(applyAll).observe(document.documentElement, { childList: true, subtree: true });
+  window.addEventListener('pageshow', applyAll);
+  applyAll();
 })();
