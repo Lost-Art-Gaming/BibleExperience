@@ -24,6 +24,12 @@
     '.scene-card': 'assets/explore-geography.jpg',
   };
 
+  const OVERLAYS = {
+    '.season-card': 'linear-gradient(90deg,rgba(4,10,16,.84),rgba(4,10,16,.28))',
+    '.quote-card': 'linear-gradient(rgba(3,8,13,.58),rgba(3,8,13,.78))',
+    '.scene-card': 'linear-gradient(rgba(3,8,13,.15),rgba(3,8,13,.45))',
+  };
+
   const FALLBACKS = [
     'linear-gradient(145deg,#1a2b37,#80683f)',
     'linear-gradient(145deg,#1e3840,#8b6a3d)',
@@ -35,11 +41,13 @@
 
   const urlFor = asset => new URL(asset, ROOT).href;
   const fallbackFor = node => FALLBACKS[Math.max(0, (Number(node?.dataset?.artFallback) || 1) - 1) % FALLBACKS.length];
+  const overlayFor = node => Object.entries(OVERLAYS).find(([selector]) => node.matches(selector))?.[1] || '';
 
   const clearArt = node => {
     node.classList.remove('art-loaded');
     node.classList.add('art-fallback');
-    node.style.setProperty('background-image', fallbackFor(node), 'important');
+    const layers = [overlayFor(node), fallbackFor(node)].filter(Boolean);
+    node.style.setProperty('background-image', layers.join(', '), 'important');
     node.dataset.artworkLoaded = 'false';
   };
 
@@ -52,7 +60,8 @@
     image.onload = () => {
       node.classList.remove('art-fallback');
       node.classList.add('art-loaded');
-      node.style.setProperty('background-image', `url("${url}")`, 'important');
+      const layers = [overlayFor(node), `url("${url}")`].filter(Boolean);
+      node.style.setProperty('background-image', layers.join(', '), 'important');
       node.dataset.artwork = asset;
       node.dataset.artworkLoaded = 'true';
     };
