@@ -1,0 +1,40 @@
+/* High-end cinematic treatment for production artwork. */
+.hero-home::before,
+.season-card,
+.episode-art,
+.feature-card,
+.quote-card,
+.scene-card,
+.reader-head { background-image: var(--production-art), var(--fallback-art, none) !important; }
+
+.hero-home::before { background-position: center !important; background-size: cover !important; }
+.hero-home.art-ready::before { filter: saturate(1.08) contrast(1.06); }
+.hero-home.art-ready::after { background: linear-gradient(90deg, rgba(4,10,15,.94) 0%, rgba(4,10,15,.64) 35%, rgba(4,10,15,.12) 78%), linear-gradient(0deg, rgba(4,10,15,.96), rgba(4,10,15,.05) 62%); }
+
+.season-card { position: relative; background-size: cover !important; }
+.season-card.art-ready { box-shadow: 0 30px 90px rgba(0,0,0,.28); }
+
+.episode-art { position: relative; min-height: 100%; overflow: hidden; background-size: cover !important; }
+.episode-art::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 38%, rgba(3,8,12,.72)); opacity: 1 !important; }
+.episode-art.art-ready { transform: translateZ(0); }
+
+.feature-card { background-size: cover !important; background-position: center !important; overflow: hidden; }
+.feature-card.art-ready::after { opacity: .58; background: linear-gradient(90deg, rgba(4,10,15,.82), rgba(4,10,15,.22)); }
+
+.quote-card { background-size: cover !important; background-position: center !important; }
+
+.scene-card { background-size: cover !important; background-position: center !important; }
+.scene-card.art-ready { background-blend-mode: normal; }
+
+.reader-head { position: relative; isolation: isolate; overflow: hidden; background-size: cover !important; background-position: center 38% !important; min-height: 440px; display: flex; flex-direction: column; justify-content: flex-end; }
+.reader-head::before { content: ''; position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, rgba(3,8,12,.18) 0%, rgba(3,8,12,.22) 28%, rgba(3,8,12,.9) 76%, rgba(3,8,12,1) 100%); }
+.reader-head .back-btn { position: absolute; top: 30px; left: 0; }
+.reader-head .eyebrow, .reader-head h1, .reader-head p, .reader-head .reader-meta { position: relative; z-index: 1; }
+.reader-head h1 { max-width: 850px; text-shadow: 0 8px 35px rgba(0,0,0,.45); }
+.reader-head p { max-width: 680px; }
+
+@media (max-width: 720px) {
+  .reader-head { min-height: 430px; margin-inline: -22px; padding: 30px 22px 34px; background-position: 58% center !important; }
+  .reader-head .back-btn { left: 22px; top: 22px; }
+  .episode-art { min-height: 205px; }
+}
