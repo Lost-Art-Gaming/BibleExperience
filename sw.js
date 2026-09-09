@@ -1,10 +1,10 @@
-const CACHE = 'bible-experience-premium-v9';
+const CACHE = 'bible-experience-premium-v10';
 const ASSETS = [
-  './', './index.html', './styles.css?v=9', './premium.css?v=9', './art.css?v=9', './premium-runtime.css?v=9', './app.js?v=9', './premium-runtime.js?v=9', './manifest.webmanifest', './assets/logo.svg',
-  './assets/hero-origins.webp?v=9', './assets/map-exodus.webp?v=9', './assets/library-manuscript.webp?v=9',
-  './assets/ep1-beginning.webp?v=9', './assets/ep2-eden.webp?v=9', './assets/ep3-serpent-seed.webp?v=9', './assets/ep4-east-eden.webp?v=9',
-  './assets/ep5-adam-story.webp?v=9', './assets/ep6-noah.webp?v=9', './assets/ep7-deluge.webp?v=9', './assets/ep8-bow.webp?v=9',
-  './assets/ep9-babel.webp?v=9', './assets/ep10-abraham.webp?v=9',
+  './', './index.html', './styles.css?v=10', './premium.css?v=10', './art.css?v=10', './premium-runtime.css?v=10', './app.js?v=10', './premium-runtime.js?v=10', './manifest.webmanifest', './assets/logo.svg',
+  './assets/hero-origins.webp?v=10', './assets/map-exodus.webp?v=10', './assets/library-manuscript.webp?v=10',
+  './assets/ep1-beginning.webp?v=10', './assets/ep2-eden.webp?v=10', './assets/ep3-serpent-seed.webp?v=10', './assets/ep4-east-eden.webp?v=10',
+  './assets/ep5-adam-story.webp?v=10', './assets/ep6-noah.webp?v=10', './assets/ep7-deluge.webp?v=10', './assets/ep8-bow.webp?v=10',
+  './assets/ep9-babel.webp?v=10', './assets/ep10-abraham.webp?v=10',
   './data/Genesis/index.json', './data/timeline.json',
   './data/Genesis/Episode1.json', './data/Genesis/Episode2.json', './data/Genesis/Episode3.json',
   './data/Genesis/Episode4.json', './data/Genesis/Episode5.json', './data/Genesis/Episode6.json',
