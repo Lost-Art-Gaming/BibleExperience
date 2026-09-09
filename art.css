@@ -1,6 +1,9 @@
 /* Production artwork layer — local generated WebP assets are the source of truth. */
+/* v8 intentionally cache-busts every production image so GitHub Pages/PWA cannot retain the earlier fallback art. */
 .hero-home {
   isolation: isolate;
+  position: relative;
+  overflow: hidden;
   background: #071018 !important;
 }
 .hero-home::before {
@@ -8,42 +11,46 @@
   position: absolute;
   inset: 0;
   z-index: -2;
-  background: url('assets/hero-origins.webp') 68% center / cover no-repeat;
+  background-image: url('assets/hero-origins.webp?v=8');
+  background-position: 68% center;
+  background-size: cover;
+  background-repeat: no-repeat;
   transform: scale(1.01);
+  filter: saturate(1.05) contrast(1.04);
 }
 .hero-home::after {
   z-index: -1;
   background:
-    linear-gradient(90deg, rgba(7,16,24,.96) 0%, rgba(7,16,24,.74) 36%, rgba(7,16,24,.22) 68%, rgba(7,16,24,.08) 100%),
-    linear-gradient(0deg, rgba(7,16,24,.98) 0%, rgba(7,16,24,.08) 48%, rgba(7,16,24,.18) 100%);
+    linear-gradient(90deg, rgba(7,16,24,.93) 0%, rgba(7,16,24,.62) 38%, rgba(7,16,24,.18) 72%, rgba(7,16,24,.08) 100%),
+    linear-gradient(0deg, rgba(7,16,24,.98) 0%, rgba(7,16,24,.12) 50%, rgba(7,16,24,.16) 100%);
 }
-.hero-mountains { display: none; }
+.hero-mountains { display: none !important; }
 .hero-glow { z-index: -1; }
 
 .season-card {
   background:
-    linear-gradient(90deg, rgba(7,16,24,.94) 0%, rgba(7,16,24,.62) 52%, rgba(7,16,24,.22) 100%),
-    url('assets/hero-origins.webp') 68% center / cover no-repeat !important;
+    linear-gradient(90deg, rgba(7,16,24,.88) 0%, rgba(7,16,24,.48) 55%, rgba(7,16,24,.12) 100%),
+    url('assets/hero-origins.webp?v=8') 68% center / cover no-repeat !important;
 }
 
 .episode-art {
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
+  filter: saturate(1.04) contrast(1.03);
 }
-.episode-card:nth-child(1) .episode-art { background-image: url('assets/ep1-beginning.webp') !important; }
-.episode-card:nth-child(2) .episode-art { background-image: url('assets/ep2-eden.webp') !important; }
-.episode-card:nth-child(3) .episode-art { background-image: url('assets/ep3-serpent-seed.webp') !important; }
-.episode-card:nth-child(4) .episode-art { background-image: url('assets/ep4-east-eden.webp') !important; }
-.episode-card:nth-child(5) .episode-art { background-image: url('assets/ep5-adam-story.webp') !important; }
-.episode-card:nth-child(6) .episode-art { background-image: url('assets/ep6-noah.webp') !important; }
-.episode-card:nth-child(7) .episode-art { background-image: url('assets/ep7-deluge.webp') !important; }
-.episode-card:nth-child(8) .episode-art { background-image: url('assets/ep8-bow.webp') !important; }
-.episode-card:nth-child(9) .episode-art { background-image: url('assets/ep9-babel.webp') !important; }
-.episode-card:nth-child(10) .episode-art { background-image: url('assets/ep10-abraham.webp') !important; }
-
-.episode-art::before { background: linear-gradient(180deg, rgba(0,0,0,.06), transparent 38%); }
-.episode-art::after { background: linear-gradient(0deg, rgba(7,16,24,.78), transparent); box-shadow: none; }
+.episode-card:nth-child(1) .episode-art { background-image: url('assets/ep1-beginning.webp?v=8') !important; }
+.episode-card:nth-child(2) .episode-art { background-image: url('assets/ep2-eden.webp?v=8') !important; }
+.episode-card:nth-child(3) .episode-art { background-image: url('assets/ep3-serpent-seed.webp?v=8') !important; }
+.episode-card:nth-child(4) .episode-art { background-image: url('assets/ep4-east-eden.webp?v=8') !important; }
+.episode-card:nth-child(5) .episode-art { background-image: url('assets/ep5-adam-story.webp?v=8') !important; }
+.episode-card:nth-child(6) .episode-art { background-image: url('assets/ep6-noah.webp?v=8') !important; }
+.episode-card:nth-child(7) .episode-art { background-image: url('assets/ep7-deluge.webp?v=8') !important; }
+.episode-card:nth-child(8) .episode-art { background-image: url('assets/ep8-bow.webp?v=8') !important; }
+.episode-card:nth-child(9) .episode-art { background-image: url('assets/ep9-babel.webp?v=8') !important; }
+.episode-card:nth-child(10) .episode-art { background-image: url('assets/ep10-abraham.webp?v=8') !important; }
+.episode-art::before { background: linear-gradient(180deg, rgba(0,0,0,.04), transparent 40%); }
+.episode-art::after { background: linear-gradient(0deg, rgba(7,16,24,.72), transparent 62%); box-shadow: none; }
 
 .map-feature::after,
 .timeline-feature::after,
@@ -53,20 +60,20 @@
   background-position: center;
   background-repeat: no-repeat;
 }
-.map-feature::after { background-image: url('assets/map-exodus.webp'); }
-.timeline-feature::after { background-image: url('assets/hero-origins.webp'); }
+.map-feature::after { background-image: url('assets/map-exodus.webp?v=8'); }
+.timeline-feature::after { background-image: url('assets/hero-origins.webp?v=8'); }
 .journey-feature::after,
-.quote-card { background-image: url('assets/library-manuscript.webp'); }
-.scene-card { background-image: url('assets/map-exodus.webp'); }
-.scene-card #threeScene { background-image: url('assets/map-exodus.webp'); }
+.quote-card { background-image: url('assets/library-manuscript.webp?v=8'); }
+.scene-card { background-image: url('assets/map-exodus.webp?v=8'); }
+.scene-card #threeScene { background-image: url('assets/map-exodus.webp?v=8'); }
 
-/* Keep text legible over photography while letting the generated art remain dominant. */
+/* Photography remains visible beneath a restrained cinematic readability treatment. */
 .feature-card::after {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: .42;
-  background: linear-gradient(90deg, rgba(7,16,24,.88), rgba(7,16,24,.28));
+  opacity: .52;
+  background: linear-gradient(90deg, rgba(7,16,24,.82), rgba(7,16,24,.18));
   pointer-events: none;
 }
 .feature-card > * { z-index: 1; }
