@@ -25,15 +25,40 @@ jobs:
       - name: Verify production image assets
         run: |
           set -euo pipefail
-          for file in assets/*.webp; do
-            test -s "$file"
-            mime="$(file --brief --mime-type "$file")"
-            if [ "$mime" != "image/webp" ]; then
-              echo "Invalid WebP asset: $file ($mime)"
-              exit 1
+          required=(
+            "assets/hero-origins.jpg"
+            "assets/ep01-beginning.jpg"
+            "assets/ep02-eden.jpg"
+            "assets/ep03-serpent.jpg"
+            "assets/ep04-east-of-eden.jpg"
+            "assets/ep05-adams-story.jpg"
+            "assets/ep06-noah.jpg"
+            "assets/ep07-deluge.jpg"
+            "assets/ep08-bow.jpg"
+            "assets/ep09-babel.jpg"
+            "assets/ep10-abraham.jpg"
+            "assets/explore-geography.jpg"
+            "assets/study-reflect.jpg"
+            "assets/your-journey.jpg"
+          )
+          missing=0
+          for file in "${required[@]}"; do
+            if [ ! -s "$file" ]; then
+              echo "Missing production artwork: $file"
+              missing=1
+            else
+              mime="$(file --brief --mime-type "$file")"
+              case "$mime" in
+                image/jpeg|image/png) echo "OK: $file ($mime)" ;;
+                *) echo "Invalid artwork: $file ($mime)"; missing=1 ;;
+              esac
             fi
           done
-          echo "All WebP assets passed validation."
+          if [ "$missing" -ne 0 ]; then
+            echo "Artwork validation failed: upload the complete production artwork set before deployment."
+            exit 1
+          fi
+          echo "All production artwork passed validation."
 
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
