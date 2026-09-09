@@ -12,14 +12,11 @@
   <title>The Bible Experience</title>
   <link rel="stylesheet" href="styles.css?v=12" />
   <link rel="stylesheet" href="premium.css?v=12" />
-  <link rel="stylesheet" href="art.css?v=12" />
-  <link rel="stylesheet" href="premium-runtime.css?v=12" />
   <link rel="stylesheet" href="polish.css?v=1" />
 </head>
 <body>
   <div id="app"></div>
   <script type="module" src="app.js?v=12"></script>
-  <script src="premium-runtime.js?v=12"></script>
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=12').catch(() => {}));
