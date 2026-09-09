@@ -1,0 +1,20 @@
+/* Generated artwork takes precedence over the temporary illustrated fallbacks. */
+.hero-home{background-image:url('assets/hero-origins.webp'),url('assets/hero-origins.svg');background-size:cover;background-position:center}
+.season-card{background-image:url('assets/hero-origins.webp'),url('assets/hero-origins.svg');background-size:cover;background-position:center}
+.episode-card:nth-child(1) .episode-art{background-image:url('assets/ep1-beginning.webp'),url('assets/ep1-beginning.svg')!important}
+.episode-card:nth-child(2) .episode-art{background-image:url('assets/ep2-eden.webp'),url('assets/ep2-eden.svg')!important}
+.episode-card:nth-child(3) .episode-art{background-image:url('assets/ep3-serpent-seed.webp'),url('assets/ep3-serpent-seed.svg')!important}
+.episode-card:nth-child(4) .episode-art{background-image:url('assets/ep4-east-eden.webp'),url('assets/ep4-east-eden.svg')!important}
+.episode-card:nth-child(5) .episode-art{background-image:url('assets/ep5-adam-story.webp'),url('assets/ep5-adam-story.svg')!important}
+.episode-card:nth-child(6) .episode-art{background-image:url('assets/ep6-noah.webp'),url('assets/ep6-noah.svg')!important}
+.episode-card:nth-child(7) .episode-art{background-image:url('assets/ep7-deluge.webp'),url('assets/ep7-deluge.svg')!important}
+.episode-card:nth-child(8) .episode-art{background-image:url('assets/ep8-bow.webp'),url('assets/ep8-bow.svg')!important}
+.episode-card:nth-child(9) .episode-art{background-image:url('assets/ep9-babel.webp'),url('assets/ep9-babel.svg')!important}
+.episode-card:nth-child(10) .episode-art{background-image:url('assets/ep10-abraham.webp'),url('assets/ep10-abraham.svg')!important}
+.map-feature:after{background-image:url('assets/map-exodus.webp'),url('assets/map-exodus.svg')}
+.timeline-feature:after{background-image:url('assets/hero-origins.webp'),url('assets/hero-origins.svg')}
+.journey-feature:after{background-image:url('assets/library-manuscript.webp'),url('assets/library-manuscript.svg')}
+.quote-card{background-image:url('assets/library-manuscript.webp'),url('assets/library-manuscript.svg')}
+.scene-card{background-image:linear-gradient(rgba(7,16,24,.18),rgba(7,16,24,.18)),url('assets/map-exodus.webp');background-size:cover;background-position:center}
+.scene-card #threeScene{background:linear-gradient(rgba(7,16,24,.12),rgba(7,16,24,.36)),url('assets/map-exodus.webp') center/cover}
+@media(max-width:720px){.hero-home{background-position:58% center}.season-card{background-position:62% center}}
