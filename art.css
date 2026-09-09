@@ -1,88 +1,118 @@
-/* Premium cinematic art direction — production hero artwork is the visual source of truth. */
+/* Production art — the generated imagery is the source of truth. */
 .hero-home {
   isolation: isolate;
   position: relative;
   overflow: hidden;
-  min-height: clamp(560px, 68vh, 760px);
-  background: #050b12 !important;
+  min-height: clamp(620px, 78vh, 820px);
   border-color: rgba(222, 185, 100, .18);
+  background: #050b12 !important;
 }
 .hero-home::before {
   content: '';
   position: absolute;
-  inset: -2%;
-  z-index: -3;
-  background-image: url('assets/hero-origins-production.webp?v=11');
+  inset: 0;
+  z-index: 0;
+  background-image: var(--production-art, url('assets/hero-origins-production.webp?v=12'));
   background-position: 68% center;
   background-size: cover;
   background-repeat: no-repeat;
-  transform: scale(1.035);
-  filter: saturate(1.12) contrast(1.07) brightness(1.04);
-  animation: heroDrift 18s ease-in-out infinite alternate;
+  transform: scale(1.02);
+  filter: saturate(1.08) contrast(1.06) brightness(.98);
+  animation: heroDrift 22s ease-in-out infinite alternate;
 }
 .hero-home::after {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: -2;
+  z-index: 1;
   pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(3,9,15,.96) 0%, rgba(3,9,15,.82) 23%, rgba(3,9,15,.42) 47%, rgba(3,9,15,.08) 78%, rgba(3,9,15,.20) 100%),
-    linear-gradient(180deg, rgba(3,9,15,.20) 0%, transparent 35%, rgba(3,9,15,.12) 58%, rgba(3,9,15,.96) 100%),
-    radial-gradient(circle at 78% 28%, rgba(235,196,112,.18), transparent 26%);
+    linear-gradient(90deg, rgba(3,9,15,.88) 0%, rgba(3,9,15,.63) 30%, rgba(3,9,15,.20) 58%, rgba(3,9,15,.04) 82%, rgba(3,9,15,.18) 100%),
+    linear-gradient(180deg, rgba(3,9,15,.18) 0%, transparent 36%, rgba(3,9,15,.12) 62%, rgba(3,9,15,.92) 100%),
+    radial-gradient(circle at 78% 25%, rgba(235,196,112,.16), transparent 25%);
 }
 .hero-home .hero-content {
   position: relative;
-  z-index: 3;
-  max-width: 640px;
-  padding-top: clamp(110px, 14vh, 155px);
-  text-shadow: 0 3px 28px rgba(0,0,0,.38);
+  z-index: 2;
+  max-width: 720px;
+  padding-top: clamp(130px, 17vh, 190px);
+  text-shadow: 0 3px 28px rgba(0,0,0,.42);
 }
 .hero-home .hero-content h1 {
-  max-width: 700px;
-  font-size: clamp(3.6rem, 7vw, 7rem);
-  line-height: .88;
+  max-width: 760px;
+  font-size: clamp(4rem, 7vw, 7.6rem);
+  line-height: .86;
   letter-spacing: -.045em;
 }
-.hero-home .hero-content p { max-width: 520px; font-size: 1.05rem; line-height: 1.65; }
-.hero-home .hero-mark { z-index: 3; text-shadow: 0 2px 18px rgba(0,0,0,.6); }
-.hero-home .hero-glow { z-index: -1; opacity: .7; }
+.hero-home .hero-content p { max-width: 560px; font-size: 1.05rem; line-height: 1.65; }
+.hero-home .hero-mark { z-index: 2; text-shadow: 0 2px 18px rgba(0,0,0,.65); }
+.hero-home .hero-glow { z-index: 2; opacity: .45; pointer-events: none; }
 .hero-mountains { display: none !important; }
 
 @keyframes heroDrift {
-  from { transform: scale(1.035) translate3d(0,0,0); }
-  to { transform: scale(1.07) translate3d(-10px,-4px,0); }
+  from { transform: scale(1.02) translate3d(0,0,0); }
+  to { transform: scale(1.055) translate3d(-8px,-3px,0); }
 }
 
 .season-card {
   min-height: 300px;
   overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(4,10,16,.92) 0%, rgba(4,10,16,.60) 45%, rgba(4,10,16,.16) 100%),
-    url('assets/hero-origins-production.webp?v=11') 68% center / cover no-repeat !important;
+    linear-gradient(90deg, rgba(4,10,16,.88) 0%, rgba(4,10,16,.46) 48%, rgba(4,10,16,.10) 100%),
+    var(--production-art, url('assets/hero-origins-production.webp?v=12')) 68% center / cover no-repeat !important;
 }
 
+/* Episode artwork fills the card, with the copy presented as a cinematic lower-third. */
+.episode-list {
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 10px;
+}
+.episode-card {
+  position: relative;
+  display: block;
+  min-height: 285px;
+  aspect-ratio: .68;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 7px;
+  background: #0a131c;
+}
+.episode-card:hover { transform: translateY(-4px); border-color: rgba(217,173,97,.55); box-shadow: 0 18px 45px rgba(0,0,0,.28); }
 .episode-art {
+  position: absolute;
+  inset: 0;
+  min-height: 100%;
+  overflow: hidden;
+  background-image: var(--production-art, none) !important;
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
   filter: saturate(1.08) contrast(1.04);
-  transform: translateZ(0);
 }
-.episode-card:hover .episode-art { filter: saturate(1.16) contrast(1.06); }
-.episode-card:nth-child(1) .episode-art { background-image: url('assets/ep1-beginning.webp?v=10') !important; }
-.episode-card:nth-child(2) .episode-art { background-image: url('assets/ep2-eden.webp?v=10') !important; }
-.episode-card:nth-child(3) .episode-art { background-image: url('assets/ep3-serpent-seed.webp?v=10') !important; }
-.episode-card:nth-child(4) .episode-art { background-image: url('assets/ep4-east-eden.webp?v=10') !important; }
-.episode-card:nth-child(5) .episode-art { background-image: url('assets/ep5-adam-story.webp?v=10') !important; }
-.episode-card:nth-child(6) .episode-art { background-image: url('assets/ep6-noah.webp?v=10') !important; }
-.episode-card:nth-child(7) .episode-art { background-image: url('assets/ep7-deluge.webp?v=10') !important; }
-.episode-card:nth-child(8) .episode-art { background-image: url('assets/ep8-bow.webp?v=10') !important; }
-.episode-card:nth-child(9) .episode-art { background-image: url('assets/ep9-babel.webp?v=10') !important; }
-.episode-card:nth-child(10) .episode-art { background-image: url('assets/ep10-abraham.webp?v=10') !important; }
-.episode-art::before { background: linear-gradient(180deg, rgba(0,0,0,.02), transparent 45%); }
-.episode-art::after { background: linear-gradient(0deg, rgba(3,9,15,.86), rgba(3,9,15,.04) 68%); box-shadow: none; }
+.episode-art::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.05) 0%, transparent 42%, rgba(3,8,12,.12) 60%, rgba(3,8,12,.94) 100%);
+}
+.episode-art::after { display: none; }
+.episode-art span { left: 10px; top: 10px; padding: 6px 8px; border: 1px solid rgba(255,255,255,.16); border-radius: 12px; background: rgba(4,10,15,.55); backdrop-filter: blur(8px); }
+.episode-copy {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 3;
+  display: flex;
+  min-height: 125px;
+  padding: 15px 13px 14px;
+  justify-content: flex-end;
+  background: linear-gradient(180deg, transparent 0%, rgba(3,8,12,.18) 12%, rgba(3,8,12,.92) 52%, rgba(3,8,12,.98) 100%);
+}
+.episode-copy small { font-size: 8px; }
+.episode-copy h3 { margin: 5px 0 5px; font-size: 15px; line-height: 1.15; }
+.episode-copy p { font-size: 9px; line-height: 1.35; }
+.episode-copy > span { padding-top: 8px; font-size: 9px; }
 
+.feature-card { min-height: 190px; }
 .map-feature::after,
 .timeline-feature::after,
 .journey-feature::after,
@@ -92,7 +122,7 @@
   background-repeat: no-repeat;
 }
 .map-feature::after { background-image: url('assets/map-exodus.webp?v=10'); }
-.timeline-feature::after { background-image: url('assets/hero-origins-production.webp?v=11'); }
+.timeline-feature::after { background-image: url('assets/hero-origins-production.webp?v=12'); }
 .journey-feature::after,
 .quote-card { background-image: url('assets/library-manuscript.webp?v=10'); }
 .scene-card { background-image: url('assets/map-exodus.webp?v=10'); }
@@ -108,19 +138,29 @@
 }
 .feature-card > * { z-index: 1; }
 
+.reader-head { position: relative; }
+
+@media (max-width: 1400px) {
+  main { width: min(1180px, 100%); }
+  .episode-list { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .episode-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
 @media (max-width: 720px) {
   .hero-home { min-height: 680px; }
   .hero-home::before { background-position: 63% center; }
   .hero-home::after {
     background:
-      linear-gradient(90deg, rgba(3,9,15,.78), rgba(3,9,15,.18)),
-      linear-gradient(180deg, rgba(3,9,15,.18) 0%, rgba(3,9,15,.06) 42%, rgba(3,9,15,.98) 100%);
+      linear-gradient(90deg, rgba(3,9,15,.74), rgba(3,9,15,.14)),
+      linear-gradient(180deg, rgba(3,9,15,.12) 0%, rgba(3,9,15,.05) 42%, rgba(3,9,15,.98) 100%);
   }
   .hero-content { padding-top: 112px !important; padding-right: 22px; }
   .hero-home .hero-content h1 { font-size: clamp(3.15rem, 14vw, 5.2rem); }
   .season-card { background-position: 63% center !important; }
+  .episode-list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .episode-card { min-height: 250px; }
 }
-
 @media (prefers-reduced-motion: reduce) {
   .hero-home::before { animation: none; }
 }
