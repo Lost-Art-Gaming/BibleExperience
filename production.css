@@ -31,16 +31,6 @@ main { width:min(var(--content-max),calc(100% - 48px)); }
 .episode-card { position:relative; display:block; min-width:0; min-height:310px; aspect-ratio:.67; padding:0; overflow:hidden; border-radius:10px; border-color:rgba(255,255,255,.13); background:#09121a; box-shadow:0 16px 38px rgba(0,0,0,.22); transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease; }
 .episode-card:hover { transform:translateY(-6px); border-color:rgba(231,193,122,.55); box-shadow:0 24px 55px rgba(0,0,0,.38); }
 .episode-art { position:absolute !important; inset:0 !important; z-index:0; min-height:100% !important; background-size:cover !important; background-position:center !important; filter:saturate(1.06) contrast(1.04); }
-.episode-card:nth-child(1) .episode-art { background-image:url('assets/ep01-beginning.jpg') !important; }
-.episode-card:nth-child(2) .episode-art { background-image:url('assets/ep02-eden.jpg') !important; }
-.episode-card:nth-child(3) .episode-art { background-image:url('assets/ep03-serpent.jpg') !important; }
-.episode-card:nth-child(4) .episode-art { background-image:url('assets/ep04-east-of-eden.jpg') !important; }
-.episode-card:nth-child(5) .episode-art { background-image:url('assets/ep05-adams-story.jpg') !important; }
-.episode-card:nth-child(6) .episode-art { background-image:url('assets/ep06-noah.jpg') !important; }
-.episode-card:nth-child(7) .episode-art { background-image:url('assets/ep07-deluge.jpg') !important; }
-.episode-card:nth-child(8) .episode-art { background-image:url('assets/ep08-bow.jpg') !important; }
-.episode-card:nth-child(9) .episode-art { background-image:url('assets/ep09-babel.jpg') !important; }
-.episode-card:nth-child(10) .episode-art { background-image:url('assets/ep10-abraham.jpg') !important; }
 .episode-art::before { content:''; position:absolute; inset:0; background:linear-gradient(180deg,rgba(0,0,0,.03) 18%,rgba(3,8,12,.06) 42%,rgba(3,8,12,.97) 100%); }
 .episode-art::after { display:none !important; }
 .episode-art span { z-index:3; left:10px; top:10px; padding:6px 8px; border:1px solid rgba(255,255,255,.16); border-radius:999px; background:rgba(4,10,15,.52); backdrop-filter:blur(8px); }
@@ -66,5 +56,120 @@ main { width:min(var(--content-max),calc(100% - 48px)); }
 
 @media (max-width:1400px) { main{width:min(1180px,calc(100% - 36px));}.hero-content{padding-left:28px;}.episode-list{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;} }
 @media (max-width:900px) { .topbar{padding-inline:18px;}.hero-home{width:100vw;margin-left:calc(50% - 50vw);min-height:650px;}.hero-content{width:min(680px,100%);padding-left:24px;padding-top:145px;}.episode-list{grid-template-columns:repeat(3,minmax(0,1fr));} }
-@media (max-width:720px) { .topbar{position:sticky;background:color-mix(in srgb,var(--bg) 88%,transparent);} main{width:100%;}.hero-home{min-height:700px;border-radius:0 0 20px 20px;background-position:64% center !important;}.hero-home::before{background:linear-gradient(180deg,rgba(2,7,12,.24),rgba(2,7,12,.50) 34%,rgba(2,7,12,.96) 80%,#050b12 100%);}.hero-content{width:100%;padding:300px 22px 76px;}.hero-content h1{font-size:clamp(3.2rem,15vw,5.3rem);}.hero-content p{font-size:14px;}.hero-mark{right:22px;bottom:32px;}.season-card{margin-inline:22px;min-height:250px;}.episode-list{grid-template-columns:repeat(2,minmax(0,1fr));padding-inline:22px;gap:10px;}.episode-card{min-height:270px;}.feature-grid{grid-template-columns:1fr;}.reader-head{margin-inline:0;min-height:440px;padding-inline:22px;background-position:58% center;} }
+@media (max-width:720px) { .topbar{position:sticky;background:color-mix(in srgb,var(--bg) 88%,transparent);}.hero-home{min-height:700px;border-radius:0 0 20px 20px;background-position:64% center !important;}.hero-home::before{background:linear-gradient(180deg,rgba(2,7,12,.24),rgba(2,7,12,.50) 34%,rgba(2,7,12,.96) 80%,#050b12 100%);}.hero-content{width:100%;padding:300px 22px 76px;}.hero-content h1{font-size:clamp(3.2rem,15vw,5.3rem);}.hero-content p{font-size:14px;}.hero-mark{right:22px;bottom:32px;}.season-card{margin-inline:22px;min-height:250px;}.episode-list{grid-template-columns:repeat(2,minmax(0,1fr));padding-inline:22px;gap:10px;}.episode-card{min-height:270px;}.feature-grid{grid-template-columns:1fr;}.reader-head{margin-inline:0;min-height:440px;padding-inline:22px;background-position:58% center;} }
 @media (prefers-reduced-motion:reduce) { .episode-card,.feature-card,.brand,.round-btn{transition:none;} }
+
+/* Production hardening: routing, responsive navigation, resilient artwork, accessibility. */
+.desktop-nav { display:none; align-items:center; gap:4px; margin-inline:auto; }
+.desktop-nav .nav-item { flex-direction:row; min-height:40px; padding:0 10px; border:0; border-radius:999px; background:transparent; font-size:11px; }
+.desktop-nav .nav-item svg { width:16px; height:16px; }
+.desktop-nav .nav-item.active { background:rgba(217,173,97,.10); }
+
+.episode-card .episode-art,
+.hero-home,
+.season-card,
+.feature-card,
+.quote-card,
+.scene-card,
+.reader-head { background-image:none !important; }
+.art-fallback { background-repeat:no-repeat !important; background-size:cover !important; background-position:center !important; }
+
+.episode-card .episode-art { overflow:hidden !important; isolation:isolate; }
+.episode-card .episode-copy { overflow:hidden; }
+.episode-card .episode-copy h3,
+.episode-card .episode-copy p { overflow:hidden; overflow-wrap:anywhere; }
+.episode-card .episode-copy h3 { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; }
+.episode-card .episode-copy p { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:3; line-clamp:3; }
+
+.feature-card::after { content:''; position:absolute; z-index:1; inset:auto 0 0; height:68%; pointer-events:none; background:linear-gradient(180deg,transparent 0%,rgba(3,8,12,.18) 20%,rgba(3,8,12,.88) 78%,rgba(3,8,12,.97) 100%); display:block !important; }
+.feature-card > * { z-index:2; }
+.feature-card b,.feature-card small,.feature-card .feature-arrow { position:relative; z-index:3; }
+
+.eyebrow { font-size:11px; font-weight:800; letter-spacing:.16em; }
+.hero-content h1 { text-wrap:balance; }
+.episode-card h3,
+.timeline-copy h3,
+.location-list b,
+.library-grid b,
+.saved-item b { font-family:Inter,system-ui,sans-serif; }
+
+.reader-loading,
+.reader-error { min-height:60dvh; display:grid; place-items:center; align-content:center; gap:14px; padding:80px 22px; text-align:center; }
+.reader-loading h1,.reader-error h1 { margin:0; font-size:clamp(32px,7vw,52px); }
+.reader-loading p,.reader-error p { max-width:560px; margin:0; color:var(--muted); line-height:1.7; }
+.loading-indicator { display:flex; gap:7px; margin:8px 0; }
+.loading-indicator span { width:8px; height:8px; border-radius:50%; background:var(--gold); animation:be-pulse 1s ease-in-out infinite; }
+.loading-indicator span:nth-child(2) { animation-delay:.15s; }
+.loading-indicator span:nth-child(3) { animation-delay:.30s; }
+@keyframes be-pulse { 0%,100%{opacity:.25;transform:translateY(0)} 50%{opacity:1;transform:translateY(-4px)} }
+
+.reader-sequence { width:min(760px,100%); display:flex; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.secondary-btn { min-height:40px; padding:8px 12px; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:4px; background:var(--surface); color:var(--text); cursor:pointer; font-size:11px; }
+.secondary-btn svg { width:14px; }
+.continue-btn { min-width:min(100%,520px); justify-content:center; }
+.reader-footer { flex-direction:column; align-items:center; }
+
+.location-list button[aria-label] { position:relative; }
+.location-list button[aria-label] span { margin-left:auto; color:var(--gold); font:600 11px Inter,sans-serif; }
+.location-list button:hover,
+.location-list button:focus-visible { border-color:rgba(217,173,97,.45); transform:translateY(-1px); }
+.library-card { min-height:140px; padding:18px; border:1px solid var(--line); border-radius:5px; background:var(--surface); text-align:left; opacity:.78; }
+.library-card span { display:grid; place-items:center; width:34px; height:34px; margin-bottom:24px; border-radius:50%; background:var(--surface-2); color:var(--gold); }
+.library-card span svg { width:16px; }
+.library-card b,.library-card small,.library-card em { display:block; }
+.library-card b { font-size:13px; }
+.library-card small { margin-top:4px; color:var(--muted); font-size:10px; }
+.library-card em { margin-top:8px; color:var(--gold); font-size:10px; font-style:normal; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+
+.timeline-item:disabled { cursor:default; opacity:.7; }
+
+@media (min-width:901px) {
+  .desktop-nav { display:flex; }
+  .bottom-nav { display:none !important; }
+  .app { padding-bottom:0; }
+  .topbar { position:sticky; background:color-mix(in srgb,var(--bg) 88%,transparent); }
+  .episode-list { grid-template-columns:repeat(5,minmax(0,1fr)); gap:14px; }
+  .episode-card { min-height:320px; aspect-ratio: .72; }
+}
+
+@media (min-width:1401px) {
+  .episode-list { grid-template-columns:repeat(5,minmax(0,1fr)) !important; }
+}
+
+@media (max-width:900px) {
+  .desktop-nav { display:none; }
+  .bottom-nav { display:grid; }
+}
+
+@media (max-width:720px) {
+  .episode-card .episode-copy { min-height:154px; padding:14px 11px 12px !important; }
+  .episode-card .episode-copy h3 { font-size:13px; }
+  .episode-card .episode-copy p { font-size:9px; }
+}
+
+html[data-theme='light'] { background:var(--bg) !important; }
+html[data-theme='light'] body,
+html[data-theme='light'] .app { background:var(--bg) !important; }
+html[data-theme='light'] .topbar { background:linear-gradient(180deg,rgba(244,240,232,.96),rgba(244,240,232,.70)) !important; border-bottom-color:rgba(24,36,43,.10); }
+html[data-theme='light'] .round-btn { background:rgba(255,253,248,.82); border-color:rgba(24,36,43,.14); }
+html[data-theme='light'] .hero-home { box-shadow:0 28px 76px rgba(49,42,31,.16); }
+html[data-theme='light'] .hero-home::before { background:linear-gradient(90deg,rgba(244,240,232,.88) 0%,rgba(244,240,232,.64) 28%,rgba(244,240,232,.12) 58%,rgba(244,240,232,.02) 100%),linear-gradient(180deg,rgba(244,240,232,.05),rgba(244,240,232,.18) 64%,rgba(244,240,232,.93) 100%); }
+html[data-theme='light'] .hero-home::after { background:radial-gradient(circle at 76% 20%,rgba(167,121,49,.12),transparent 25%); }
+html[data-theme='light'] .hero-content p { color:#3f4b52; text-shadow:none; }
+html[data-theme='light'] .hero-content h1 { text-shadow:none; }
+html[data-theme='light'] .feature-card::after { background:linear-gradient(180deg,transparent 0%,rgba(255,253,248,.06) 20%,rgba(255,253,248,.84) 76%,rgba(255,253,248,.97) 100%); }
+html[data-theme='light'] .feature-card b,
+html[data-theme='light'] .feature-card small { color:var(--text); text-shadow:none; }
+html[data-theme='light'] .episode-card .episode-copy { background:linear-gradient(180deg,transparent,rgba(255,253,248,.32) 16%,rgba(255,253,248,.92) 58%,rgba(255,253,248,.98)); }
+html[data-theme='light'] .episode-card .episode-copy p { color:#4f5c64; }
+html[data-theme='light'] .episode-art::before { background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.08) 52%,rgba(255,255,255,.14)); }
+html[data-theme='light'] .reader-head::before { background:linear-gradient(180deg,rgba(255,253,248,.02),rgba(255,253,248,.08) 28%,rgba(255,253,248,.84) 72%,var(--bg) 100%); }
+html[data-theme='light'] .reader-head p { color:#4f5c64; text-shadow:none; }
+html[data-theme='light'] .quote-card,
+html[data-theme='light'] .scene-card { box-shadow:0 22px 60px rgba(49,42,31,.14); }
+html[data-theme='light'] .quote-card blockquote { background:rgba(255,253,248,.88); }
+
+@media (prefers-reduced-motion:reduce) {
+  .loading-indicator span { animation:none; }
+  .location-list button:hover { transform:none; }
+}

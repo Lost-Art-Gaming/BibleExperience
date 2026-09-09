@@ -1,4 +1,4 @@
-/* Deterministic production artwork wiring. One standalone asset per episode/home feature. */
+/* Deterministic production artwork wiring with graceful image-error fallbacks. */
 (() => {
   const ROOT = new URL('.', document.baseURI);
   const ART = {
@@ -15,51 +15,94 @@
   };
 
   const HOME_ART = {
+    '.hero-home': 'assets/hero-origins.jpg',
     '.map-feature': 'assets/explore-geography.jpg',
     '.timeline-feature': 'assets/ep07-deluge.jpg',
-    '.journey-feature': 'assets/your-journey.jpg',
+    '.journey-feature': 'assets/study-reflect.jpg',
+    '.season-card': 'assets/ep01-beginning.jpg',
+    '.quote-card': 'assets/study-reflect.jpg',
+    '.scene-card': 'assets/explore-geography.jpg',
   };
 
-  const titleToId = {
-    'IN THE BEGINNING': 'ep1',
-    'EDEN': 'ep2',
-    'THE SERPENT AND THE SEED': 'ep3',
-    'EAST OF EDEN': 'ep4',
-    "THE BOOK OF ADAM'S STORY": 'ep5',
-    'THE DAYS OF NOAH': 'ep6',
-    'THE DELUGE': 'ep7',
-    'THE BOW IN THE CLOUD': 'ep8',
-    'BABEL': 'ep9',
-    'GO FROM YOUR LAND': 'ep10',
+  const MISSING = new Set([
+    'assets/ep05-adams-story.jpg',
+    'assets/ep06-noah.jpg',
+    'assets/ep07-deluge.jpg',
+    'assets/ep08-bow.jpg',
+    'assets/ep09-babel.jpg',
+    'assets/ep10-abraham.jpg',
+    'assets/study-reflect.jpg',
+  ]);
+
+  const OVERLAYS = {
+    '.season-card': 'linear-gradient(90deg,rgba(4,10,16,.84),rgba(4,10,16,.28))',
+    '.quote-card': 'linear-gradient(rgba(3,8,13,.58),rgba(3,8,13,.78))',
+    '.scene-card': 'linear-gradient(rgba(3,8,13,.15),rgba(3,8,13,.45))',
   };
+
+  const FALLBACKS = [
+    'linear-gradient(145deg,#1a2b37,#80683f)',
+    'linear-gradient(145deg,#1e3840,#8b6a3d)',
+    'linear-gradient(145deg,#241e25,#8e5739)',
+    'linear-gradient(145deg,#263c43,#6e5035)',
+    'linear-gradient(145deg,#1c2934,#5b4739)',
+    'linear-gradient(145deg,#152a36,#8a6c47)',
+  ];
+
+  const LIGHT_FALLBACKS = [
+    'linear-gradient(145deg,#dfe6e5,#b99a68)',
+    'linear-gradient(145deg,#dce7e6,#c0a06b)',
+    'linear-gradient(145deg,#e5dedb,#bd8866)',
+    'linear-gradient(145deg,#dce5e3,#b59b78)',
+    'linear-gradient(145deg,#e1e5e5,#ad9a84)',
+    'linear-gradient(145deg,#dbe5e7,#bda47b)',
+  ];
 
   const urlFor = asset => new URL(asset, ROOT).href;
+  const fallbackFor = node => {
+    const palette = document.documentElement.dataset.theme === 'light' ? LIGHT_FALLBACKS : FALLBACKS;
+    return palette[Math.max(0, (Number(node?.dataset?.artFallback) || 1) - 1) % palette.length];
+  };
+  const overlayFor = node => Object.entries(OVERLAYS).find(([selector]) => node.matches(selector))?.[1] || '';
 
-  const paint = (node, asset, extra = '') => {
-    if (!node || !asset) return;
-    const url = urlFor(asset);
-    if (node.dataset.artwork === asset && node.dataset.artworkLoaded === 'true') return;
+  const clearArt = node => {
+    node.classList.remove('art-loaded');
+    node.classList.add('art-fallback');
+    const layers = [overlayFor(node), fallbackFor(node)].filter(Boolean);
+    node.style.setProperty('background-image', layers.join(', '), 'important');
+    node.dataset.artworkLoaded = 'false';
+  };
+
+  const paint = (node, asset) => {
+    if (!node || !asset || node.dataset.artworkAttempted === 'true') return;
+    node.dataset.artworkAttempted = 'true';
+    clearArt(node);
+
+    if (MISSING.has(asset)) return;
+
     const image = new Image();
     image.decoding = 'async';
     image.onload = () => {
-      node.style.setProperty(
-        'background-image',
-        extra ? `${extra}, url("${url}")` : `url("${url}")`,
-        'important'
-      );
+      if (!node.isConnected) return;
+      const url = urlFor(asset);
+      const layers = [overlayFor(node), `url("${url}")`].filter(Boolean);
+      node.style.setProperty('background-image', layers.join(', '), 'important');
+      node.classList.remove('art-fallback');
+      node.classList.add('art-loaded');
       node.dataset.artwork = asset;
       node.dataset.artworkLoaded = 'true';
     };
     image.onerror = () => {
       node.dataset.artwork = asset;
-      node.dataset.artworkLoaded = 'false';
+      clearArt(node);
     };
-    image.src = url;
+    image.src = urlFor(asset);
   };
 
   const applyCardArt = () => {
-    document.querySelectorAll('.episode-card[data-episode]').forEach(card => {
-      paint(card.querySelector('.episode-art'), ART[card.dataset.episode]);
+    document.querySelectorAll('.episode-card[data-episode] .episode-art').forEach(node => {
+      const episodeId = node.closest('.episode-card')?.dataset.episode;
+      paint(node, ART[episodeId]);
     });
   };
 
@@ -70,25 +113,7 @@
   };
 
   const applyReaderArt = () => {
-    const head = document.querySelector('.reader-head');
-    const heading = head?.querySelector('h1');
-    if (!head || !heading) return;
-    const normalized = heading.textContent
-      .replace(/[“”]/g, '')
-      .replace(/[’‘]/g, "'")
-      .toUpperCase()
-      .replace(/[^A-Z0-9' ]/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-    const id = titleToId[normalized];
-    const asset = id && ART[id];
-    if (!asset) return;
-    head.dataset.episodeArtwork = id;
-    paint(
-      head,
-      asset,
-      'linear-gradient(180deg,rgba(3,8,13,.04),rgba(3,8,13,.18) 34%,rgba(3,8,13,.88) 78%,rgba(3,8,13,1) 100%)'
-    );
+    document.querySelectorAll('.reader-head[data-art]').forEach(node => paint(node, node.dataset.art));
   };
 
   const applyAll = () => {
@@ -97,7 +122,18 @@
     applyReaderArt();
   };
 
-  new MutationObserver(applyAll).observe(document.documentElement, { childList: true, subtree: true });
+  let scheduled = false;
+  const scheduleApply = () => {
+    if (scheduled) return;
+    scheduled = true;
+    queueMicrotask(() => {
+      scheduled = false;
+      applyAll();
+    });
+  };
+
+  new MutationObserver(scheduleApply).observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener('pageshow', applyAll);
+  window.addEventListener('be:themechange', applyAll);
   applyAll();
 })();
