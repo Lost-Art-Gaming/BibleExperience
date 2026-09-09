@@ -32,6 +32,8 @@ body { margin: 0; background: var(--bg); color: var(--text); font-family: Inter,
 button, input { font: inherit; }
 button { color: inherit; }
 button:focus-visible, input:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+/* Headings receive programmatic focus on route change for screen readers; never paint a ring for it. */
+[tabindex="-1"]:focus, [tabindex="-1"]:focus-visible { outline: none; }
 svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 .app { min-height: 100dvh; padding-bottom: 88px; }

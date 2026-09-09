@@ -173,3 +173,34 @@ html[data-theme='light'] .quote-card blockquote { background:rgba(255,253,248,.8
   .loading-indicator span { animation:none; }
   .location-list button:hover { transform:none; }
 }
+
+/* --- Post-v125 polish --- */
+/* Centre the reading column: styles.css sets margin-inline:28px at >=900px, which
+   defeats `margin:0 auto` and pins the 760px column to the left of a wide main. */
+.reader-content { margin-inline:auto !important; }
+
+/* Light theme: the hero episode counter was white-on-cream. */
+html[data-theme='light'] .hero-mark { color:rgba(24,36,43,.52); }
+html[data-theme='light'] .hero-mark span { color:var(--gold); }
+
+/* Build badge sits in normal flow (see index.html) so it can never cover content. */
+.build-version { position:static; display:block; width:max-content; margin:0 auto 26px; }
+@media (max-width:900px) { .build-version { margin-bottom:96px; } }
+
+/* Reader header legibility: the overlay was only ~10-14% opaque across the top third,
+   where the label, title and subtitle sit, so text washed out on bright artwork. */
+/* The ::before scrim was authored but never rendered (no `content`), so reader
+   artwork had no overlay at all and the title/subtitle washed out. */
+.reader-head { position:relative; isolation:isolate; }
+.reader-head::before { content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,8,13,.70) 0%,rgba(3,8,13,.52) 24%,rgba(3,8,13,.40) 42%,rgba(3,8,13,.90) 80%,var(--bg) 100%) !important; }
+.reader-head > * { position:relative; z-index:1; }
+.reader-head .eyebrow, .reader-head h1, .reader-head p, .reader-head .reader-meta { text-shadow:0 2px 18px rgba(0,0,0,.72); }
+.reader-head .back-btn { background:rgba(4,10,15,.55); border-color:rgba(255,255,255,.20); backdrop-filter:blur(8px); }
+html[data-theme='light'] .reader-head::before { background:linear-gradient(180deg,rgba(255,253,248,.60) 0%,rgba(255,253,248,.44) 24%,rgba(255,253,248,.52) 46%,rgba(255,253,248,.90) 80%,var(--bg) 100%) !important; }
+html[data-theme='light'] .reader-head .eyebrow, html[data-theme='light'] .reader-head h1, html[data-theme='light'] .reader-head p, html[data-theme='light'] .reader-head .reader-meta { text-shadow:none; }
+html[data-theme='light'] .reader-head .back-btn { background:rgba(255,253,248,.78); border-color:rgba(24,36,43,.16); }
+
+/* The top bar is absolutely positioned over the reader header on wide screens,
+   which hid the "Back" control. Clear it. */
+@media (min-width:721px) { .reader-head { padding-top:118px; } }

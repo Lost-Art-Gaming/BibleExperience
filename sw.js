@@ -1,6 +1,6 @@
 const CACHE = 'bible-experience-production-v27';
 const ASSETS = [
-  './', './index.html', './styles.css?v=27', './production.css?v=27', './artwork.js?v=27', './app.js?v=27', './manifest.webmanifest', './assets/logo.svg',
+  './', './index.html', './styles.css?v=27', './production.css?v=27', './responsive-fixes.css?v=27', './artwork.js?v=27', './app.js?v=27', './manifest.webmanifest', './assets/logo.svg',
   './data/Genesis/index.json', './data/timeline.json',
   './data/Genesis/Episode1.json', './data/Genesis/Episode2.json', './data/Genesis/Episode3.json',
   './data/Genesis/Episode4.json', './data/Genesis/Episode5.json', './data/Genesis/Episode6.json',

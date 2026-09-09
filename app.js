@@ -190,7 +190,7 @@ function episodeError(meta) {
 }
 
 function readerData(data) {
-  return (data?.sections || []).map(section => `<section class="reading-section"><span class="eyebrow">${esc(section.label)}</span>${section.html}</section>`).join('');
+  return (data?.sections || []).map(section => `<section class="reading-section">${section.html}</section>`).join('');
 }
 
 function episodeFooter(index) {
