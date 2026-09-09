@@ -24,6 +24,16 @@
     '.scene-card': 'assets/explore-geography.jpg',
   };
 
+  const MISSING = new Set([
+    'assets/ep05-adams-story.jpg',
+    'assets/ep06-noah.jpg',
+    'assets/ep07-deluge.jpg',
+    'assets/ep08-bow.jpg',
+    'assets/ep09-babel.jpg',
+    'assets/ep10-abraham.jpg',
+    'assets/study-reflect.jpg',
+  ]);
+
   const OVERLAYS = {
     '.season-card': 'linear-gradient(90deg,rgba(4,10,16,.84),rgba(4,10,16,.28))',
     '.quote-card': 'linear-gradient(rgba(3,8,13,.58),rgba(3,8,13,.78))',
@@ -68,9 +78,12 @@
     node.dataset.artworkAttempted = 'true';
     clearArt(node);
 
+    if (MISSING.has(asset)) return;
+
     const image = new Image();
     image.decoding = 'async';
     image.onload = () => {
+      if (!node.isConnected) return;
       const url = urlFor(asset);
       const layers = [overlayFor(node), `url("${url}")`].filter(Boolean);
       node.style.setProperty('background-image', layers.join(', '), 'important');
