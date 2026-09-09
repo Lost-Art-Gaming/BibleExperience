@@ -211,3 +211,12 @@ h3 { line-height: 1.25; }
    and spilled past the viewport edge. Pinning width to the track makes
    aspect-ratio drive height instead. */
 .episode-card { width: 100%; min-width: 0; }
+
+/* ---- 12. Card label legibility ----------------------------
+   The episode label sits at the top of .episode-copy, where that
+   element's gradient is only ~28% opaque, so it competed with bright
+   artwork. A shadow keeps the cinematic fade while lifting the text. */
+.episode-copy small { text-shadow: 0 1px 8px rgba(0,0,0,.85); }
+.episode-copy h3 { text-shadow: 0 1px 10px rgba(0,0,0,.6); }
+html[data-theme='light'] .episode-copy small,
+html[data-theme='light'] .episode-copy h3 { text-shadow: none; }

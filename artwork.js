@@ -24,16 +24,6 @@
     '.scene-card': 'assets/explore-geography.jpg',
   };
 
-  const MISSING = new Set([
-    'assets/ep05-adams-story.jpg',
-    'assets/ep06-noah.jpg',
-    'assets/ep07-deluge.jpg',
-    'assets/ep08-bow.jpg',
-    'assets/ep09-babel.jpg',
-    'assets/ep10-abraham.jpg',
-    'assets/study-reflect.jpg',
-  ]);
-
   const OVERLAYS = {
     '.season-card': 'linear-gradient(90deg,rgba(4,10,16,.84),rgba(4,10,16,.28))',
     '.quote-card': 'linear-gradient(rgba(3,8,13,.58),rgba(3,8,13,.78))',
@@ -78,7 +68,9 @@
     node.dataset.artworkAttempted = 'true';
     clearArt(node);
 
-    if (MISSING.has(asset)) return;
+    // No hardcoded blocklist: clearArt() above already painted the gradient
+    // fallback, and image.onerror below restores it if the file is genuinely
+    // absent. A static list goes stale the moment artwork is uploaded.
 
     const image = new Image();
     image.decoding = 'async';
