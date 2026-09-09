@@ -10,16 +10,16 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <title>The Bible Experience</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="premium.css" />
-  <link rel="stylesheet" href="art.css" />
+  <link rel="stylesheet" href="styles.css?v=8" />
+  <link rel="stylesheet" href="premium.css?v=8" />
+  <link rel="stylesheet" href="art.css?v=8" />
 </head>
 <body>
   <div id="app"></div>
-  <script type="module" src="app.js"></script>
+  <script type="module" src="app.js?v=8"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=8').catch(() => {}));
     }
   </script>
 </body>
