@@ -1,4 +1,4 @@
-/* Deterministic production artwork wiring. Every episode gets its own explicit image. */
+/* Deterministic production artwork wiring. One standalone asset per episode. */
 (() => {
   const ROOT = new URL('.', document.baseURI);
   const ART = {
@@ -14,22 +14,12 @@
     ep10: 'assets/ep10-abraham.jpg',
   };
 
-  const applyCardArt = () => {
-    document.querySelectorAll('.episode-card[data-episode]').forEach(card => {
-      const asset = ART[card.dataset.episode];
-      const art = card.querySelector('.episode-art');
-      if (!asset || !art) return;
-      art.style.backgroundImage = `url("${new URL(asset, ROOT).href}")`;
-      art.dataset.artwork = asset;
-    });
-  };
-
   const titleToId = {
     'IN THE BEGINNING': 'ep1',
     'EDEN': 'ep2',
     'THE SERPENT AND THE SEED': 'ep3',
     'EAST OF EDEN': 'ep4',
-    'THE BOOK OF ADAMS STORY': 'ep5',
+    "THE BOOK OF ADAM'S STORY": 'ep5',
     'THE DAYS OF NOAH': 'ep6',
     'THE DELUGE': 'ep7',
     'THE BOW IN THE CLOUD': 'ep8',
@@ -37,25 +27,55 @@
     'GO FROM YOUR LAND': 'ep10',
   };
 
+  const urlFor = asset => new URL(asset, ROOT).href;
+
+  // Only paint an image after the browser has successfully loaded it. This
+  // prevents a cached 404/empty response from leaving a visually broken card.
+  const paint = (node, asset, extra = '') => {
+    if (!node || !asset) return;
+    const url = urlFor(asset);
+    if (node.dataset.artwork === asset && node.dataset.artworkLoaded === 'true') return;
+    const image = new Image();
+    image.decoding = 'async';
+    image.onload = () => {
+      node.style.backgroundImage = extra ? `${extra}, url("${url}")` : `url("${url}")`;
+      node.dataset.artwork = asset;
+      node.dataset.artworkLoaded = 'true';
+    };
+    image.onerror = () => {
+      node.dataset.artwork = asset;
+      node.dataset.artworkLoaded = 'false';
+    };
+    image.src = url;
+  };
+
+  const applyCardArt = () => {
+    document.querySelectorAll('.episode-card[data-episode]').forEach(card => {
+      const asset = ART[card.dataset.episode];
+      paint(card.querySelector('.episode-art'), asset);
+    });
+  };
+
   const applyReaderArt = () => {
     const head = document.querySelector('.reader-head');
-    if (!head) return;
-    const heading = head.querySelector('h1');
-    if (!heading) return;
+    const heading = head?.querySelector('h1');
+    if (!head || !heading) return;
     const normalized = heading.textContent
       .replace(/[“”]/g, '')
-      .replace(/’/g, "'")
+      .replace(/[’‘]/g, "'")
       .toUpperCase()
-      .replace(/ADAM’S/g, "ADAM'S")
-      .replace(/[^A-Z0-9 ]/g, '')
+      .replace(/[^A-Z0-9' ]/g, '')
       .replace(/\s+/g, ' ')
       .trim();
     const id = titleToId[normalized];
     const asset = id && ART[id];
     if (!asset) return;
     head.dataset.episodeArtwork = id;
-    head.style.setProperty('--reader-art', `url("${new URL(asset, ROOT).href}")`);
-    head.style.backgroundImage = `linear-gradient(180deg,rgba(3,8,13,.05),rgba(3,8,13,.92)), var(--reader-art)`;
+    paint(
+      head,
+      asset,
+      'linear-gradient(180deg,rgba(3,8,13,.04),rgba(3,8,13,.18) 34%,rgba(3,8,13,.88) 78%,rgba(3,8,13,1) 100%)'
+    );
   };
 
   const applyAll = () => { applyCardArt(); applyReaderArt(); };
