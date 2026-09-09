@@ -1,4 +1,4 @@
-/* Premium cinematic art direction — production WebP assets are the visual source of truth. */
+/* Premium cinematic art direction — production hero artwork is the visual source of truth. */
 .hero-home {
   isolation: isolate;
   position: relative;
@@ -12,7 +12,7 @@
   position: absolute;
   inset: -2%;
   z-index: -3;
-  background-image: url('assets/hero-origins.webp?v=10');
+  background-image: url('assets/hero-origins-production.webp?v=11');
   background-position: 68% center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -59,7 +59,7 @@
   overflow: hidden;
   background:
     linear-gradient(90deg, rgba(4,10,16,.92) 0%, rgba(4,10,16,.60) 45%, rgba(4,10,16,.16) 100%),
-    url('assets/hero-origins.webp?v=10') 68% center / cover no-repeat !important;
+    url('assets/hero-origins-production.webp?v=11') 68% center / cover no-repeat !important;
 }
 
 .episode-art {
@@ -92,7 +92,7 @@
   background-repeat: no-repeat;
 }
 .map-feature::after { background-image: url('assets/map-exodus.webp?v=10'); }
-.timeline-feature::after { background-image: url('assets/hero-origins.webp?v=10'); }
+.timeline-feature::after { background-image: url('assets/hero-origins-production.webp?v=11'); }
 .journey-feature::after,
 .quote-card { background-image: url('assets/library-manuscript.webp?v=10'); }
 .scene-card { background-image: url('assets/map-exodus.webp?v=10'); }
