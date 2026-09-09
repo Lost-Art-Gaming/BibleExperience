@@ -1,19 +1,14 @@
-const CACHE = 'bible-experience-premium-v6';
+const CACHE = 'bible-experience-premium-v8';
 const ASSETS = [
-  './', './index.html', './styles.css', './premium.css', './art.css', './app.js', './manifest.webmanifest', './assets/logo.svg',
-  './assets/hero-origins.webp', './assets/map-exodus.webp', './assets/library-manuscript.webp',
-  './assets/ep1-beginning.webp', './assets/ep2-eden.webp', './assets/ep3-serpent-seed.webp', './assets/ep4-east-eden.webp',
-  './assets/ep5-adam-story.webp', './assets/ep6-noah.webp', './assets/ep7-deluge.webp', './assets/ep8-bow.webp',
-  './assets/ep9-babel.webp', './assets/ep10-abraham.webp',
-  './assets/hero-origins.svg', './assets/map-exodus.svg', './assets/library-manuscript.svg',
-  './assets/ep1-beginning.svg', './assets/ep2-eden.svg', './assets/ep3-serpent-seed.svg', './assets/ep4-east-eden.svg',
-  './assets/ep5-adam-story.svg', './assets/ep6-noah.svg', './assets/ep7-deluge.svg', './assets/ep8-bow.svg',
-  './assets/ep9-babel.svg', './assets/ep10-abraham.svg',
+  './', './index.html', './styles.css?v=8', './premium.css?v=8', './art.css?v=8', './app.js?v=8', './manifest.webmanifest', './assets/logo.svg',
+  './assets/hero-origins.webp?v=8', './assets/map-exodus.webp?v=8', './assets/library-manuscript.webp?v=8',
+  './assets/ep1-beginning.webp?v=8', './assets/ep2-eden.webp?v=8', './assets/ep3-serpent-seed.webp?v=8', './assets/ep4-east-eden.webp?v=8',
+  './assets/ep5-adam-story.webp?v=8', './assets/ep6-noah.webp?v=8', './assets/ep7-deluge.webp?v=8', './assets/ep8-bow.webp?v=8',
+  './assets/ep9-babel.webp?v=8', './assets/ep10-abraham.webp?v=8',
   './data/Genesis/index.json', './data/timeline.json',
   './data/Genesis/Episode1.json', './data/Genesis/Episode2.json', './data/Genesis/Episode3.json',
   './data/Genesis/Episode4.json', './data/Genesis/Episode5.json', './data/Genesis/Episode6.json',
-  './data/Genesis/Episode7.json', './data/Genesis/Episode8.json', './data/Genesis/Episode9.json',
-  './data/Genesis/Episode10.json'
+  './data/Genesis/Episode7.json', './data/Genesis/Episode8.json', './data/Genesis/Episode9.json', './data/Genesis/Episode10.json'
 ];
 
 self.addEventListener('install', event => {
