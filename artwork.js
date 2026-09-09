@@ -29,8 +29,9 @@
 
   const urlFor = asset => new URL(asset, ROOT).href;
 
-  // Only paint an image after the browser has successfully loaded it. This
-  // prevents a cached 404/empty response from leaving a visually broken card.
+  // CSS in the production layer deliberately uses !important for the card
+  // artwork. Paint dynamically loaded assets with the same priority so the
+  // deterministic episode mapping cannot be overridden by legacy art rules.
   const paint = (node, asset, extra = '') => {
     if (!node || !asset) return;
     const url = urlFor(asset);
@@ -38,7 +39,11 @@
     const image = new Image();
     image.decoding = 'async';
     image.onload = () => {
-      node.style.backgroundImage = extra ? `${extra}, url("${url}")` : `url("${url}")`;
+      node.style.setProperty(
+        'background-image',
+        extra ? `${extra}, url("${url}")` : `url("${url}")`,
+        'important'
+      );
       node.dataset.artwork = asset;
       node.dataset.artworkLoaded = 'true';
     };
@@ -51,8 +56,7 @@
 
   const applyCardArt = () => {
     document.querySelectorAll('.episode-card[data-episode]').forEach(card => {
-      const asset = ART[card.dataset.episode];
-      paint(card.querySelector('.episode-art'), asset);
+      paint(card.querySelector('.episode-art'), ART[card.dataset.episode]);
     });
   };
 
