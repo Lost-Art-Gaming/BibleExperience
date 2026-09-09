@@ -1,7 +1,6 @@
 /* Final artwork presentation layer.
    Artwork files contain imagery only. All readable typography stays in HTML/CSS. */
 
-/* Episode cards: image is a visual surface, never the text canvas. */
 .episode-card .episode-art {
   height: 58% !important;
   bottom: auto !important;
@@ -22,13 +21,10 @@
 .episode-card .episode-copy h3,
 .episode-card .episode-copy p,
 .episode-card .episode-copy small,
-.episode-card .episode-copy > span {
-  text-shadow: none !important;
-}
+.episode-card .episode-copy > span { text-shadow: none !important; }
 .episode-card .episode-copy h3 { color: #f4efe5 !important; }
 .episode-card .episode-copy p { color: #aebbc4 !important; }
 
-/* Home feature tiles: dedicated image region + opaque readable copy. */
 .feature-card {
   background-image: none !important;
   overflow: hidden;
@@ -65,7 +61,6 @@
 .feature-card h3 { color: #f4efe5 !important; }
 .feature-card p { color: #aebbc4 !important; }
 
-/* Reader hero: keep the image cinematic, but reserve a dark lower reading zone. */
 .reader-head {
   background-position: center 38% !important;
   background-size: cover !important;
@@ -77,11 +72,10 @@
 .reader-head p,
 .reader-head .reader-meta { text-shadow: 0 3px 24px rgba(0,0,0,.72); }
 
-/* Mobile: artwork remains visible without shrinking the readable copy. */
 @media (max-width: 720px) {
   .episode-card .episode-art { height: 55% !important; }
   .episode-card .episode-copy { top: 55% !important; min-height: 45% !important; }
-  .feature-card::before { inset-bottom: 45%; }
+  .feature-card::before { inset: 0 0 45% 0; }
   .feature-card::after { inset: 55% 0 0; }
   .reader-head { min-height: 500px; background-position: 60% 28% !important; }
 }
