@@ -13,7 +13,7 @@ SIZES = [(390, 844, 'mobile'), (1440, 900, 'desktop')]
 
 async def main():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=True, executable_path='/usr/bin/chromium', args=['--no-sandbox'])
         for width, height, label in SIZES:
             context = await browser.new_context(viewport={'width': width, 'height': height})
             page = await context.new_page()
@@ -47,7 +47,6 @@ async def main():
             assert await page.locator('.secondary-btn.next-link').count() == 1
             await page.screenshot(path=str(OUT / f'{label}-episode-ep6.png'), full_page=True)
 
-            # Reader Back must return to the prior view when entered from Journey.
             await page.goto(BASE + '#/journey', wait_until='networkidle')
             await page.locator('[data-episode="ep6"]').click()
             await page.wait_for_selector('.reader-head h1')
@@ -55,7 +54,6 @@ async def main():
             await page.wait_for_selector('#main h1')
             assert page.url.endswith('#/journey'), page.url
 
-            # Search must trap focus and close on Escape.
             await page.goto(BASE + '#/home', wait_until='networkidle')
             await page.locator('#searchBtn').click()
             await page.wait_for_selector('#searchInput')
@@ -67,13 +65,11 @@ async def main():
             await page.keyboard.press('Escape')
             assert await page.locator('.search-overlay').count() == 0
 
-            # Toggle the real light/dark state and ensure the icon label changes.
             before = await page.locator('#themeBtn').get_attribute('aria-label')
             await page.locator('#themeBtn').click()
             after = await page.locator('#themeBtn').get_attribute('aria-label')
             assert before != after
 
-            # Wait for any late route/render work before judging errors.
             await page.wait_for_timeout(500)
             if console_errors or page_errors:
                 raise AssertionError(f'{label} console/page errors: {console_errors + page_errors}')
