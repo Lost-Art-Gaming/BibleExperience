@@ -3,6 +3,8 @@ import subprocess
 import urllib.parse
 from pathlib import Path
 
+from PIL import Image
+
 ASSETS = {
     "hero-origins.webp": "cinematic biblical landscape at dawn, ancient Near East valley, river winding through mountains, lone robed traveler seen from behind on a ridge, historically inspired, photorealistic, epic film still, natural warm sunlight, deep navy shadows, no text, no typography, premium visual for a mobile Bible app",
     "ep1-beginning.webp": "Genesis creation, cosmic dawn breaking over a newly formed earth, radiant light over mountains and oceans, majestic and reverent, photorealistic cinematic biblical art, no people, no text, premium film still",
@@ -24,8 +26,15 @@ OUT.mkdir(exist_ok=True)
 
 for filename, prompt in ASSETS.items():
     out = OUT / filename
+
+    # Do not trust the extension: previous runs could save JPEG bytes with a .webp name.
     if out.exists() and out.stat().st_size > 10000:
-        continue
+        try:
+            with Image.open(out) as existing:
+                if existing.format == "WEBP":
+                    continue
+        except Exception:
+            pass
 
     encoded = urllib.parse.quote(prompt)
     key = os.getenv("POLLINATIONS_API_KEY", "")
@@ -36,4 +45,12 @@ for filename, prompt in ASSETS.items():
 
     subprocess.run(["curl", "-L", "--fail", "--retry", "3", "-o", str(out), url], check=True)
 
-print(f"Generated {len(ASSETS)} premium Bible Experience art assets")
+    # Normalize the downloaded image to real WebP bytes so browsers and GitHub Pages
+    # serve the asset with a matching extension/content type.
+    with Image.open(out) as image:
+        image = image.convert("RGB")
+        temp = out.with_suffix(".webp.tmp")
+        image.save(temp, "WEBP", quality=92, method=6)
+    temp.replace(out)
+
+print(f"Generated/normalized {len(ASSETS)} premium Bible Experience art assets")
