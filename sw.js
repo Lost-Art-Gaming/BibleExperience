@@ -1,4 +1,4 @@
-const CACHE = 'bible-experience-premium-v5';
+const CACHE = 'bible-experience-premium-v6';
 const ASSETS = [
   './', './index.html', './styles.css', './premium.css', './art.css', './app.js', './manifest.webmanifest', './assets/logo.svg',
   './assets/hero-origins.webp', './assets/map-exodus.webp', './assets/library-manuscript.webp',
