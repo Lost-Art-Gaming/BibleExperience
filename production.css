@@ -1,58 +1,69 @@
-/*
- * Production visual system
- * One authoritative art layer for the static GitHub Pages build.
- */
+/* Production visual system — single authoritative visual layer. */
 :root { --content-max: 1600px; --gold-premium: #e7c17a; }
-
 html { background: #050b12; }
 body { overflow-x: hidden; }
 .app { background: var(--bg); }
 
-/* HERO — full-bleed cinematic composition */
+/* Cinematic home hero: real local production artwork, full bleed. */
 .hero-home {
   position: relative;
   width: 100vw;
   max-width: none;
-  min-height: clamp(620px, 78vh, 860px);
+  min-height: clamp(650px, 82vh, 900px);
   margin-left: calc(50% - 50vw);
   margin-bottom: 48px;
   overflow: hidden;
   border: 0;
-  border-radius: 0 0 26px 26px;
-  background: #050b12 url('assets/hero-origins-production.webp?v=14') center center / cover no-repeat !important;
-  box-shadow: 0 30px 100px rgba(0,0,0,.34);
+  border-radius: 0 0 28px 28px;
+  background: #050b12 url('assets/hero-origins-generated.webp?v=15') center center / cover no-repeat !important;
+  box-shadow: 0 32px 110px rgba(0,0,0,.42);
 }
 .hero-home::before {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
-  background: linear-gradient(90deg, rgba(2,7,12,.90) 0%, rgba(2,7,12,.66) 25%, rgba(2,7,12,.25) 52%, rgba(2,7,12,.03) 78%), linear-gradient(180deg, rgba(2,7,12,.12), rgba(2,7,12,.02) 42%, rgba(2,7,12,.92) 100%);
+  z-index: 1;
   pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(2,7,12,.93) 0%, rgba(2,7,12,.76) 23%, rgba(2,7,12,.36) 48%, rgba(2,7,12,.08) 72%, rgba(2,7,12,.02) 100%),
+    linear-gradient(180deg, rgba(2,7,12,.48) 0%, rgba(2,7,12,.02) 26%, rgba(2,7,12,.12) 58%, rgba(2,7,12,.88) 100%);
 }
-.hero-home::after { display: none; }
+.hero-home::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(circle at 74% 22%, rgba(245,204,120,.10), transparent 25%);
+}
 .hero-mountains, .hero-glow { display: none !important; }
 .hero-content {
+  position: relative;
+  z-index: 4;
   width: min(780px, 55vw);
-  padding: clamp(150px, 17vh, 190px) 0 90px max(36px, calc((100vw - var(--content-max)) / 2));
+  padding: clamp(145px, 17vh, 190px) 0 90px max(42px, calc((100vw - var(--content-max)) / 2));
 }
-.hero-content h1 { max-width: 760px; font-size: clamp(4.5rem, 6.5vw, 7.2rem); line-height: .88; text-wrap: balance; text-shadow: 0 8px 40px rgba(0,0,0,.55); }
-.hero-content p { max-width: 590px; font-size: 17px; line-height: 1.65; color: rgba(244,239,229,.86); text-shadow: 0 3px 20px rgba(0,0,0,.55); }
-.hero-mark { right: max(36px, calc((100vw - var(--content-max)) / 2)); bottom: 38px; z-index: 3; color: rgba(255,255,255,.65); font-size: 28px; }
+.hero-content h1 {
+  max-width: 760px;
+  font-size: clamp(4.5rem, 6.5vw, 7.2rem);
+  line-height: .88;
+  text-wrap: balance;
+  text-shadow: 0 8px 45px rgba(0,0,0,.65);
+}
+.hero-content p { max-width: 590px; font-size: 17px; line-height: 1.65; color: rgba(244,239,229,.9); text-shadow: 0 3px 22px rgba(0,0,0,.7); }
+.hero-mark { right: max(42px, calc((100vw - var(--content-max)) / 2)); bottom: 38px; z-index: 5; color: rgba(255,255,255,.72); font-size: 28px; }
 
-/* Header floats naturally over the cinematic canvas on the home page. */
-.topbar { position: absolute; top: 0; left: 0; width: 100%; z-index: 40; height: 78px; padding-inline: max(28px, calc((100vw - var(--content-max)) / 2)); background: linear-gradient(180deg, rgba(2,7,12,.76), rgba(2,7,12,.12)); border-bottom-color: rgba(255,255,255,.07); backdrop-filter: blur(10px); }
+/* Navigation floats over the cinematic home canvas. */
+.topbar { position: absolute; top: 0; left: 0; width: 100%; z-index: 40; height: 78px; padding-inline: max(28px, calc((100vw - var(--content-max)) / 2)); background: linear-gradient(180deg, rgba(2,7,12,.76), rgba(2,7,12,.08)); border-bottom-color: rgba(255,255,255,.07); backdrop-filter: blur(10px); }
 .brand img { width: 36px; height: 36px; filter: drop-shadow(0 5px 16px rgba(231,193,122,.22)); }
 .round-btn { width: 42px; height: 42px; background: rgba(7,16,24,.42); border-color: rgba(255,255,255,.16); backdrop-filter: blur(12px); }
 
-/* Keep all content aligned to the same premium desktop grid. */
 main { width: min(var(--content-max), calc(100% - 48px)); }
-.content-section { padding-inline: 0; }
-.page-intro { padding-inline: 0; }
+.content-section, .page-intro { padding-inline: 0; }
 .season-card { margin-inline: 0; }
 .episode-list { padding-inline: 0; }
 
-/* Episode rail — artwork is the card, copy is a cinematic lower-third. */
+/* Full-image episode rail. */
 .episode-list { grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 10px; }
 .episode-card {
   position: relative;
@@ -70,7 +81,7 @@ main { width: min(var(--content-max), calc(100% - 48px)); }
 }
 .episode-card:hover { transform: translateY(-6px); border-color: rgba(231,193,122,.52); box-shadow: 0 24px 55px rgba(0,0,0,.36); }
 .episode-art { position: absolute !important; inset: 0 !important; z-index: 0; min-height: 100% !important; background-size: cover !important; background-position: center !important; filter: saturate(1.08) contrast(1.05); }
-.episode-art::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.02) 25%, rgba(3,8,12,.12) 45%, rgba(3,8,12,.97) 100%); }
+.episode-art::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.02) 22%, rgba(3,8,12,.10) 46%, rgba(3,8,12,.98) 100%); }
 .episode-art::after { display: none !important; }
 .episode-art span { z-index: 3; left: 10px; top: 10px; padding: 6px 8px; border: 1px solid rgba(255,255,255,.16); border-radius: 999px; background: rgba(4,10,15,.52); backdrop-filter: blur(8px); }
 .episode-copy { position: absolute !important; inset: auto 0 0 0 !important; z-index: 4; display: flex; min-height: 145px; padding: 15px 12px 13px !important; justify-content: flex-end; background: linear-gradient(180deg, transparent, rgba(3,8,12,.35) 20%, rgba(3,8,12,.94) 62%, rgba(3,8,12,.99)); }
@@ -79,24 +90,19 @@ main { width: min(var(--content-max), calc(100% - 48px)); }
 .episode-copy p { font-size: 9px; line-height: 1.4; color: rgba(232,237,239,.76); }
 .episode-copy > span { padding-top: 8px; font-size: 9px; }
 
-/* Season banner */
-.season-card { min-height: 300px; padding: 30px; border-radius: 14px; background: linear-gradient(90deg, rgba(4,10,16,.84), rgba(4,10,16,.28)), url('assets/hero-origins-production.webp?v=14') 68% center / cover no-repeat !important; box-shadow: 0 25px 70px rgba(0,0,0,.26); }
-.season-card::after { display: none; }
+/* Season banner and feature panels. */
+.season-card { min-height: 300px; padding: 30px; border-radius: 14px; background: linear-gradient(90deg, rgba(4,10,16,.84), rgba(4,10,16,.28)), url('assets/hero-origins-generated.webp?v=15') 68% center / cover no-repeat !important; box-shadow: 0 25px 70px rgba(0,0,0,.26); }
+.season-card::after, .season-sun { display: none; }
 .season-card h2 { font-size: 34px; }
-.season-sun { display: none; }
-
-/* Image-led exploration panels */
 .feature-grid { gap: 14px; }
 .feature-card { min-height: 220px; border-radius: 13px; background-color: #0a131c !important; box-shadow: inset 0 1px rgba(255,255,255,.06), 0 20px 45px rgba(0,0,0,.15); }
-.map-feature { background-image: linear-gradient(90deg, rgba(3,9,15,.88), rgba(3,9,15,.28)), url('assets/map-exodus.webp?v=14') !important; background-size: cover !important; background-position: center !important; }
-.timeline-feature { background-image: linear-gradient(90deg, rgba(3,9,15,.88), rgba(3,9,15,.28)), url('assets/hero-origins-production.webp?v=14') !important; background-size: cover !important; background-position: center !important; }
-.journey-feature { background-image: linear-gradient(90deg, rgba(3,9,15,.88), rgba(3,9,15,.28)), url('assets/library-manuscript.webp?v=14') !important; background-size: cover !important; background-position: center !important; }
+.map-feature { background-image: linear-gradient(90deg, rgba(3,9,15,.88), rgba(3,9,15,.28)), url('assets/map-exodus.webp?v=15') !important; background-size: cover !important; background-position: center !important; }
+.timeline-feature { background-image: linear-gradient(90deg, rgba(3,9,15,.88), rgba(3,9,15,.28)), url('assets/hero-origins-generated.webp?v=15') !important; background-size: cover !important; background-position: center !important; }
+.journey-feature { background-image: linear-gradient(90deg, rgba(3,9,15,.88), rgba(3,9,15,.28)), url('assets/library-manuscript.webp?v=15') !important; background-size: cover !important; background-position: center !important; }
 .feature-card::after { display: none; }
-
-.quote-card { border-radius: 14px; background: linear-gradient(rgba(3,8,13,.62),rgba(3,8,13,.76)), url('assets/library-manuscript.webp?v=14') center / cover no-repeat !important; }
-.scene-card { border-radius: 14px; background: linear-gradient(rgba(3,8,13,.15),rgba(3,8,13,.45)), url('assets/map-exodus.webp?v=14') center / cover no-repeat !important; }
-
-.reader-head { min-height: 480px; padding-inline: 0; border-radius: 0 0 16px 16px; background: linear-gradient(180deg, rgba(3,8,13,.05), rgba(3,8,13,.92)), url('assets/ep1-beginning.webp?v=14') center / cover no-repeat; }
+.quote-card { border-radius: 14px; background: linear-gradient(rgba(3,8,13,.62),rgba(3,8,13,.76)), url('assets/library-manuscript.webp?v=15') center / cover no-repeat !important; }
+.scene-card { border-radius: 14px; background: linear-gradient(rgba(3,8,13,.15),rgba(3,8,13,.45)), url('assets/map-exodus.webp?v=15') center / cover no-repeat !important; }
+.reader-head { min-height: 480px; padding-inline: 0; border-radius: 0 0 16px 16px; background: linear-gradient(180deg, rgba(3,8,13,.05), rgba(3,8,13,.92)), url('assets/ep1-beginning.webp?v=15') center / cover no-repeat; }
 .reader-head::before { background: linear-gradient(180deg, rgba(3,8,13,.10), rgba(3,8,13,.14) 30%, rgba(3,8,13,.94) 78%, var(--bg) 100%); }
 
 @media (max-width: 1400px) {
@@ -113,8 +119,8 @@ main { width: min(var(--content-max), calc(100% - 48px)); }
 @media (max-width: 720px) {
   .topbar { position: sticky; background: color-mix(in srgb, var(--bg) 88%, transparent); }
   main { width: 100%; }
-  .hero-home { min-height: 700px; border-radius: 0 0 20px 20px; background-position: 64% center !important; }
-  .hero-home::before { background: linear-gradient(180deg, rgba(2,7,12,.38), rgba(2,7,12,.55) 34%, rgba(2,7,12,.96) 80%, #050b12 100%); }
+  .hero-home { min-height: 700px; border-radius: 0 0 20px 20px; background-position: 66% center !important; }
+  .hero-home::before { background: linear-gradient(180deg, rgba(2,7,12,.28), rgba(2,7,12,.50) 34%, rgba(2,7,12,.96) 80%, #050b12 100%); }
   .hero-content { width: 100%; padding: 300px 22px 76px; }
   .hero-content h1 { font-size: clamp(3.2rem, 15vw, 5.3rem); }
   .hero-content p { font-size: 14px; }
