@@ -39,8 +39,20 @@
     'linear-gradient(145deg,#152a36,#8a6c47)',
   ];
 
+  const LIGHT_FALLBACKS = [
+    'linear-gradient(145deg,#dfe6e5,#b99a68)',
+    'linear-gradient(145deg,#dce7e6,#c0a06b)',
+    'linear-gradient(145deg,#e5dedb,#bd8866)',
+    'linear-gradient(145deg,#dce5e3,#b59b78)',
+    'linear-gradient(145deg,#e1e5e5,#ad9a84)',
+    'linear-gradient(145deg,#dbe5e7,#bda47b)',
+  ];
+
   const urlFor = asset => new URL(asset, ROOT).href;
-  const fallbackFor = node => FALLBACKS[Math.max(0, (Number(node?.dataset?.artFallback) || 1) - 1) % FALLBACKS.length];
+  const fallbackFor = node => {
+    const palette = document.documentElement.dataset.theme === 'light' ? LIGHT_FALLBACKS : FALLBACKS;
+    return palette[Math.max(0, (Number(node?.dataset?.artFallback) || 1) - 1) % palette.length];
+  };
   const overlayFor = node => Object.entries(OVERLAYS).find(([selector]) => node.matches(selector))?.[1] || '';
 
   const clearArt = node => {
@@ -52,16 +64,18 @@
   };
 
   const paint = (node, asset) => {
-    if (!node || !asset) return;
-    if (node.dataset.artwork === asset && node.dataset.artworkLoaded === 'true') return;
-    const url = urlFor(asset);
+    if (!node || !asset || node.dataset.artworkAttempted === 'true') return;
+    node.dataset.artworkAttempted = 'true';
+    clearArt(node);
+
     const image = new Image();
     image.decoding = 'async';
     image.onload = () => {
-      node.classList.remove('art-fallback');
-      node.classList.add('art-loaded');
+      const url = urlFor(asset);
       const layers = [overlayFor(node), `url("${url}")`].filter(Boolean);
       node.style.setProperty('background-image', layers.join(', '), 'important');
+      node.classList.remove('art-fallback');
+      node.classList.add('art-loaded');
       node.dataset.artwork = asset;
       node.dataset.artworkLoaded = 'true';
     };
@@ -69,7 +83,7 @@
       node.dataset.artwork = asset;
       clearArt(node);
     };
-    image.src = url;
+    image.src = urlFor(asset);
   };
 
   const applyCardArt = () => {
@@ -86,9 +100,7 @@
   };
 
   const applyReaderArt = () => {
-    const head = document.querySelector('.reader-head[data-art]');
-    if (!head) return;
-    paint(head, head.dataset.art);
+    document.querySelectorAll('.reader-head[data-art]').forEach(node => paint(node, node.dataset.art));
   };
 
   const applyAll = () => {
@@ -97,7 +109,18 @@
     applyReaderArt();
   };
 
-  new MutationObserver(applyAll).observe(document.documentElement, { childList: true, subtree: true });
+  let scheduled = false;
+  const scheduleApply = () => {
+    if (scheduled) return;
+    scheduled = true;
+    queueMicrotask(() => {
+      scheduled = false;
+      applyAll();
+    });
+  };
+
+  new MutationObserver(scheduleApply).observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener('pageshow', applyAll);
+  window.addEventListener('be:themechange', applyAll);
   applyAll();
 })();
