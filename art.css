@@ -1,56 +1,87 @@
-/* Production artwork layer — local generated WebP assets are the source of truth. */
-/* v8 intentionally cache-busts every production image so GitHub Pages/PWA cannot retain the earlier fallback art. */
+/* Premium cinematic art direction — production WebP assets are the visual source of truth. */
 .hero-home {
   isolation: isolate;
   position: relative;
   overflow: hidden;
-  background: #071018 !important;
+  min-height: clamp(560px, 68vh, 760px);
+  background: #050b12 !important;
+  border-color: rgba(222, 185, 100, .18);
 }
 .hero-home::before {
   content: '';
   position: absolute;
-  inset: 0;
-  z-index: -2;
-  background-image: url('assets/hero-origins.webp?v=8');
+  inset: -2%;
+  z-index: -3;
+  background-image: url('assets/hero-origins.webp?v=10');
   background-position: 68% center;
   background-size: cover;
   background-repeat: no-repeat;
-  transform: scale(1.01);
-  filter: saturate(1.05) contrast(1.04);
+  transform: scale(1.035);
+  filter: saturate(1.12) contrast(1.07) brightness(1.04);
+  animation: heroDrift 18s ease-in-out infinite alternate;
 }
 .hero-home::after {
-  z-index: -1;
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
   background:
-    linear-gradient(90deg, rgba(7,16,24,.93) 0%, rgba(7,16,24,.62) 38%, rgba(7,16,24,.18) 72%, rgba(7,16,24,.08) 100%),
-    linear-gradient(0deg, rgba(7,16,24,.98) 0%, rgba(7,16,24,.12) 50%, rgba(7,16,24,.16) 100%);
+    linear-gradient(90deg, rgba(3,9,15,.96) 0%, rgba(3,9,15,.82) 23%, rgba(3,9,15,.42) 47%, rgba(3,9,15,.08) 78%, rgba(3,9,15,.20) 100%),
+    linear-gradient(180deg, rgba(3,9,15,.20) 0%, transparent 35%, rgba(3,9,15,.12) 58%, rgba(3,9,15,.96) 100%),
+    radial-gradient(circle at 78% 28%, rgba(235,196,112,.18), transparent 26%);
 }
+.hero-home .hero-content {
+  position: relative;
+  z-index: 3;
+  max-width: 640px;
+  padding-top: clamp(110px, 14vh, 155px);
+  text-shadow: 0 3px 28px rgba(0,0,0,.38);
+}
+.hero-home .hero-content h1 {
+  max-width: 700px;
+  font-size: clamp(3.6rem, 7vw, 7rem);
+  line-height: .88;
+  letter-spacing: -.045em;
+}
+.hero-home .hero-content p { max-width: 520px; font-size: 1.05rem; line-height: 1.65; }
+.hero-home .hero-mark { z-index: 3; text-shadow: 0 2px 18px rgba(0,0,0,.6); }
+.hero-home .hero-glow { z-index: -1; opacity: .7; }
 .hero-mountains { display: none !important; }
-.hero-glow { z-index: -1; }
+
+@keyframes heroDrift {
+  from { transform: scale(1.035) translate3d(0,0,0); }
+  to { transform: scale(1.07) translate3d(-10px,-4px,0); }
+}
 
 .season-card {
+  min-height: 300px;
+  overflow: hidden;
   background:
-    linear-gradient(90deg, rgba(7,16,24,.88) 0%, rgba(7,16,24,.48) 55%, rgba(7,16,24,.12) 100%),
-    url('assets/hero-origins.webp?v=8') 68% center / cover no-repeat !important;
+    linear-gradient(90deg, rgba(4,10,16,.92) 0%, rgba(4,10,16,.60) 45%, rgba(4,10,16,.16) 100%),
+    url('assets/hero-origins.webp?v=10') 68% center / cover no-repeat !important;
 }
 
 .episode-art {
   background-size: cover !important;
   background-position: center !important;
   background-repeat: no-repeat !important;
-  filter: saturate(1.04) contrast(1.03);
+  filter: saturate(1.08) contrast(1.04);
+  transform: translateZ(0);
 }
-.episode-card:nth-child(1) .episode-art { background-image: url('assets/ep1-beginning.webp?v=8') !important; }
-.episode-card:nth-child(2) .episode-art { background-image: url('assets/ep2-eden.webp?v=8') !important; }
-.episode-card:nth-child(3) .episode-art { background-image: url('assets/ep3-serpent-seed.webp?v=8') !important; }
-.episode-card:nth-child(4) .episode-art { background-image: url('assets/ep4-east-eden.webp?v=8') !important; }
-.episode-card:nth-child(5) .episode-art { background-image: url('assets/ep5-adam-story.webp?v=8') !important; }
-.episode-card:nth-child(6) .episode-art { background-image: url('assets/ep6-noah.webp?v=8') !important; }
-.episode-card:nth-child(7) .episode-art { background-image: url('assets/ep7-deluge.webp?v=8') !important; }
-.episode-card:nth-child(8) .episode-art { background-image: url('assets/ep8-bow.webp?v=8') !important; }
-.episode-card:nth-child(9) .episode-art { background-image: url('assets/ep9-babel.webp?v=8') !important; }
-.episode-card:nth-child(10) .episode-art { background-image: url('assets/ep10-abraham.webp?v=8') !important; }
-.episode-art::before { background: linear-gradient(180deg, rgba(0,0,0,.04), transparent 40%); }
-.episode-art::after { background: linear-gradient(0deg, rgba(7,16,24,.72), transparent 62%); box-shadow: none; }
+.episode-card:hover .episode-art { filter: saturate(1.16) contrast(1.06); }
+.episode-card:nth-child(1) .episode-art { background-image: url('assets/ep1-beginning.webp?v=10') !important; }
+.episode-card:nth-child(2) .episode-art { background-image: url('assets/ep2-eden.webp?v=10') !important; }
+.episode-card:nth-child(3) .episode-art { background-image: url('assets/ep3-serpent-seed.webp?v=10') !important; }
+.episode-card:nth-child(4) .episode-art { background-image: url('assets/ep4-east-eden.webp?v=10') !important; }
+.episode-card:nth-child(5) .episode-art { background-image: url('assets/ep5-adam-story.webp?v=10') !important; }
+.episode-card:nth-child(6) .episode-art { background-image: url('assets/ep6-noah.webp?v=10') !important; }
+.episode-card:nth-child(7) .episode-art { background-image: url('assets/ep7-deluge.webp?v=10') !important; }
+.episode-card:nth-child(8) .episode-art { background-image: url('assets/ep8-bow.webp?v=10') !important; }
+.episode-card:nth-child(9) .episode-art { background-image: url('assets/ep9-babel.webp?v=10') !important; }
+.episode-card:nth-child(10) .episode-art { background-image: url('assets/ep10-abraham.webp?v=10') !important; }
+.episode-art::before { background: linear-gradient(180deg, rgba(0,0,0,.02), transparent 45%); }
+.episode-art::after { background: linear-gradient(0deg, rgba(3,9,15,.86), rgba(3,9,15,.04) 68%); box-shadow: none; }
 
 .map-feature::after,
 .timeline-feature::after,
@@ -60,26 +91,36 @@
   background-position: center;
   background-repeat: no-repeat;
 }
-.map-feature::after { background-image: url('assets/map-exodus.webp?v=8'); }
-.timeline-feature::after { background-image: url('assets/hero-origins.webp?v=8'); }
+.map-feature::after { background-image: url('assets/map-exodus.webp?v=10'); }
+.timeline-feature::after { background-image: url('assets/hero-origins.webp?v=10'); }
 .journey-feature::after,
-.quote-card { background-image: url('assets/library-manuscript.webp?v=8'); }
-.scene-card { background-image: url('assets/map-exodus.webp?v=8'); }
-.scene-card #threeScene { background-image: url('assets/map-exodus.webp?v=8'); }
+.quote-card { background-image: url('assets/library-manuscript.webp?v=10'); }
+.scene-card { background-image: url('assets/map-exodus.webp?v=10'); }
+.scene-card #threeScene { background-image: url('assets/map-exodus.webp?v=10'); }
 
-/* Photography remains visible beneath a restrained cinematic readability treatment. */
 .feature-card::after {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: .52;
-  background: linear-gradient(90deg, rgba(7,16,24,.82), rgba(7,16,24,.18));
+  opacity: .55;
+  background: linear-gradient(90deg, rgba(3,9,15,.88), rgba(3,9,15,.18));
   pointer-events: none;
 }
 .feature-card > * { z-index: 1; }
 
 @media (max-width: 720px) {
-  .hero-home::before { background-position: 62% center; }
-  .hero-content { padding-top: 84px; }
-  .season-card { background-position: 62% center !important; }
+  .hero-home { min-height: 680px; }
+  .hero-home::before { background-position: 63% center; }
+  .hero-home::after {
+    background:
+      linear-gradient(90deg, rgba(3,9,15,.78), rgba(3,9,15,.18)),
+      linear-gradient(180deg, rgba(3,9,15,.18) 0%, rgba(3,9,15,.06) 42%, rgba(3,9,15,.98) 100%);
+  }
+  .hero-content { padding-top: 112px !important; padding-right: 22px; }
+  .hero-home .hero-content h1 { font-size: clamp(3.15rem, 14vw, 5.2rem); }
+  .season-card { background-position: 63% center !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-home::before { animation: none; }
 }
