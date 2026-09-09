@@ -1,7 +1,7 @@
-const CACHE = 'bible-experience-production-v15';
+const CACHE = 'bible-experience-production-v16';
 const ASSETS = [
   './', './index.html', './styles.css?v=15', './production.css?v=15', './app.js?v=15', './manifest.webmanifest', './assets/logo.svg',
-  './assets/hero-origins-generated.webp?v=15', './assets/hero-origins-production.webp?v=15', './assets/map-exodus.webp?v=15', './assets/library-manuscript.webp?v=15',
+  './assets/hero-origins-generated.webp?v=15', './assets/map-exodus.webp?v=15', './assets/library-manuscript.webp?v=15',
   './assets/ep1-beginning.webp?v=15', './assets/ep2-eden.webp?v=15', './assets/ep3-serpent-seed.webp?v=15', './assets/ep4-east-eden.webp?v=15',
   './assets/ep5-adam-story.webp?v=15', './assets/ep6-noah.webp?v=15', './assets/ep7-deluge.webp?v=15', './assets/ep8-bow.webp?v=15',
   './assets/ep9-babel.webp?v=15', './assets/ep10-abraham.webp?v=15',
