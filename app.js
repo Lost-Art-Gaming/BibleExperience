@@ -1,31 +1,40 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js';
 
 const ROOT = new URL('.', document.baseURI);
-const STORAGE = {
-  progress: 'be-progress',
-  bookmarks: 'be-bookmarks',
-  theme: 'be-theme',
-};
+const STORAGE = { progress: 'be-progress', bookmarks: 'be-bookmarks', theme: 'be-theme' };
 
 const state = {
   screen: 'home',
   episodes: [],
   timeline: [],
+  episodeData: new Map(),
   activeEpisode: null,
-  query: '',
   bookmarks: JSON.parse(localStorage.getItem(STORAGE.bookmarks) || '[]'),
+  routeDepth: 0,
+  routeKey: null,
 };
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
 const esc = (value = '') => String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[char]);
-const titleCase = value => value.replace(/\b\w/g, c => c.toUpperCase());
+const cleanTitle = (value = '') => value.replace(/[“”]/g, '');
+const EPISODE_ART = ['ep01-beginning.jpg','ep02-eden.jpg','ep03-serpent.jpg','ep04-east-of-eden.jpg','ep05-adams-story.jpg','ep06-noah.jpg','ep07-deluge.jpg','ep08-bow.jpg','ep09-babel.jpg','ep10-abraham.jpg'];
+const episodeArt = index => `assets/${EPISODE_ART[index]}`;
 const isDone = id => localStorage.getItem(`be-episode-${id}`) === 'done';
-const doneCount = () => state.episodes.filter(e => isDone(e.id)).length;
+const doneCount = () => state.episodes.filter(episode => isDone(episode.id)).length;
 const progress = () => state.episodes.length ? Math.round((doneCount() / state.episodes.length) * 100) : 0;
 
 function saveBookmarks() {
   localStorage.setItem(STORAGE.bookmarks, JSON.stringify(state.bookmarks));
+}
+
+function setTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem(STORAGE.theme, theme);
+}
+
+function currentTheme() {
+  return document.documentElement.dataset.theme || 'dark';
 }
 
 function toast(message) {
@@ -48,8 +57,17 @@ async function loadData() {
     getJson('data/Genesis/index.json'),
     getJson('data/timeline.json'),
   ]);
-  state.episodes = index.episodes;
-  state.timeline = timeline;
+  state.episodes = Array.isArray(index.episodes) ? index.episodes : [];
+  state.timeline = Array.isArray(timeline) ? timeline : [];
+
+  await Promise.all(state.episodes.map(async episode => {
+    try {
+      const data = await getJson(`data/Genesis/${episode.file}`);
+      state.episodeData.set(episode.id, data);
+    } catch {
+      // Individual episode failures are surfaced only when that episode is opened.
+    }
+  }));
 }
 
 const icons = {
@@ -65,47 +83,66 @@ const icons = {
   back: 'M19 12H5m6-6-6 6 6 6',
   spark: 'M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z',
   moon: 'M20.5 15.5A8.5 8.5 0 0 1 8.5 3.5a8.8 8.8 0 1 0 12 12z',
+  sun: 'M12 3v2m0 14v2M5.64 5.64l1.42 1.42m9.9 9.9 1.42 1.42M3 12h2m14 0h2m-3.36-6.36-1.42 1.42m-9.9 9.9-1.42 1.42M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z',
 };
 
 function icon(name) {
   return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${icons[name] || icons.spark}"/></svg>`;
 }
 
-function nav() {
-  const items = [
-    ['home', 'Home'],
-    ['journey', 'Journey'],
-    ['explore', 'Explore'],
-    ['timeline', 'Timeline'],
-    ['library', 'Library'],
-  ];
-  return `<nav class="bottom-nav" aria-label="Primary navigation">${items.map(([id, label]) => `
-    <button class="nav-item ${state.screen === id ? 'active' : ''}" data-nav="${id}" aria-label="${label}">${icon(id === 'explore' ? 'map' : id)}<span>${label}</span></button>`).join('')}</nav>`;
+const NAV_ITEMS = [
+  ['home', 'Home'],
+  ['journey', 'Journey'],
+  ['explore', 'Explore'],
+  ['timeline', 'Timeline'],
+  ['library', 'Library'],
+];
+
+function navMarkup(className) {
+  return `<nav class="${className}" aria-label="Primary navigation">${NAV_ITEMS.map(([id, label]) => `
+    <button class="nav-item ${state.screen === id ? 'active' : ''}" data-nav="${id}" aria-label="${label}" aria-current="${state.screen === id ? 'page' : 'false'}">${icon(id === 'explore' ? 'map' : id)}<span>${label}</span></button>`).join('')}</nav>`;
 }
 
 function header() {
+  const theme = currentTheme();
+  const themeLabel = theme === 'light' ? 'Switch to dark theme' : 'Switch to light theme';
   return `<header class="topbar">
     <button class="brand" data-nav="home" aria-label="The Bible Experience home">
       <img src="assets/logo.svg" alt="" />
       <span><strong>THE BIBLE EXPERIENCE</strong><small>See. Understand. Believe.</small></span>
     </button>
+    ${navMarkup('desktop-nav')}
     <div class="top-actions">
-      <button class="round-btn" id="themeBtn" aria-label="Toggle theme">${icon('moon')}</button>
+      <button class="round-btn" id="themeBtn" aria-label="${themeLabel}">${icon(theme === 'light' ? 'moon' : 'sun')}</button>
       <button class="round-btn" id="searchBtn" aria-label="Search">${icon('search')}</button>
     </div>
   </header>`;
 }
 
 function shell(content, { fullBleed = false } = {}) {
-  $('#app').innerHTML = `<div class="app ${fullBleed ? 'full-bleed' : ''}">${header()}<main id="main">${content}</main>${nav()}</div><div id="toast" class="toast" role="status" aria-live="polite"></div>`;
+  $('#app').innerHTML = `<div class="app ${fullBleed ? 'full-bleed' : ''}">${header()}<main id="main">${content}</main>${navMarkup('bottom-nav')}</div><div id="toast" class="toast" role="status" aria-live="polite"></div>`;
   bindGlobal();
+  focusMainHeading();
+}
+
+function focusMainHeading() {
+  requestAnimationFrame(() => {
+    const heading = $('#main h1');
+    if (!heading) return;
+    heading.tabIndex = -1;
+    heading.focus({ preventScroll: true });
+  });
+}
+
+function artAttr(asset, fallbackIndex = 1) {
+  return `data-art="${esc(asset)}" data-art-fallback="${fallbackIndex}"`;
 }
 
 function home() {
-  const next = state.episodes.find(e => !isDone(e.id)) || state.episodes[0];
+  const next = state.episodes.find(episode => !isDone(episode.id)) || state.episodes[0];
   const pct = progress();
   shell(`
-    <section class="hero-home">
+    <section class="hero-home" ${artAttr('assets/hero-origins.jpg', 1)}>
       <div class="hero-glow"></div><div class="hero-mountains"></div>
       <div class="hero-content">
         <span class="eyebrow">SEASON 1 · ORIGINS</span>
@@ -125,48 +162,83 @@ function home() {
     <section class="content-section">
       <div class="section-heading"><div><span class="eyebrow">EXPLORE</span><h2>Go beyond the page</h2></div></div>
       <div class="feature-grid">
-        <button class="feature-card map-feature" data-nav="explore"><span class="feature-icon">${icon('map')}</span><b>Biblical Geography</b><small>Walk the places of Scripture</small><span class="feature-arrow">${icon('arrow')}</span></button>
-        <button class="feature-card timeline-feature" data-nav="timeline"><span class="feature-icon">${icon('timeline')}</span><b>Biblical Timeline</b><small>See Jehovah's purpose unfold</small><span class="feature-arrow">${icon('arrow')}</span></button>
-        <button class="feature-card journey-feature" data-nav="journey"><span class="feature-icon">${icon('journey')}</span><b>Scripture Journey</b><small>Read, reflect and discover</small><span class="feature-arrow">${icon('arrow')}</span></button>
+        <button class="feature-card map-feature" ${artAttr('assets/explore-geography.jpg', 2)} data-nav="explore"><span class="feature-icon">${icon('map')}</span><b>Biblical Geography</b><small>Walk the places of Scripture</small><span class="feature-arrow">${icon('arrow')}</span></button>
+        <button class="feature-card timeline-feature" ${artAttr('assets/ep07-deluge.jpg', 3)} data-nav="timeline"><span class="feature-icon">${icon('timeline')}</span><b>Biblical Timeline</b><small>See Jehovah's purpose unfold</small><span class="feature-arrow">${icon('arrow')}</span></button>
+        <button class="feature-card journey-feature" ${artAttr('assets/study-reflect.jpg', 4)} data-nav="journey"><span class="feature-icon">${icon('journey')}</span><b>Scripture Journey</b><small>Read, reflect and discover</small><span class="feature-arrow">${icon('arrow')}</span></button>
       </div>
-    </section>
-
-    <section class="content-section thread-section">
-      <div class="section-heading"><div><span class="eyebrow">THEMES UNFOLDING</span><h2>Threads through Scripture</h2></div></div>
-      ${[['The Seed',78],['Jehovah’s Kingdom',61],['Sacrifice & Atonement',64],['Jehovah’s Sovereignty',59]].map(([name,value]) => `<div class="thread-row"><span>${name}</span><b>${value}%</b><div><i style="width:${value}%"></i></div></div>`).join('')}
     </section>`);
 }
 
 function journey() {
   const cards = state.episodes.map((episode, index) => `
-    <button class="episode-card ${isDone(episode.id) ? 'done' : ''}" data-episode="${episode.id}">
-      <div class="episode-art art-${(index % 6) + 1}"><span>${episode.season === 2 ? 'S2' : 'S1'} · ${String(index + 1).padStart(2, '0')}</span><i></i></div>
-      <div class="episode-copy"><small>${esc(episode.label)}</small><h3>${esc(episode.title.replace(/[“”]/g, ''))}</h3><p>${esc(episode.subtitle)}</p><span>${isDone(episode.id) ? 'Completed' : 'Explore'} ${icon('arrow')}</span></div>
+    <button class="episode-card ${isDone(episode.id) ? 'done' : ''}" data-episode="${esc(episode.id)}">
+      <div class="episode-art art-${(index % 6) + 1}" ${artAttr(episodeArt(index), (index % 6) + 1)}><span>${episode.season === 2 ? 'S2' : 'S1'} · ${String(index + 1).padStart(2, '0')}</span><i></i></div>
+      <div class="episode-copy"><small>${esc(episode.label)}</small><h3>${esc(cleanTitle(episode.title))}</h3><p>${esc(episode.subtitle)}</p><span>${isDone(episode.id) ? 'Completed' : 'Explore'} ${icon('arrow')}</span></div>
     </button>`).join('');
 
   shell(`<section class="page-intro"><span class="eyebrow">WALK WITH SCRIPTURE</span><h1>Origins</h1><p>From creation to the promise given to Abraham. Ten experiences, one unfolding story.</p></section>
-    <section class="season-card"><div><span>SEASON 1 · ORIGINS</span><h2>The beginning of the story.</h2><p>Genesis 1–12 · ${state.episodes.length} experiences</p></div><div class="season-sun"></div></section>
+    <section class="season-card" ${artAttr('assets/ep01-beginning.jpg', 1)}><div><span>SEASON 1 · ORIGINS</span><h2>The beginning of the story.</h2><p>Genesis 1–12 · ${state.episodes.length} experiences</p></div><div class="season-sun"></div></section>
     <section class="episode-list">${cards}</section>`);
 }
 
+function episodeLoading(meta) {
+  shell(`<section class="reader-loading" aria-live="polite"><span class="eyebrow">LOADING EXPERIENCE</span><h1>${esc(cleanTitle(meta.title))}</h1><div class="loading-indicator" role="status" aria-label="Loading episode"><span></span><span></span><span></span></div><p>Gathering the reading, context and geography for this experience.</p></section>`);
+}
+
+function episodeError(meta) {
+  shell(`<section class="reader-error"><span class="eyebrow">EXPERIENCE UNAVAILABLE</span><h1>${esc(cleanTitle(meta.title))}</h1><p>This episode could not be loaded. Check your connection and try again.</p><button class="primary-btn" data-nav="journey">${icon('back')} Return to Journey</button></section>`);
+}
+
+function readerData(data) {
+  return (data?.sections || []).map(section => `<section class="reading-section"><span class="eyebrow">${esc(section.label)}</span>${section.html}</section>`).join('');
+}
+
+function episodeFooter(index) {
+  const previous = state.episodes[index - 1];
+  const next = state.episodes[index + 1];
+  return `<div class="reader-footer">
+    <div class="reader-sequence">
+      ${previous ? `<button class="secondary-btn" data-episode="${esc(previous.id)}">${icon('back')} ${esc(cleanTitle(previous.title))}</button>` : '<span></span>'}
+      ${next ? `<button class="secondary-btn next-link" data-episode="${esc(next.id)}">Next ${icon('arrow')}</button>` : '<span></span>'}
+    </div>
+    ${next ? `<button class="primary-btn continue-btn" data-episode="${esc(next.id)}">Continue to ${esc(cleanTitle(next.title))} ${icon('arrow')}</button>` : `<button class="primary-btn" id="complete">${isDone(state.activeEpisode) ? 'Completed ✓' : 'Mark episode complete'} ${icon('arrow')}</button>`}
+  </div>`;
+}
+
 async function episode(id) {
-  const meta = state.episodes.find(e => e.id === id);
-  if (!meta) return;
+  const meta = state.episodes.find(episode => episode.id === id);
+  if (!meta) {
+    navigate('home', { replace: true });
+    return;
+  }
   state.activeEpisode = id;
-  const data = await getJson(`data/Genesis/${meta.file}`);
+  episodeLoading(meta);
+
+  let data = state.episodeData.get(id);
+  if (!data) {
+    try {
+      data = await getJson(`data/Genesis/${meta.file}`);
+      state.episodeData.set(id, data);
+    } catch {
+      if (state.activeEpisode === id) episodeError(meta);
+      return;
+    }
+  }
+  if (state.activeEpisode !== id || parseRoute().kind !== 'episode') return;
+
+  const index = state.episodes.findIndex(episode => episode.id === id);
   const saved = state.bookmarks.includes(id);
-  const sections = (data.sections || []).map(section => `<section class="reading-section"><span class="eyebrow">${esc(section.label)}</span>${section.html}</section>`).join('');
-  shell(`<section class="reader-head">
-      <button class="back-btn" data-nav="journey">${icon('back')} Journey</button>
-      <span class="eyebrow">${esc(meta.label)}</span><h1>${esc(meta.title.replace(/[“”]/g, ''))}</h1><p>${esc(meta.subtitle)}</p>
+  shell(`<section class="reader-head" ${artAttr(episodeArt(index), (index % 6) + 1)}>
+      <button class="back-btn" id="readerBack">${icon('back')} Journey</button>
+      <span class="eyebrow">${esc(meta.label)}</span><h1>${esc(cleanTitle(meta.title))}</h1><p>${esc(meta.subtitle)}</p>
       <div class="reader-meta"><span>${data.sections?.length || 0} sections</span><button id="bookmark" class="save-btn ${saved ? 'saved' : ''}">${icon('bookmark')} ${saved ? 'Saved' : 'Save'}</button></div>
     </section>
-    <article class="reader-content">${sections}</article>
-    <div class="reader-footer"><button class="primary-btn" id="complete">${isDone(id) ? 'Completed ✓' : 'Mark episode complete'} ${icon('arrow')}</button></div>`);
+    <article class="reader-content">${readerData(data)}</article>
+    ${episodeFooter(index)}`);
 }
 
 function timeline() {
-  const items = state.timeline.map((item, index) => `<button class="timeline-item ${esc(item.kind || 'undated')}" data-episode="${esc(item.ep || '')}">
+  const items = state.timeline.map((item, index) => `<button class="timeline-item ${esc(item.kind || 'undated')}" data-episode="${esc(item.ep || '')}" ${item.ep ? '' : 'disabled aria-disabled="true"'}>
     <span class="timeline-dot"></span><span class="timeline-line"></span><div class="timeline-copy"><small>${esc(item.when)}</small><h3>${esc(item.what)}</h3><p>${esc(item.note)}</p></div><strong>${String(index + 1).padStart(2, '0')}</strong>
   </button>`).join('');
   shell(`<section class="page-intro"><span class="eyebrow">CHRONOLOGY</span><h1>The road through Genesis</h1><p>Explore the sequence of events and distinguish anchored dates from approximate or undated placements.</p></section>
@@ -174,78 +246,192 @@ function timeline() {
     <section class="timeline-list">${items}</section>`);
 }
 
+const geographyPoints = [
+  { id: 'eden', name: 'Eden', description: 'The garden setting introduced in Genesis 2–3.', position: [-7, 0.28, 4.5] },
+  { id: 'ararat', name: 'Ararat', description: 'The mountains where the ark came to rest after the Deluge.', position: [-3.4, 0.28, 2.1] },
+  { id: 'babel', name: 'Babel', description: 'The plain of Shinar, where mankind gathered and built the tower.', position: [-0.4, 0.28, 0.4] },
+  { id: 'ur', name: 'Ur', description: 'Abram’s starting point before the household moved north.', position: [2.8, 0.28, -1.8] },
+  { id: 'haran', name: 'Haran', description: 'The northern crossroads where Terah settled and Abram later departed from.', position: [1.2, 0.28, 2.1] },
+  { id: 'canaan', name: 'Canaan', description: 'The land Jehovah promised to Abram’s offspring.', position: [-0.3, 0.28, 4.6] },
+];
+
 function explore() {
-  shell(`<section class="page-intro compact"><span class="eyebrow">BIBLICAL GEOGRAPHY</span><h1>Walk the Exodus.</h1><p>Touch and drag the scene. This lightweight 3D experience is designed for mobile browsers.</p></section>
-    <section class="scene-card"><div id="threeScene"></div><div class="scene-copy"><span class="eyebrow">EXODUS ROUTE</span><h2>From Egypt to Sinai</h2><p>Follow the journey through desert terrain.</p></div><div class="scene-actions"><button id="sceneReset">Reset</button><button id="sceneSpin">Auto rotate</button></div></section>
-    <section class="location-list"><button><b>Egypt</b><small>Land of slavery</small></button><button><b>Red Sea</b><small>Jehovah opens the way</small></button><button><b>Sinai</b><small>Mountain of God</small></button></section>`);
+  shell(`<section class="page-intro compact"><span class="eyebrow">BIBLICAL GEOGRAPHY</span><h1>Walk the Genesis journey.</h1><p>Trace the route from Eden to Ararat, Babel, Ur, Haran and Canaan—the geography behind the first movement of Jehovah’s purpose.</p></section>
+    <section class="scene-card" ${artAttr('assets/explore-geography.jpg', 2)}><div id="threeScene" aria-label="Interactive 3D Genesis geography scene"></div><div class="scene-copy"><span class="eyebrow">GENESIS ROUTE</span><h2>Eden → Ararat → Babel → Ur → Haran → Canaan</h2><p id="sceneDetail">Select a waypoint to see why it matters to the story.</p></div><div class="scene-actions"><button id="sceneReset">Reset</button><button id="sceneSpin">Auto rotate</button></div></section>
+    <section class="location-list">${geographyPoints.map((point, index) => `<button data-location="${point.id}" aria-label="Focus ${esc(point.name)}"><b>${esc(point.name)}</b><small>${esc(point.description)}</small><span>${String(index + 1).padStart(2, '0')}</span></button>`).join('')}</section>`);
   initThree();
 }
 
 function library() {
-  const saved = state.episodes.filter(e => state.bookmarks.includes(e.id));
+  const saved = state.episodes.filter(episode => state.bookmarks.includes(episode.id));
+  const cards = [
+    ['journey', 'People & Genealogy', 'Trace the family lines'],
+    ['search', 'Verse Insights', 'Study the text in context'],
+    ['map', 'Places of Scripture', 'Explore geography and journeys'],
+    ['spark', 'Original Languages', 'Hebrew & Greek word studies'],
+  ];
   shell(`<section class="page-intro"><span class="eyebrow">THE LIBRARY</span><h1>Discover more.</h1><p>Keep your saved experiences close while the library grows into a deeper study companion.</p></section>
-    <div class="library-grid">
-      <button><span>${icon('journey')}</span><b>People & Genealogy</b><small>Trace the family lines</small></button>
-      <button><span>${icon('search')}</span><b>Verse Insights</b><small>Study the text in context</small></button>
-      <button><span>${icon('map')}</span><b>Places of Scripture</b><small>Explore geography and journeys</small></button>
-      <button><span>${icon('spark')}</span><b>Original Languages</b><small>Hebrew & Greek word studies</small></button>
-    </div>
+    <div class="library-grid">${cards.map(([ic, title, copy]) => `<article class="library-card disabled" aria-disabled="true"><span>${icon(ic)}</span><b>${title}</b><small>${copy}</small><em>Coming soon</em></article>`).join('')}</div>
     <section class="saved-section"><div class="section-heading"><div><span class="eyebrow">YOUR SAVED EXPERIENCES</span><h2>${saved.length ? `${saved.length} saved` : 'Nothing saved yet'}</h2></div></div>
-      ${saved.length ? saved.map(e => `<button class="saved-item" data-episode="${e.id}"><span>${esc(e.label)}</span><b>${esc(e.title.replace(/[“”]/g, ''))}</b>${icon('arrow')}</button>`).join('') : '<div class="empty-state">Bookmark an episode to keep it here.</div>'}
+      ${saved.length ? saved.map(episode => `<button class="saved-item" data-episode="${episode.id}"><span>${esc(episode.label)}</span><b>${esc(cleanTitle(episode.title))}</b>${icon('arrow')}</button>`).join('') : '<div class="empty-state">Bookmark an episode to keep it here.</div>'}
     </section>
-    <section class="quote-card"><span class="eyebrow">THE CENTRAL THREAD</span><blockquote>“You are worthy, Jehovah our God, to receive the glory and the honor and the power.”</blockquote><cite>Revelation 4:11 · New World Translation</cite></section>`);
+    <section class="quote-card" ${artAttr('assets/study-reflect.jpg', 4)}><span class="eyebrow">THE CENTRAL THREAD</span><blockquote>“You are worthy, Jehovah our God, to receive the glory and the honor and the power.”</blockquote><cite>Revelation 4:11 · New World Translation</cite></section>`);
 }
 
-function setScreen(screen) {
-  state.screen = screen;
-  const renderers = { home, journey, timeline, explore, library };
-  (renderers[screen] || home)();
-  window.scrollTo({ top: 0, behavior: 'instant' });
+function parseRoute() {
+  const raw = location.hash.replace(/^#\/?/, '').replace(/\/+$/, '');
+  if (!raw) return { kind: 'home' };
+  const parts = raw.split('/').map(decodeURIComponent);
+  if (parts[0] === 'episode' && parts[1]) return { kind: 'episode', id: parts[1] };
+  return ['home', 'journey', 'timeline', 'explore', 'library'].includes(parts[0]) ? { kind: parts[0] } : { kind: 'home' };
 }
 
-function openSearch() {
+function routeHash(route) {
+  return route.startsWith('#/') ? route : `#/${route}`;
+}
+
+function navigate(route, { replace = false } = {}) {
+  const target = routeHash(route);
+  const current = `${location.hash || '#/home'}`;
+  const parsed = target.match(/^#\/(episode\/[^/]+|home|journey|timeline|explore|library)$/) ? target : '#/home';
+  if (parsed === current) {
+    renderRoute();
+    return;
+  }
+  const nextDepth = replace ? state.routeDepth : state.routeDepth + 1;
+  const method = replace ? 'replaceState' : 'pushState';
+  history[method]({ be: true, depth: nextDepth }, '', parsed);
+  state.routeDepth = nextDepth;
+  renderRoute();
+}
+
+function syncInitialHistory() {
+  const target = routeHash(location.hash.replace(/^#\/?/, '') || 'home');
+  const valid = target.match(/^#\/(episode\/[^/]+|home|journey|timeline|explore|library)$/) ? target : '#/home';
+  history.replaceState({ be: true, depth: 0 }, '', valid);
+  state.routeDepth = 0;
+}
+
+function renderRoute() {
+  const route = parseRoute();
+  if (route.kind === 'episode') {
+    state.screen = 'episode';
+    episode(route.id);
+    return;
+  }
+  state.screen = route.kind;
+  ({ home, journey, timeline, explore, library }[route.kind] || home)();
+}
+
+function goReaderBack() {
+  if (state.routeDepth > 0) {
+    history.back();
+  } else {
+    navigate('journey', { replace: true });
+  }
+}
+
+function updateSearchResults(query, resultsNode) {
+  const normalized = query.trim().toLowerCase();
+  if (!normalized) {
+    resultsNode.innerHTML = '<p class="search-hint">Search titles, descriptions and the text inside each episode.</p>';
+    return;
+  }
+  const matches = state.episodes.filter(episode => {
+    const data = state.episodeData.get(episode.id);
+    const body = (data?.sections || []).map(section => section.html.replace(/<[^>]+>/g, ' ')).join(' ');
+    const haystack = `${episode.title} ${episode.subtitle} ${episode.label} ${body}`.toLowerCase();
+    return haystack.includes(normalized);
+  });
+  resultsNode.innerHTML = matches.slice(0, 8).map(episode => {
+    const data = state.episodeData.get(episode.id);
+    const body = (data?.sections || []).map(section => section.html.replace(/<[^>]+>/g, ' ')).join(' ');
+    const haystack = `${episode.title} ${episode.subtitle} ${body}`.toLowerCase();
+    const at = haystack.indexOf(normalized);
+    const sample = at >= 0 ? body.replace(/\s+/g, ' ').trim().slice(Math.max(0, at - 45), at + normalized.length + 70) : episode.subtitle;
+    return `<button data-result="${esc(episode.id)}"><small>${esc(episode.label)}</small><b>${esc(cleanTitle(episode.title))}</b><p>${esc(sample)}</p>${icon('arrow')}</button>`;
+  }).join('') || '<p class="no-results">No experiences found.</p>';
+  $$('[data-result]', resultsNode).forEach(button => button.addEventListener('click', () => {
+    closeSearch();
+    navigate(`episode/${encodeURIComponent(button.dataset.result)}`);
+  }));
+}
+
+let activeSearch = null;
+function closeSearch() {
+  if (!activeSearch) return;
+  const { overlay, opener, keydown } = activeSearch;
+  document.removeEventListener('keydown', keydown);
+  overlay.remove();
+  activeSearch = null;
+  opener?.focus({ preventScroll: true });
+}
+
+function openSearch(opener = $('#searchBtn')) {
+  if (activeSearch) return;
   const overlay = document.createElement('div');
   overlay.className = 'search-overlay';
-  overlay.innerHTML = `<div class="search-panel"><button class="close-search" aria-label="Close">×</button><span class="eyebrow">SEARCH THE EXPERIENCE</span><h2>Find an episode</h2><input id="searchInput" autocomplete="off" placeholder="Try “Eden”, “Noah” or “promise”…" /><div id="searchResults"></div></div>`;
+  overlay.innerHTML = `<div class="search-panel" role="dialog" aria-modal="true" aria-labelledby="searchTitle"><button class="close-search" aria-label="Close search">×</button><span class="eyebrow">SEARCH THE EXPERIENCE</span><h2 id="searchTitle">Find an episode</h2><input id="searchInput" autocomplete="off" placeholder="Try “Eden”, “Noah”, “covenant” or “promise”…" /><div id="searchResults"></div></div>`;
   document.body.appendChild(overlay);
   const input = $('#searchInput', overlay);
   const results = $('#searchResults', overlay);
-  const render = () => {
-    const query = input.value.trim().toLowerCase();
-    const matches = state.episodes.filter(e => !query || `${e.title} ${e.subtitle} ${e.label}`.toLowerCase().includes(query));
-    results.innerHTML = matches.slice(0, 8).map(e => `<button data-result="${e.id}"><small>${esc(e.label)}</small><b>${esc(e.title.replace(/[“”]/g, ''))}</b>${icon('arrow')}</button>`).join('') || '<p class="no-results">No experiences found.</p>';
-    $$('[data-result]', results).forEach(button => button.onclick = () => { overlay.remove(); episode(button.dataset.result); });
+  const close = () => closeSearch();
+  const keydown = event => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close();
+      return;
+    }
+    if (event.key !== 'Tab') return;
+    const focusables = $$('button:not([disabled]), input:not([disabled])', overlay).filter(node => node.offsetParent !== null);
+    if (!focusables.length) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (event.shiftKey && document.activeElement === first) {
+      event.preventDefault();
+      last.focus();
+    } else if (!event.shiftKey && document.activeElement === last) {
+      event.preventDefault();
+      first.focus();
+    }
   };
-  input.addEventListener('input', render);
-  $('.close-search', overlay).onclick = () => overlay.remove();
-  overlay.addEventListener('click', event => { if (event.target === overlay) overlay.remove(); });
-  render();
-  input.focus();
+  activeSearch = { overlay, opener, keydown };
+  document.addEventListener('keydown', keydown);
+  input.addEventListener('input', () => updateSearchResults(input.value, results));
+  $('.close-search', overlay).addEventListener('click', close);
+  overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+  updateSearchResults('', results);
+  requestAnimationFrame(() => input.focus());
 }
 
 function bindGlobal() {
-  $$('[data-nav]').forEach(button => button.onclick = () => setScreen(button.dataset.nav));
-  $$('[data-episode]').forEach(button => button.onclick = () => episode(button.dataset.episode));
-  $('#searchBtn')?.addEventListener('click', openSearch);
+  $$('[data-nav]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.nav)));
+  $$('[data-episode]').forEach(button => button.addEventListener('click', () => navigate(`episode/${encodeURIComponent(button.dataset.episode)}`)));
+  $$('[data-result]').forEach(button => button.addEventListener('click', () => navigate(`episode/${encodeURIComponent(button.dataset.result)}`)));
+  $('#searchBtn')?.addEventListener('click', event => openSearch(event.currentTarget));
   $('#themeBtn')?.addEventListener('click', () => {
-    const dark = document.documentElement.dataset.theme !== 'light';
-    document.documentElement.dataset.theme = dark ? 'light' : 'dark';
-    localStorage.setItem(STORAGE.theme, dark ? 'light' : 'dark');
+    setTheme(currentTheme() === 'light' ? 'dark' : 'light');
+    renderRoute();
   });
   $('#bookmark')?.addEventListener('click', () => {
     const id = state.activeEpisode;
-    if (state.bookmarks.includes(id)) state.bookmarks = state.bookmarks.filter(x => x !== id);
+    const index = state.bookmarks.indexOf(id);
+    if (index >= 0) state.bookmarks.splice(index, 1);
     else state.bookmarks.push(id);
     saveBookmarks();
-    toast(state.bookmarks.includes(id) ? 'Saved to your library' : 'Removed from your library');
-    episode(id);
+    toast(index >= 0 ? 'Removed from saved experiences' : 'Saved to your library');
+    renderRoute();
   });
   $('#complete')?.addEventListener('click', () => {
     const id = state.activeEpisode;
+    if (!id) return;
     localStorage.setItem(`be-episode-${id}`, 'done');
     toast('Episode completed');
-    episode(id);
+    renderRoute();
   });
+  $('#readerBack')?.addEventListener('click', goReaderBack);
+
+  $$('[data-location]').forEach(button => button.addEventListener('click', () => window.__beThree?.focus(button.dataset.location)));
   $('#sceneReset')?.addEventListener('click', () => window.__beThree?.reset());
   $('#sceneSpin')?.addEventListener('click', () => window.__beThree?.toggle());
 }
@@ -255,84 +441,111 @@ function initThree() {
   if (!host) return;
   try {
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x071018);
     scene.fog = new THREE.Fog(0x071018, 15, 45);
     const camera = new THREE.PerspectiveCamera(42, host.clientWidth / Math.max(host.clientHeight, 1), 0.1, 100);
     camera.position.set(10, 7, 13);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.6));
     renderer.setSize(host.clientWidth, host.clientHeight);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.appendChild(renderer.domElement);
 
-    scene.add(new THREE.HemisphereLight(0xc9d8e8, 0x21170f, 1.9));
-    const sun = new THREE.DirectionalLight(0xffd79a, 2.8);
-    sun.position.set(-8, 14, 5);
+    scene.add(new THREE.HemisphereLight(0xb6c6ce, 0x09121a, 1.5));
+    const sun = new THREE.DirectionalLight(0xf2d28d, 2.2);
+    sun.position.set(8, 14, 4);
     scene.add(sun);
 
-    const ground = new THREE.Mesh(new THREE.PlaneGeometry(55, 55, 30, 30), new THREE.MeshStandardMaterial({ color: 0x4b4031, roughness: 1 }));
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(28, 20, 10, 10), new THREE.MeshStandardMaterial({ color: 0x18252c, roughness: 1 }));
     ground.rotation.x = -Math.PI / 2;
     scene.add(ground);
 
-    const dunes = new THREE.Group();
-    for (let i = 0; i < 70; i += 1) {
-      const height = 0.25 + Math.random() * 2.8;
-      const mesh = new THREE.Mesh(new THREE.ConeGeometry(0.4 + Math.random() * 0.75, height, 5), new THREE.MeshStandardMaterial({ color: 0x5c4a35, roughness: 1 }));
-      mesh.position.set((Math.random() - 0.5) * 38, height / 2 - 0.1, (Math.random() - 0.5) * 30);
-      dunes.add(mesh);
-    }
-    scene.add(dunes);
+    const routePoints = geographyPoints.map(point => new THREE.Vector3(...point.position));
+    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(routePoints), new THREE.LineBasicMaterial({ color: 0xd7aa57 })));
 
-    const points = [
-      new THREE.Vector3(-12, 0.08, 8), new THREE.Vector3(-6, 0.08, 4),
-      new THREE.Vector3(-2, 0.08, 6), new THREE.Vector3(3, 0.08, 1), new THREE.Vector3(8, 0.08, -5),
-    ];
-    scene.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), new THREE.LineBasicMaterial({ color: 0xd7aa57 })));
-    const marker = new THREE.Mesh(new THREE.SphereGeometry(0.45, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe4b75e, emissive: 0x6b4312, emissiveIntensity: 1 }));
-    marker.position.copy(points[0]); marker.position.y = 0.45; scene.add(marker);
+    const markers = new Map();
+    geographyPoints.forEach(point => {
+      const marker = new THREE.Mesh(new THREE.SphereGeometry(0.38, 16, 16), new THREE.MeshStandardMaterial({ color: 0xe4b75e, emissive: 0x6b4312, emissiveIntensity: 1 }));
+      marker.position.set(...point.position);
+      marker.position.y = 0.45;
+      marker.userData.id = point.id;
+      scene.add(marker);
+      markers.set(point.id, marker);
+    });
 
     let azimuth = 0.65;
     let dragging = false;
     let previousX = 0;
     let autoRotate = false;
-    host.addEventListener('pointerdown', event => { dragging = true; previousX = event.clientX; host.setPointerCapture?.(event.pointerId); });
-    host.addEventListener('pointermove', event => { if (dragging) { azimuth += (event.clientX - previousX) * 0.006; previousX = event.clientX; } });
-    host.addEventListener('pointerup', () => { dragging = false; });
-    host.addEventListener('pointercancel', () => { dragging = false; });
+    let focusId = geographyPoints[0].id;
 
-    const updateCamera = () => {
-      if (autoRotate) azimuth += 0.0035;
-      camera.position.x = Math.sin(azimuth) * 16;
-      camera.position.z = Math.cos(azimuth) * 16;
-      camera.position.y = 7;
-      camera.lookAt(0, 0, 0);
+    const lookAtRoute = id => {
+      const point = geographyPoints.find(item => item.id === id) || geographyPoints[0];
+      focusId = point.id;
+      markers.forEach((marker, markerId) => {
+        marker.scale.setScalar(markerId === focusId ? 1.35 : 1);
+      });
+      $('#sceneDetail').textContent = `${point.name}: ${point.description}`;
     };
+
+    const onPointerDown = event => { dragging = true; previousX = event.clientX; host.setPointerCapture?.(event.pointerId); };
+    const onPointerUp = event => { dragging = false; host.releasePointerCapture?.(event.pointerId); };
+    const onPointerMove = event => {
+      if (!dragging) return;
+      azimuth += (event.clientX - previousX) * 0.006;
+      previousX = event.clientX;
+    };
+    host.addEventListener('pointerdown', onPointerDown);
+    host.addEventListener('pointerup', onPointerUp);
+    host.addEventListener('pointercancel', onPointerUp);
+    host.addEventListener('pointermove', onPointerMove);
+
     const resize = () => {
-      camera.aspect = host.clientWidth / Math.max(host.clientHeight, 1);
+      const width = host.clientWidth || 1;
+      const height = host.clientHeight || 1;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(host.clientWidth, host.clientHeight);
+      renderer.setSize(width, height);
     };
-    new ResizeObserver(resize).observe(host);
+    const resizeObserver = new ResizeObserver(resize);
+    resizeObserver.observe(host);
+
     window.__beThree = {
-      reset: () => { azimuth = 0.65; autoRotate = false; updateCamera(); },
-      toggle: () => { autoRotate = !autoRotate; toast(autoRotate ? 'Auto rotate on' : 'Auto rotate off'); },
+      toggle() { autoRotate = !autoRotate; $('#sceneSpin').textContent = autoRotate ? 'Stop rotation' : 'Auto rotate'; },
+      reset() { azimuth = 0.65; autoRotate = false; $('#sceneSpin').textContent = 'Auto rotate'; lookAtRoute('eden'); },
+      focus(id) { lookAtRoute(id); azimuth = geographyPoints.findIndex(point => point.id === id) * 0.48 + 0.4; },
     };
-    const tick = () => { if (!document.body.contains(host)) return; updateCamera(); renderer.render(scene, camera); requestAnimationFrame(tick); };
+    lookAtRoute('eden');
+
+    const tick = () => {
+      if (!host.isConnected) {
+        resizeObserver.disconnect();
+        window.__beThree = null;
+        return;
+      }
+      if (autoRotate) azimuth += 0.0025;
+      const distance = 14;
+      camera.position.set(Math.sin(azimuth) * distance, 7.5, Math.cos(azimuth) * distance);
+      camera.lookAt(0, 0, 1.4);
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    };
     tick();
-  } catch (error) {
-    host.innerHTML = '<div class="scene-fallback">3D geography is unavailable on this device. The route remains available as part of the MVP.</div>';
+  } catch {
+    host.innerHTML = '<div class="three-fallback"><span class="eyebrow">GEOGRAPHY VIEW</span><b>Interactive 3D is unavailable here.</b><p>Use the Genesis route cards below to move through the story.</p></div>';
   }
 }
 
-async function boot() {
-  const savedTheme = localStorage.getItem(STORAGE.theme);
-  if (savedTheme) document.documentElement.dataset.theme = savedTheme;
-  try {
-    await loadData();
-    home();
-  } catch (error) {
-    $('#app').innerHTML = `<div class="fatal"><h1>The Bible Experience</h1><p>Content could not be loaded. Check your connection and reload the page.</p><button class="primary-btn" onclick="location.reload()">Reload</button></div>`;
-    console.error(error);
-  }
+function boot() {
+  setTheme(localStorage.getItem(STORAGE.theme) === 'light' ? 'light' : 'dark');
+  syncInitialHistory();
+  loadData().then(renderRoute).catch(() => {
+    $('#app').innerHTML = '<main class="startup-error"><h1>The Bible Experience</h1><p>The experience could not load its Genesis index. Check your connection and refresh.</p></main>';
+  });
+  window.addEventListener('hashchange', renderRoute);
+  window.addEventListener('popstate', event => {
+    state.routeDepth = Number.isFinite(event.state?.depth) ? event.state.depth : 0;
+    renderRoute();
+  });
 }
 
 boot();
