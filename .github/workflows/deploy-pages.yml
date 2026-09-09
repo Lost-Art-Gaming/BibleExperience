@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  STATIC_VERSION: 27
+  STATIC_VERSION: ${{ github.run_number }}
 
 jobs:
   build:
@@ -59,7 +59,8 @@ jobs:
           printf '{"release":"%s","commit":"%s","shortCommit":"%s","run":%s,"publishedAt":"%s"}\n' \
             "$STATIC_VERSION" "$GITHUB_SHA" "${GITHUB_SHA:0:7}" "$GITHUB_RUN_NUMBER" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             > _site/version.json
-          # Keep the browser asset version and service-worker cache version aligned.
+          # Keep the browser asset version and service-worker cache version aligned
+          # automatically for every deployment; no manual cache-version bump is needed.
           sed -i -E "s/\?v=[0-9]+/\?v=${STATIC_VERSION}/g" _site/index.html _site/sw.js
           sed -i -E "s/bible-experience-production-v[0-9]+/bible-experience-production-v${STATIC_VERSION}/g" _site/sw.js
           echo "Published release ${STATIC_VERSION} (${GITHUB_SHA:0:7})"
