@@ -1,0 +1,31 @@
+name: Verify Bible Experience
+
+on:
+  push:
+    branches: [fix/genesis-experience-production]
+  pull_request:
+    branches: [main]
+
+jobs:
+  playwright:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Playwright
+        run: |
+          python -m pip install --upgrade pip playwright
+          python -m playwright install --with-deps chromium
+      - name: Run static server
+        run: python -m http.server 4173 --bind 127.0.0.1 >/tmp/bible-experience-server.log 2>&1 &
+      - name: Verify views and navigation
+        run: python tests/playwright_acceptance.py
+      - name: Upload verification screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bible-experience-playwright-screenshots
+          path: verification/*.png
+          if-no-files-found: ignore
