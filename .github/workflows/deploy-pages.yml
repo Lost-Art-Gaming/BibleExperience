@@ -22,6 +22,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Verify production image assets
+        run: |
+          set -euo pipefail
+          for file in assets/*.webp; do
+            test -s "$file"
+            mime="$(file --brief --mime-type "$file")"
+            if [ "$mime" != "image/webp" ]; then
+              echo "Invalid WebP asset: $file ($mime)"
+              exit 1
+            fi
+          done
+          echo "All WebP assets passed validation."
+
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
