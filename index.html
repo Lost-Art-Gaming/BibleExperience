@@ -10,16 +10,32 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <title>The Bible Experience</title>
-  <link rel="stylesheet" href="styles.css?v=26" />
-  <link rel="stylesheet" href="production.css?v=26" />
+  <link rel="stylesheet" href="styles.css?v=27" />
+  <link rel="stylesheet" href="production.css?v=27" />
 </head>
 <body>
   <div id="app"></div>
-  <script src="artwork.js?v=26"></script>
-  <script type="module" src="app.js?v=26"></script>
+  <div id="build-version" class="build-version" aria-label="Application build version">BUILD · checking</div>
+  <script>
+    fetch('./version.json?v=27', { cache: 'no-store' })
+      .then(response => response.ok ? response.json() : Promise.reject(new Error('version unavailable')))
+      .then(info => {
+        const node = document.getElementById('build-version');
+        if (node) {
+          node.textContent = `BUILD ${info.release} · ${info.shortCommit}`;
+          node.title = `Published ${info.publishedAt} · ${info.commit}`;
+        }
+      })
+      .catch(() => {
+        const node = document.getElementById('build-version');
+        if (node) node.textContent = 'BUILD · local';
+      });
+  </script>
+  <script src="artwork.js?v=27"></script>
+  <script type="module" src="app.js?v=27"></script>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=26').catch(() => {}));
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=27').catch(() => {}));
     }
   </script>
 </body>
