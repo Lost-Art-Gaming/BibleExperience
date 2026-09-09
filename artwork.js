@@ -1,4 +1,4 @@
-/* Deterministic production artwork wiring. One standalone asset per episode. */
+/* Deterministic production artwork wiring. One standalone asset per episode/home feature. */
 (() => {
   const ROOT = new URL('.', document.baseURI);
   const ART = {
@@ -12,6 +12,12 @@
     ep8: 'assets/ep08-bow.jpg',
     ep9: 'assets/ep09-babel.jpg',
     ep10: 'assets/ep10-abraham.jpg',
+  };
+
+  const HOME_ART = {
+    '.map-feature': 'assets/explore-geography.jpg',
+    '.timeline-feature': 'assets/ep07-deluge.jpg',
+    '.journey-feature': 'assets/your-journey.jpg',
   };
 
   const titleToId = {
@@ -29,9 +35,6 @@
 
   const urlFor = asset => new URL(asset, ROOT).href;
 
-  // CSS in the production layer deliberately uses !important for the card
-  // artwork. Paint dynamically loaded assets with the same priority so the
-  // deterministic episode mapping cannot be overridden by legacy art rules.
   const paint = (node, asset, extra = '') => {
     if (!node || !asset) return;
     const url = urlFor(asset);
@@ -60,6 +63,12 @@
     });
   };
 
+  const applyHomeArt = () => {
+    Object.entries(HOME_ART).forEach(([selector, asset]) => {
+      document.querySelectorAll(selector).forEach(node => paint(node, asset));
+    });
+  };
+
   const applyReaderArt = () => {
     const head = document.querySelector('.reader-head');
     const heading = head?.querySelector('h1');
@@ -82,7 +91,12 @@
     );
   };
 
-  const applyAll = () => { applyCardArt(); applyReaderArt(); };
+  const applyAll = () => {
+    applyCardArt();
+    applyHomeArt();
+    applyReaderArt();
+  };
+
   new MutationObserver(applyAll).observe(document.documentElement, { childList: true, subtree: true });
   window.addEventListener('pageshow', applyAll);
   applyAll();
