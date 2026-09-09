@@ -1,0 +1,87 @@
+/* Final artwork presentation layer.
+   Artwork files contain imagery only. All readable typography stays in HTML/CSS. */
+
+/* Episode cards: image is a visual surface, never the text canvas. */
+.episode-card .episode-art {
+  height: 58% !important;
+  bottom: auto !important;
+  background-position: center !important;
+  filter: saturate(1.04) contrast(1.03) !important;
+}
+.episode-card .episode-art::before {
+  background: linear-gradient(180deg, rgba(3,8,13,0) 52%, rgba(3,8,13,.18) 100%) !important;
+}
+.episode-card .episode-copy {
+  top: 58% !important;
+  bottom: 0 !important;
+  min-height: 42% !important;
+  justify-content: flex-start !important;
+  background: rgba(5,12,19,.98) !important;
+  border-top: 1px solid rgba(231,193,122,.16);
+}
+.episode-card .episode-copy h3,
+.episode-card .episode-copy p,
+.episode-card .episode-copy small,
+.episode-card .episode-copy > span {
+  text-shadow: none !important;
+}
+.episode-card .episode-copy h3 { color: #f4efe5 !important; }
+.episode-card .episode-copy p { color: #aebbc4 !important; }
+
+/* Home feature tiles: dedicated image region + opaque readable copy. */
+.feature-card {
+  background-image: none !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  position: relative;
+}
+.feature-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 42% 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.map-feature::before { background-image: url('assets/explore-geography.jpg'); }
+.timeline-feature::before { background-image: url('assets/ep07-deluge.jpg'); }
+.journey-feature::before { background-image: url('assets/your-journey.jpg'); }
+.feature-card::after {
+  display: block !important;
+  content: '';
+  position: absolute;
+  inset: 58% 0 0;
+  background: rgba(5,12,19,.98);
+  border-top: 1px solid rgba(231,193,122,.14);
+  z-index: 1;
+}
+.feature-card > * { position: relative; z-index: 2; }
+.feature-card h3,
+.feature-card p,
+.feature-card span,
+.feature-card small { text-shadow: none !important; }
+.feature-card h3 { color: #f4efe5 !important; }
+.feature-card p { color: #aebbc4 !important; }
+
+/* Reader hero: keep the image cinematic, but reserve a dark lower reading zone. */
+.reader-head {
+  background-position: center 38% !important;
+  background-size: cover !important;
+}
+.reader-head::before {
+  background: linear-gradient(180deg, rgba(3,8,13,.05) 0%, rgba(3,8,13,.08) 28%, rgba(3,8,13,.72) 65%, rgba(3,8,13,.98) 100%) !important;
+}
+.reader-head h1,
+.reader-head p,
+.reader-head .reader-meta { text-shadow: 0 3px 24px rgba(0,0,0,.72); }
+
+/* Mobile: artwork remains visible without shrinking the readable copy. */
+@media (max-width: 720px) {
+  .episode-card .episode-art { height: 55% !important; }
+  .episode-card .episode-copy { top: 55% !important; min-height: 45% !important; }
+  .feature-card::before { inset-bottom: 45%; }
+  .feature-card::after { inset: 55% 0 0; }
+  .reader-head { min-height: 500px; background-position: 60% 28% !important; }
+}
