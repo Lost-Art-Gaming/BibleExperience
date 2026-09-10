@@ -94,20 +94,56 @@ with unit tests for the derivation.
 
 Route `/tapestry`, surfaced from a Library card.
 
-- **View:** the 10 episodes along a horizontal spine (SVG), reusing the
-  timeline/season visual language. **Threads** (index entries with ≥2
-  episodes) drawn as curved gold connectors between the episodes they touch.
-- **Controls:** toggle dimension (Themes / People); a thread list beside the
-  diagram. Hover/tap a thread → highlight its episodes + arcs; tap an episode
-  node → navigate to it. Selecting a thread also filters the arcs shown so
-  the diagram stays legible.
+**A living map that grows as you progress** — not a static all-at-once
+diagram. This matches the content's own framing (Episode 1: "Each connection
+you weave below is added to your Tapestry, the growing map of how all
+sixty-six books hold together").
+
+- **Discovery model (locked):** a connection is *woven* when you **complete**
+  an episode. Completing an episode lights its node and weaves in every
+  thread it shares with your **other completed episodes**. Uses the existing
+  `be-episode-<id>` = `done` progress — no new tracking. The web fills in as
+  you finish more episodes.
+- **View:** the 10 episodes as nodes (an arc/spine, reusing the timeline/
+  season visual language). Completed nodes are lit gold; unread nodes dim.
+  Threads (index entries with ≥2 episodes — a recurring theme/person) are
+  drawn as glowing gold connectors, but **only the segments between episodes
+  you've completed** are shown/lit; undiscovered connections stay hidden
+  (kept for a future "faint hint" if desired, but v1 hides them).
+- **Progress:** a discovery counter — "N of M connections woven" — where M is
+  the total possible connections across all 10 episodes and N is those among
+  completed episodes. An inviting empty state when nothing is complete
+  ("Complete episodes to begin weaving your tapestry").
+- **New-thread beat:** completing an episode surfaces "K new threads
+  discovered" (a toast on the reader's complete action and/or a highlight on
+  the Tapestry). Reuses the existing `toast()`.
+- **Controls / interaction:** toggle dimension (Themes / People); a list of
+  the woven threads beside the diagram. Hover/tap a woven thread → highlight
+  its episodes + arcs; tap an episode node → navigate to it.
 - **Rendering:** inline SVG (no new dependency); arcs are quadratic/cubic
-  paths; respects reduced motion (no arc-draw animation when reduced).
-  Responsive: on narrow screens the spine scrolls horizontally inside its own
-  container (never widens the page — the reader-overflow lesson) or collapses
-  to a vertical list of threads with episode chips.
-- **Honesty:** every thread is a real recurring theme/person; the panel says
-  it's derived from the episodes' own text.
+  paths; the newest woven arcs draw on (respecting reduced motion — instant
+  when reduced). Responsive: the spine scrolls horizontally inside its own
+  `overflow-x` container (never widens the page — the reader-overflow lesson)
+  or collapses to a vertical thread list with episode chips on small screens.
+- **Thread source (curated throughlines):** auto-deriving connections from the
+  structured sections yields almost nothing (measured: 0 recurring Major
+  themes, 1 recurring profiled person, 1 shared verse citation across ≥2
+  episodes) — each episode introduces distinct themes/people/citations. So the
+  Tapestry weaves a **curated list of Genesis's genuinely recurring
+  throughlines** (`src/lib/tapestryThreads.ts`): motifs (Promised Seed,
+  Covenant, Faith & Obedience, Sacrifice & Blood, Sin & Judgment, Sovereignty,
+  the Flood, Blessing, the Chosen Line, Rebellion & Pride, Sacred Rest) and
+  key figures (Jehovah, Adam, Eve, the Serpent, Cain & Abel, Noah, Abraham).
+  Each is **detected only where its terms genuinely appear in an episode's
+  prose** — a curated topic index over the real text, editable, not fabricated
+  scripture. Two dimensions in the UI: **Threads** (motifs) and **People**.
+- **Desktop / mobile are distinct experiences:** desktop is the radial loom
+  (ring of episodes, woven chords, hover-to-pull, side ledger); mobile is a
+  vertical **warp** — tap a lit episode to fan out its threads to the episodes
+  they connect to. Not one layout scaled down.
+- **Honesty:** every thread is a real recurring motif/figure verifiable in the
+  episodes' own text; the intro says so. Nothing is fabricated — progression
+  only reveals connections that genuinely exist.
 
 ## 7. Feature 3 — Verse links (increment 3)
 

@@ -77,7 +77,10 @@ function collect(
 
 function extractThemes(doc: Document): { label: string; detail?: string }[] {
   const out: { label: string; detail?: string }[] = [];
-  doc.querySelectorAll('section[data-rail="Major themes"] li, .ep-sec li').forEach((li) => {
+  // ONLY the Major-themes section — every episode tags it with
+  // data-rail="Major themes". A broader `.ep-sec li` selector wrongly pulls
+  // in the Episode-summary bullet points ("Events", "Timeline", …).
+  doc.querySelectorAll('section[data-rail="Major themes"] li').forEach((li) => {
     // Only treat a list item as a theme when it leads with a <strong> name.
     const strong = li.querySelector('strong');
     if (!strong || strong.previousSibling) return;

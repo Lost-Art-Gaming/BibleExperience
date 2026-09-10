@@ -9,6 +9,7 @@ import Explore from './routes/Explore';
 import Library from './routes/Library';
 import People from './routes/People';
 import Themes from './routes/Themes';
+import Tapestry from './routes/Tapestry';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="library" element={<Library />} />
             <Route path="people" element={<People />} />
             <Route path="themes" element={<Themes />} />
+            <Route path="tapestry" element={<Tapestry />} />
             <Route path="episode/:id" element={<Reader />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

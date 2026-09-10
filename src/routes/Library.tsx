@@ -8,10 +8,10 @@ import { cleanTitle, getBookmarks } from '../lib/storage';
 // Study cards — [icon, title, copy, route?]. A route makes the card a live
 // link; without one it stays a "coming soon" placeholder.
 const STUDY_CARDS: Array<[string, string, string, string?]> = [
+  ['spark', 'The Tapestry', 'The connections you’ve woven', '/tapestry'],
   ['journey', 'People of Genesis', 'Who’s who, and where they appear', '/people'],
-  ['spark', 'Themes & Threads', 'The ideas that connect the books', '/themes'],
+  ['library', 'Themes & Threads', 'The ideas that connect the books', '/themes'],
   ['search', 'Verse Insights', 'Study the text in context'],
-  ['map', 'Original Languages', 'Hebrew & Greek word studies'],
 ];
 
 // Same art-layering pattern as Home/Journey's artStyle helpers: image over
