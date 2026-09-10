@@ -694,7 +694,9 @@ main {
 }
 
 .episode-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 0 22px 70px; }
+.episode-list > .reveal { display: flex; }
 .episode-card {
+  width: 100%;
   display: grid;
   grid-template-columns: 44% 56%;
   min-height: 220px;

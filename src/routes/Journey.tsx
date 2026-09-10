@@ -10,7 +10,7 @@ import { FALLBACKS, HOME_ART, OVERLAYS } from '../lib/art';
 function seasonCardStyle(): CSSProperties {
   const asset = HOME_ART['.season-card'];
   const overlay = OVERLAYS['.season-card'];
-  const fallback = FALLBACKS[4 % FALLBACKS.length];
+  const fallback = FALLBACKS[0];
   return {
     backgroundImage: [overlay, asset ? `url(${asset})` : null, fallback].filter(Boolean).join(', '),
     backgroundSize: 'cover',
