@@ -5,13 +5,13 @@ import { useEpisodes } from '../hooks/useEpisodes';
 import { FALLBACKS, HOME_ART, OVERLAYS } from '../lib/art';
 import { cleanTitle, getBookmarks } from '../lib/storage';
 
-// "Coming soon" study cards — [icon name, title, copy], ported verbatim
-// from the legacy library() cards array.
-const STUDY_CARDS: Array<[string, string, string]> = [
-  ['journey', 'People & Genealogy', 'Trace the family lines'],
+// Study cards — [icon, title, copy, route?]. A route makes the card a live
+// link; without one it stays a "coming soon" placeholder.
+const STUDY_CARDS: Array<[string, string, string, string?]> = [
+  ['journey', 'People of Genesis', 'Who’s who, and where they appear', '/people'],
+  ['spark', 'Themes & Threads', 'The ideas that connect the books', '/themes'],
   ['search', 'Verse Insights', 'Study the text in context'],
-  ['map', 'Places of Scripture', 'Explore geography and journeys'],
-  ['spark', 'Original Languages', 'Hebrew & Greek word studies'],
+  ['map', 'Original Languages', 'Hebrew & Greek word studies'],
 ];
 
 // Same art-layering pattern as Home/Journey's artStyle helpers: image over
@@ -43,16 +43,29 @@ export default function Library() {
       </section>
 
       <div className="library-grid">
-        {STUDY_CARDS.map(([iconName, title, copy]) => (
-          <article className="library-card disabled" aria-disabled="true" key={title}>
-            <span>
-              <Icon name={iconName} />
-            </span>
-            <b>{title}</b>
-            <small>{copy}</small>
-            <em>Coming soon</em>
-          </article>
-        ))}
+        {STUDY_CARDS.map(([iconName, title, copy, route]) =>
+          route ? (
+            <button className="library-card" key={title} onClick={() => navigate(route)}>
+              <span>
+                <Icon name={iconName} />
+              </span>
+              <b>{title}</b>
+              <small>{copy}</small>
+              <em className="index-open">
+                Open <Icon name="arrow" />
+              </em>
+            </button>
+          ) : (
+            <article className="library-card disabled" aria-disabled="true" key={title}>
+              <span>
+                <Icon name={iconName} />
+              </span>
+              <b>{title}</b>
+              <small>{copy}</small>
+              <em>Coming soon</em>
+            </article>
+          ),
+        )}
       </div>
 
       <section className="saved-section">

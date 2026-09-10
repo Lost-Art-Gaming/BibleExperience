@@ -110,6 +110,19 @@ async def main():
             await page.wait_for_selector('#main h1')
             assert page.url.endswith('#/journey'), page.url
 
+            # Library surfaces the derived People/Themes index pages as live
+            # cards; the pages render entries (derived from episode content)
+            # with chips linking back to episodes.
+            await page.goto(BASE + '#/library', wait_until='networkidle')
+            await page.wait_for_selector('#main h1')
+            assert await page.locator('button.library-card').count() >= 2
+            for route in ('people', 'themes'):
+                await page.goto(BASE + f'#/{route}', wait_until='networkidle')
+                await page.wait_for_selector('#main h1')
+                await page.wait_for_selector('.index-item')
+                assert await page.locator('.index-item').count() >= 1
+                assert await page.locator('.ep-chip[data-episode]').count() >= 1
+
             await page.goto(BASE + '#/', wait_until='networkidle')
             await page.locator('#searchBtn').click()
             await page.wait_for_selector('#searchInput')
