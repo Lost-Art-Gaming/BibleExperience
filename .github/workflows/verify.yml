@@ -2,7 +2,7 @@ name: Verify Bible Experience
 
 on:
   push:
-    branches: [fix/genesis-experience-production]
+    branches: [feat/react-rewrite]
   pull_request:
     branches: [main]
 
@@ -11,15 +11,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
       - name: Install Playwright Python package
         run: python -m pip install --upgrade pip playwright
-      - name: Run static server
-        run: python -m http.server 4173 --bind 127.0.0.1 >/tmp/bible-experience-server.log 2>&1 &
+
+      - name: Install Playwright browsers
+        run: python -m playwright install --with-deps chromium
+
+      - name: Start preview server
+        run: npm run preview -- --host &
+
+      - name: Wait for preview server
+        run: npx wait-on http://localhost:4173/BibleExperience/ --timeout 60000
+
       - name: Verify views and navigation
         run: python tests/playwright_acceptance.py
+
       - name: Upload verification screenshots
         if: always()
         uses: actions/upload-artifact@v4
