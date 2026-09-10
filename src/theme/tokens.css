@@ -6,6 +6,10 @@
   --surface-2: #12202b;
   --text: #f4efe5;
   --muted: #9ba8b2;
+  /* --read: long-form reading body. Softer than --text so pages of prose
+     aren't harsh, but far more legible than --muted (which is for labels
+     and secondary text). Tuned per theme. */
+  --read: #c7d0d6;
   --gold: #d9ad61;
   --gold-2: #f0cf91;
   --line: rgba(255,255,255,.09);
@@ -19,6 +23,7 @@
   --surface-2: #eee8dc;
   --text: #18242b;
   --muted: #68737a;
+  --read: #2c3843;
   --gold: #a87931;
   --gold-2: #8b6328;
   --line: rgba(18,32,43,.11);
