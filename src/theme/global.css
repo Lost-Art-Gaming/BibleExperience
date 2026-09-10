@@ -83,7 +83,7 @@ a { color: var(--gold); }
   color: #1b1711;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 12px 35px rgba(217, 173, 97, .18);
+  box-shadow: 0 12px 35px color-mix(in srgb, var(--gold) 18%, transparent);
 }
 .primary-btn svg { width: 17px; }
 
@@ -100,7 +100,7 @@ a { color: var(--gold); }
   font-weight: 600;
   cursor: pointer;
 }
-.secondary-btn:hover { border-color: rgba(217, 173, 97, .45); }
+.secondary-btn:hover { border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
 .secondary-btn svg { width: 17px; }
 
 /* ============================================================
@@ -185,7 +185,7 @@ a { color: var(--gold); }
   font-weight: 600;
   text-decoration: underline;
   text-decoration-style: dotted;
-  text-decoration-color: rgba(217, 173, 97, .55);
+  text-decoration-color: color-mix(in srgb, var(--gold) 55%, transparent);
   text-underline-offset: 3px;
   cursor: pointer;
   white-space: nowrap;
@@ -326,7 +326,7 @@ a { color: var(--gold); }
   padding-left: 12px;
   border-top: 0;
   border-left: 2px solid var(--gold);
-  background: rgba(217, 173, 97, .06);
+  background: color-mix(in srgb, var(--gold) 6%, transparent);
   border-radius: 0 4px 4px 0;
 }
 .ev.hl + .ev { border-top: 1px solid var(--line); }
