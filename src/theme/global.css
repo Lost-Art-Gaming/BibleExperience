@@ -656,6 +656,94 @@ main {
   .hero-home { min-height: 600px; }
 }
 
+/* ============================================================
+   Journey route — page intro, season card, episode grid
+   Ported from the legacy styles.css journey() layout rules.
+   ============================================================ */
+
+.page-intro { padding: 52px 22px 30px; }
+.page-intro.compact { padding-bottom: 20px; }
+.page-intro h1 { margin: 8px 0 12px; font-size: clamp(38px, 9vw, 64px); font-weight: 500; letter-spacing: -.04em; }
+.page-intro p { max-width: 650px; margin: 0; color: var(--muted); line-height: 1.7; font-size: 14px; }
+
+.season-card {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  min-height: 210px;
+  margin: 0 22px 28px;
+  padding: 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: linear-gradient(135deg, #152632, #0b151d);
+}
+.season-card > div:first-child { position: relative; z-index: 2; max-width: 550px; }
+.season-card span { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .15em; }
+.season-card h2 { margin: 10px 0 6px; font-size: 28px; font-weight: 500; }
+.season-card p { margin: 0; color: var(--muted); font-size: 12px; }
+.season-sun {
+  position: absolute;
+  right: 8%;
+  top: 15%;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240, 207, 145, .65), rgba(217, 173, 97, .07) 55%, transparent 70%);
+  filter: blur(1px);
+}
+
+.episode-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 0 22px 70px; }
+.episode-card {
+  display: grid;
+  grid-template-columns: 44% 56%;
+  min-height: 220px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s ease;
+}
+.episode-card:hover { border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
+.episode-card.done { border-color: color-mix(in srgb, var(--gold) 35%, var(--line)); }
+.episode-card.done .episode-copy > span { color: var(--muted); }
+
+.episode-art { position: relative; min-height: 100%; overflow: hidden; }
+.episode-art:before, .episode-art:after { content: ''; position: absolute; border-radius: 50%; }
+.episode-art:before { width: 160px; height: 160px; left: -35px; top: 20px; background: radial-gradient(circle, rgba(239, 210, 159, .55), transparent 67%); }
+.episode-art:after { width: 220px; height: 90px; left: -30px; bottom: -15px; background: #101d25; transform: rotate(-12deg); box-shadow: 100px 18px 0 #0c171e; }
+.episode-art span { position: absolute; z-index: 2; left: 13px; top: 13px; color: rgba(255, 255, 255, .75); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
+.episode-art i { position: absolute; inset: 0; z-index: 1; font-style: normal; }
+
+.episode-copy { display: flex; flex-direction: column; align-items: flex-start; padding: 18px; }
+.episode-copy small { color: var(--gold); font-size: 9px; line-height: 1.35; text-transform: uppercase; letter-spacing: .06em; }
+.episode-copy h3 { margin: 8px 0 8px; font-size: 20px; font-weight: 500; }
+.episode-copy p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.episode-copy > span { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 12px; color: var(--gold); font-size: 11px; font-weight: 700; }
+.episode-copy > span svg { width: 14px; }
+
+@media (min-width: 900px) {
+  .page-intro { padding-left: 50px; padding-right: 50px; }
+  .season-card, .episode-list { margin-left: 28px; margin-right: 28px; }
+  .season-card { min-height: 250px; padding: 42px; }
+  .episode-list { grid-template-columns: repeat(3, 1fr); }
+  .episode-card { grid-template-columns: 1fr; min-height: 330px; }
+  .episode-art { min-height: 145px; }
+  .episode-copy { min-height: 185px; }
+}
+
+@media (max-width: 620px) {
+  .episode-list { grid-template-columns: 1fr; }
+  .episode-card { min-height: 190px; }
+}
+
+@media (max-width: 420px) {
+  .episode-card { grid-template-columns: 40% 60%; }
+}
+
 /* ---- .reveal --------------------------------------------------
    Fade+rise entrance, driven by the Reveal component's
    IntersectionObserver. See src/components/Reveal.tsx. */
