@@ -11,6 +11,7 @@ import { useScrollSpy } from '../hooks/useScrollSpy';
 import { episodeArt, FALLBACKS } from '../lib/art';
 import { sanitizeHtml } from '../lib/sanitize';
 import { cleanTitle, getBookmarks, isDone, setDone, toggleBookmark } from '../lib/storage';
+import { currentIndex, isEpisodeUnlocked } from '../lib/progress';
 import { toast } from '../lib/toast';
 
 // Layers the episode's art image over a FALLBACKS gradient (same rotation
@@ -169,6 +170,31 @@ export default function Reader() {
         <button className="primary-btn" onClick={() => navigate('/journey')}>
           <Icon name="back" /> Return to Journey
         </button>
+      </section>
+    );
+  }
+
+  // Progression guard: a sealed episode (reached by a deep link, or a link
+  // from the timeline/tapestry/search) shows a sealed state, never the
+  // content. It points to the experience the reader should play next.
+  if (!isEpisodeUnlocked(meta.id, episodes)) {
+    const ci = currentIndex(episodes);
+    const current = ci < episodes.length ? episodes[ci] : undefined;
+    return (
+      <section className="reader-error reader-sealed">
+        <span className="eyebrow">SEALED</span>
+        <h1>This experience is sealed</h1>
+        <p>Work through the journey in order — complete the experiences before it to unlock this one.</p>
+        <div className="reader-sequence">
+          {current && (
+            <button className="primary-btn" onClick={() => navigate(`/episode/${encodeURIComponent(current.id)}`)}>
+              <Icon name="play" /> Continue with “{cleanTitle(current.title)}”
+            </button>
+          )}
+          <button className="secondary-btn" onClick={() => navigate('/journey')}>
+            <Icon name="back" /> Journey
+          </button>
+        </div>
       </section>
     );
   }

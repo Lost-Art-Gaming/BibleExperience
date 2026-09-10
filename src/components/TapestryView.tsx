@@ -5,6 +5,7 @@ import { useTapestryThreads } from '../hooks/useTapestryThreads';
 import { useEpisodes } from '../hooks/useEpisodes';
 import { useMediaQuery } from '../hooks/useMediaQuery';
 import { isDone } from '../lib/storage';
+import { visibleEpisodes } from '../lib/progress';
 import { threads as toThreads, type IndexEntry } from '../lib/contentIndex';
 import { buildTapestry, type Tapestry } from '../lib/tapestry';
 import { Icon } from './Icon';
@@ -30,7 +31,9 @@ export function TapestryView() {
   const tap = useMemo(() => {
     if (!threads) return null;
     const entries = dimension === 'theme' ? threads.motifs : threads.people;
-    return buildTapestry(episodes, toThreads(entries), completed);
+    // Only unlocked (+ the sealed next) episodes are woven, so the loom grows
+    // with progress rather than revealing the whole map up front.
+    return buildTapestry(visibleEpisodes(episodes), toThreads(entries), completed);
   }, [threads, dimension, episodes, completed]);
 
   if (loading || !tap || !threads) {
