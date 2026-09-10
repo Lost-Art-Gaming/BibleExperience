@@ -348,6 +348,131 @@ a { color: var(--gold); }
 .thread-row > div { grid-column: 1 / -1; height: 3px; background: var(--surface-2); }
 .thread-row i { display: block; height: 100%; background: var(--gold); }
 
+/* ============================================================
+   App shell — topbar, primary nav, bottom nav
+   Ported from the legacy styles.css shell rules.
+   ============================================================ */
+
+.app {
+  min-height: 100dvh;
+  padding-bottom: 88px;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: 72px;
+  padding: 0 max(18px, calc((100vw - 1100px) / 2));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.brand img { width: 32px; height: 32px; }
+.brand strong { display: block; font: 600 12px/1 Cinzel, serif; letter-spacing: .12em; }
+.brand small { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; letter-spacing: .08em; }
+
+.top-actions { display: flex; gap: 8px; }
+
+.round-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  cursor: pointer;
+}
+.round-btn svg { width: 18px; }
+
+main {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+/* ---- Primary navigation --------------------------------------
+   The same five-item nav renders twice: as `.desktop-nav` inside
+   the topbar (>=900px) and as a fixed `.bottom-nav` on mobile. */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 53px;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--muted);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 9px;
+}
+.nav-item svg { width: 18px; height: 18px; }
+.nav-item.active { color: var(--gold); background: color-mix(in srgb, var(--gold) 9%, transparent); }
+
+.desktop-nav { display: none; }
+
+.bottom-nav {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: min(620px, calc(100% - 20px));
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+}
+
+@media (min-width: 900px) {
+  .topbar { height: 80px; }
+  .desktop-nav { display: flex; gap: 4px; }
+  .bottom-nav { display: none; }
+}
+
+.toast {
+  position: fixed;
+  z-index: 120;
+  left: 50%;
+  bottom: 90px;
+  transform: translate(-50%, 20px);
+  padding: 11px 15px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: .2s ease;
+  font-size: 11px;
+  box-shadow: var(--shadow);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
 /* ---- Reduced motion ------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
