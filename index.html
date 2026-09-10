@@ -1,48 +1,15 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#071018" />
-  <meta name="description" content="The Bible Experience — see, understand, believe." />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
-  <title>The Bible Experience</title>
-  <link rel="stylesheet" href="styles.css?v=27" />
-  <link rel="stylesheet" href="production.css?v=27" />
-  <link rel="stylesheet" href="responsive-fixes.css?v=27" />
-  <link rel="stylesheet" href="typography.css?v=27" />
-  <style>
-    .build-version{z-index:90;padding:5px 8px;border:1px solid rgba(217,173,97,.24);border-radius:999px;background:rgba(7,16,24,.76);backdrop-filter:blur(10px);color:rgba(240,207,145,.72);font:700 8px/1 Inter,system-ui,sans-serif;letter-spacing:.09em;pointer-events:none;text-transform:uppercase}
-    :root[data-theme='light'] .build-version{background:rgba(255,253,248,.84);color:#8b6328;border-color:rgba(139,99,40,.22)}
-  </style>
-</head>
-<body>
-  <div id="app"></div>
-  <div id="build-version" class="build-version" aria-label="Application build version">BUILD · checking</div>
-  <script>
-    fetch('./version.json?v=27', { cache: 'no-store' })
-      .then(response => response.ok ? response.json() : Promise.reject(new Error('version unavailable')))
-      .then(info => {
-        const node = document.getElementById('build-version');
-        if (node) {
-          node.textContent = `BUILD ${info.release} · ${info.shortCommit}`;
-          node.title = `Published ${info.publishedAt} · ${info.commit}`;
-        }
-      })
-      .catch(() => {
-        const node = document.getElementById('build-version');
-        if (node) node.textContent = 'BUILD · local';
-      });
-  </script>
-  <script src="artwork.js?v=27"></script>
-  <script type="module" src="app.js?v=27"></script>
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js?v=27').catch(() => {}));
-    }
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+    <meta name="theme-color" content="#071018" />
+    <meta name="description" content="The Bible Experience — see, understand, believe." />
+    <link rel="icon" href="/BibleExperience/assets/logo.svg" type="image/svg+xml" />
+    <title>The Bible Experience</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
