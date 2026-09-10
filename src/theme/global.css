@@ -930,13 +930,17 @@ main {
    mobile rather than disappearing. */
 .reader-layout {
   display: grid;
-  grid-template-columns: 1fr;
+  /* minmax(0, 1fr) lets the column shrink below its content's min-content
+     size, so the horizontally-scrollable .section-rail is contained inside
+     it instead of forcing the whole reader page wider than the viewport
+     on mobile (a 1fr track defaults to min-width:auto and would expand). */
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
 }
-.reader-layout .reader-content { max-width: none; margin: 0; }
+.reader-layout .reader-content { max-width: none; margin: 0; min-width: 0; }
 
-.section-rail { display: flex; flex-direction: column; gap: 10px; padding: 14px 22px 0; }
-.section-rail ol { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.section-rail { display: flex; flex-direction: column; gap: 10px; padding: 14px 22px 0; min-width: 0; }
+.section-rail ol { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; min-width: 0; }
 .section-rail button {
   display: block;
   width: 100%;
