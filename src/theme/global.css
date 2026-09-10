@@ -1,0 +1,1366 @@
+/* ============================================================
+   Global base + reader prose
+   Single stylesheet — no forced overrides, no cascade wars. Every
+   rule here is written to win on its own specificity.
+   ============================================================ */
+
+/* ---- Reset & base elements --------------------------------- */
+* { box-sizing: border-box; }
+
+html {
+  min-width: 320px;
+  background: var(--bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font: inherit; }
+button { color: inherit; }
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Headings receive programmatic focus on route change for screen
+   readers; never paint a ring for it. */
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+h1, h2, h3, h4, p { margin-top: 0; }
+h1, h2, h3, h4 { font-family: Cinzel, Georgia, serif; }
+h1 { line-height: .95; letter-spacing: -.025em; }
+h2 { line-height: 1.15; letter-spacing: -.01em; }
+h3, h4 { line-height: 1.25; }
+
+a { color: var(--gold); }
+
+.eyebrow {
+  display: block;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* ---- Buttons -------------------------------------------------
+   Two-tier hierarchy: primary (filled gold gradient) for the main
+   call to action, secondary (outlined) for everything alongside it. */
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--gold-2), var(--gold));
+  color: #1b1711;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 35px color-mix(in srgb, var(--gold) 18%, transparent);
+}
+.primary-btn svg { width: 17px; }
+
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.secondary-btn:hover { border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.secondary-btn svg { width: 17px; }
+
+/* ============================================================
+   Reader prose
+   The authored episode HTML, from the html field of each episode
+   section in public/data, is rendered verbatim inside a `.reader`
+   wrapper. Everything below styles that exact markup.
+   ============================================================ */
+
+.reader {
+  max-width: 684px;
+  margin: 0 auto;
+  color: var(--text);
+}
+
+.reader p,
+.reader li {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.reader li { margin-bottom: .45em; }
+.reader ul,
+.reader ol { padding-left: 1.35em; }
+.reader strong { color: var(--text); font-weight: 600; }
+.reader em { color: var(--text); font-style: italic; }
+.reader h4 {
+  margin: 1.6em 0 .5em;
+  color: var(--gold-2);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .reader p,
+  .reader li { font-size: 17px; line-height: 1.72; }
+}
+
+/* ---- .ep-sec / .sec-head -----------------------------------
+   Each authored <section class="ep-sec"> is one editorial block,
+   separated by a hairline. .sec-head pairs the section's eyebrow
+   label with a rule that fills the remaining width. */
+.ep-sec {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ep-sec:last-child { border-bottom: 0; }
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.sec-head .eyebrow { flex: 0 0 auto; white-space: nowrap; }
+
+.rule {
+  flex: 1 1 auto;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* ---- .dropcap ------------------------------------------------ */
+.dropcap::first-letter {
+  float: left;
+  margin: 2px 10px 0 0;
+  color: var(--gold);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 3.6em;
+  font-weight: 600;
+  line-height: .82;
+}
+
+/* ---- .ref ------------------------------------------------------
+   Inline scripture reference. Distinct and tappable, per the
+   design spec (a future VerseRef component slots in over this). */
+.ref {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  text-underline-offset: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.ref:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---- .quiet ----------------------------------------------------
+   Editorial aside — a historical/interpretive note set apart from
+   the main narrative voice. */
+.quiet {
+  padding-left: 16px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* ---- .day-list / .day ------------------------------------------
+   The six/seven creative-day breakdown. */
+.day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 20px 0;
+}
+.day {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.day:first-child { border-top: 0; padding-top: 0; }
+.d-num {
+  color: var(--gold);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.d-title {
+  margin-bottom: 4px;
+  color: var(--text);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+.d-body {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/* ---- .profile ----------------------------------------------------
+   Character profile card. */
+.profile {
+  margin: 20px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold);
+  border-radius: 4px;
+  background: var(--surface);
+}
+.profile + .profile { margin-top: 14px; }
+.p-name {
+  font-family: Cinzel, Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+}
+.p-role {
+  margin: 4px 0 12px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.profile p:last-child { margin-bottom: 0; }
+
+/* ---- .figure / .fig-cap ------------------------------------------
+   Timeline-placement figure, wrapping an .evline. */
+.figure {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+}
+.fig-cap {
+  margin-bottom: 14px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* ---- .evline / .ev ------------------------------------------------
+   A small chronological list: when / what / an optional note. */
+.evline {
+  display: flex;
+  flex-direction: column;
+}
+.ev {
+  display: grid;
+  grid-template-columns: minmax(112px, auto) 1fr;
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.ev:first-child { border-top: 0; padding-top: 0; }
+.ev-when {
+  color: var(--gold);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.ev-what {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.ev-note {
+  grid-column: 2 / -1;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.5;
+}
+.ev-note.lp { color: var(--gold-2); }
+
+/* Highlighted / pivotal events stand out from the rest of the line. */
+.ev.hl {
+  padding-left: 12px;
+  border-top: 0;
+  border-left: 2px solid var(--gold);
+  background: color-mix(in srgb, var(--gold) 6%, transparent);
+  border-radius: 0 4px 4px 0;
+}
+.ev.hl + .ev { border-top: 1px solid var(--line); }
+
+/* ---- .threadHost / .thread-row -------------------------------------
+   Mount point for the "Connections in this episode" panel, and the
+   row styling it (and the home page's thread-section) share. */
+.threadHost {
+  margin-top: 16px;
+}
+.thread-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 10px;
+  margin: 15px 0;
+  font-size: 12px;
+}
+.thread-row b { color: var(--muted); font-weight: 500; }
+.thread-row > div { grid-column: 1 / -1; height: 3px; background: var(--surface-2); }
+.thread-row i { display: block; height: 100%; background: var(--gold); }
+
+/* ---- .connections ------------------------------------------------
+   "Connections in this episode" — the honest panel rendered into
+   .threadHost. Lists only the passages the episode's own text names
+   via its .ref spans; see ConnectionsPanel.tsx. */
+.connections { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--line); }
+.connections h3 { margin: 6px 0 14px; font-size: 15px; font-weight: 500; }
+.connections ul { list-style: none; margin: 0; padding: 0; }
+.connections .thread-row { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.connections .thread-row:last-child { border-bottom: 0; }
+.connections-empty p { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+
+/* ============================================================
+   App shell — topbar, primary nav, bottom nav
+   Ported from the legacy styles.css shell rules.
+   ============================================================ */
+
+.app {
+  min-height: 100dvh;
+  padding-bottom: 88px;
+}
+
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  height: 72px;
+  padding: 0 max(18px, calc((100vw - 1100px) / 2));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--line);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: left;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+.brand img { width: 32px; height: 32px; }
+.brand strong { display: block; font: 600 12px/1 Cinzel, serif; letter-spacing: .12em; }
+.brand small { display: block; margin-top: 4px; color: var(--muted); font-size: 9px; letter-spacing: .08em; }
+
+.top-actions { display: flex; gap: 8px; }
+
+.round-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  cursor: pointer;
+}
+.round-btn svg { width: 18px; }
+
+main {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+}
+
+/* ---- Primary navigation --------------------------------------
+   The same five-item nav renders twice: as `.desktop-nav` inside
+   the topbar (>=900px) and as a fixed `.bottom-nav` on mobile. */
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-height: 53px;
+  padding: 6px 2px;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--muted);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 9px;
+}
+.nav-item svg { width: 18px; height: 18px; }
+.nav-item.active { color: var(--gold); background: color-mix(in srgb, var(--gold) 9%, transparent); }
+
+.desktop-nav { display: none; }
+
+.bottom-nav {
+  position: fixed;
+  z-index: 40;
+  left: 50%;
+  bottom: max(10px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  width: min(620px, calc(100% - 20px));
+  padding: 7px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow);
+}
+
+@media (min-width: 900px) {
+  .topbar { height: 80px; }
+  .desktop-nav { display: flex; gap: 4px; }
+  .bottom-nav { display: none; }
+}
+
+.toast {
+  position: fixed;
+  z-index: 120;
+  left: 50%;
+  bottom: 90px;
+  transform: translate(-50%, 20px);
+  padding: 11px 15px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text);
+  opacity: 0;
+  pointer-events: none;
+  transition: .2s ease;
+  font-size: 11px;
+  box-shadow: var(--shadow);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ============================================================
+   Home route — hero, journey progress, feature grid
+   Ported from the legacy styles.css home() layout rules.
+   ============================================================ */
+
+.hero-home {
+  position: relative;
+  min-height: min(650px, 74dvh);
+  margin: 0 0 38px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: radial-gradient(circle at 72% 22%, color-mix(in srgb, var(--gold) 17%, transparent), transparent 28%),
+    linear-gradient(180deg, var(--surface-2) 0%, var(--bg) 75%);
+}
+
+.hero-glow {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  right: 7%;
+  top: 8%;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--gold-2) 10%, transparent);
+  filter: blur(12px);
+}
+
+.hero-mountains {
+  position: absolute;
+  inset: 38% -10% -10%;
+  background: linear-gradient(145deg, transparent 8%, var(--surface-2) 8% 22%, transparent 22%),
+    linear-gradient(205deg, transparent 17%, var(--surface-2) 17% 33%, transparent 33%),
+    linear-gradient(160deg, transparent 27%, var(--surface) 27% 52%, transparent 52%);
+  opacity: .9;
+}
+
+.hero-home:after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--bg) 98%, transparent) 0%, color-mix(in srgb, var(--bg) 78%, transparent) 42%, color-mix(in srgb, var(--bg) 8%, transparent) 100%),
+    linear-gradient(0deg, var(--bg) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  width: min(610px, 100%);
+  padding: clamp(72px, 12vw, 145px) 22px 50px;
+}
+
+.hero-content h1 {
+  margin: 16px 0;
+  font-size: clamp(42px, 10vw, 76px);
+  line-height: .98;
+  font-weight: 500;
+  letter-spacing: -.04em;
+}
+
+.hero-content h1 em {
+  color: var(--gold-2);
+  font-style: normal;
+}
+
+.hero-content p {
+  max-width: 500px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.hero-mark {
+  position: absolute;
+  z-index: 2;
+  right: 22px;
+  bottom: 42px;
+  color: color-mix(in srgb, var(--text) 30%, transparent);
+  font: 600 24px Cinzel, serif;
+}
+.hero-mark span { margin: 0 4px; color: var(--gold); font-size: 12px; }
+
+.content-section { padding: 0 22px 42px; }
+
+.section-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.section-heading h2 { margin: 6px 0 0; font-size: clamp(22px, 5vw, 30px); font-weight: 500; }
+.section-heading > strong { color: var(--gold); font: 600 22px Cinzel, serif; }
+
+.journey-progress .progress-track { margin-top: 2px; }
+
+.progress-track {
+  height: 5px;
+  overflow: hidden;
+  background: var(--surface-2);
+  border-radius: 20px;
+}
+.progress-track i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+  border-radius: inherit;
+  transition: width .6s ease;
+}
+
+.mini-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.mini-stats b { color: var(--text); }
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.feature-card {
+  position: relative;
+  min-height: 180px;
+  padding: 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.feature-card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--gold) 45%, transparent); }
+.feature-card:before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: .75;
+  background: radial-gradient(circle at 80% 25%, color-mix(in srgb, var(--gold) 17%, transparent), transparent 34%);
+}
+.timeline-feature:before { background: radial-gradient(circle at 70% 20%, rgba(128, 164, 181, .18), transparent 34%); }
+.journey-feature:before { background: radial-gradient(circle at 70% 20%, rgba(194, 140, 93, .18), transparent 34%); }
+.feature-icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-bottom: 38px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  color: var(--gold);
+}
+.feature-icon svg { width: 17px; }
+.feature-card b, .feature-card small, .feature-arrow { position: relative; display: block; }
+.feature-card b { font-size: 13px; }
+.feature-card small { margin-top: 5px; color: var(--muted); line-height: 1.45; }
+.feature-arrow { position: absolute; right: 14px; bottom: 14px; color: var(--gold); }
+.feature-arrow svg { width: 16px; }
+
+@media (min-width: 900px) {
+  .hero-home { margin-bottom: 55px; border-radius: 0 0 8px 8px; }
+  .hero-content { padding-left: 50px; }
+  .hero-mark { right: 50px; }
+  .content-section { padding-left: 50px; padding-right: 50px; }
+  .feature-card { min-height: 210px; }
+}
+
+@media (max-width: 620px) {
+  .feature-grid { grid-template-columns: 1fr; }
+  .feature-card { min-height: 130px; }
+  .feature-icon { margin-bottom: 20px; }
+}
+
+@media (max-width: 420px) {
+  .hero-content h1 { font-size: 42px; }
+  .hero-home { min-height: 600px; }
+}
+
+/* ============================================================
+   Journey route — page intro, season card, episode grid
+   Ported from the legacy styles.css journey() layout rules.
+   ============================================================ */
+
+.page-intro { padding: 52px 22px 30px; }
+.page-intro.compact { padding-bottom: 20px; }
+.page-intro h1 { margin: 8px 0 12px; font-size: clamp(38px, 9vw, 64px); font-weight: 500; letter-spacing: -.04em; }
+.page-intro p { max-width: 650px; margin: 0; color: var(--muted); line-height: 1.7; font-size: 14px; }
+
+.season-card {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  min-height: 210px;
+  margin: 0 22px 28px;
+  padding: 28px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: linear-gradient(135deg, #152632, #0b151d);
+}
+.season-card > div:first-child { position: relative; z-index: 2; max-width: 550px; }
+.season-card span { color: var(--gold); font-size: 10px; font-weight: 700; letter-spacing: .15em; }
+.season-card h2 { margin: 10px 0 6px; font-size: 28px; font-weight: 500; }
+.season-card p { margin: 0; color: var(--muted); font-size: 12px; }
+.season-sun {
+  position: absolute;
+  right: 8%;
+  top: 15%;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240, 207, 145, .65), rgba(217, 173, 97, .07) 55%, transparent 70%);
+  filter: blur(1px);
+}
+
+.episode-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; padding: 0 22px 70px; }
+.episode-list > .reveal { display: flex; }
+.episode-card {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 44% 56%;
+  min-height: 220px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color .2s ease;
+}
+.episode-card:hover { border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
+.episode-card.done { border-color: color-mix(in srgb, var(--gold) 35%, var(--line)); }
+.episode-card.done .episode-copy > span { color: var(--muted); }
+
+.episode-art { position: relative; min-height: 100%; overflow: hidden; }
+.episode-art:before, .episode-art:after { content: ''; position: absolute; border-radius: 50%; }
+.episode-art:before { width: 160px; height: 160px; left: -35px; top: 20px; background: radial-gradient(circle, rgba(239, 210, 159, .55), transparent 67%); }
+.episode-art:after { width: 220px; height: 90px; left: -30px; bottom: -15px; background: #101d25; transform: rotate(-12deg); box-shadow: 100px 18px 0 #0c171e; }
+.episode-art span { position: absolute; z-index: 2; left: 13px; top: 13px; color: rgba(255, 255, 255, .75); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
+.episode-art i { position: absolute; inset: 0; z-index: 1; font-style: normal; }
+
+.episode-copy { display: flex; flex-direction: column; align-items: flex-start; padding: 18px; }
+.episode-copy small { color: var(--gold); font-size: 9px; line-height: 1.35; text-transform: uppercase; letter-spacing: .06em; }
+.episode-copy h3 { margin: 8px 0 8px; font-size: 20px; font-weight: 500; }
+.episode-copy p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.55; }
+.episode-copy > span { display: flex; align-items: center; gap: 6px; margin-top: auto; padding-top: 12px; color: var(--gold); font-size: 11px; font-weight: 700; }
+.episode-copy > span svg { width: 14px; }
+
+@media (min-width: 900px) {
+  .page-intro { padding-left: 50px; padding-right: 50px; }
+  .season-card, .episode-list { margin-left: 28px; margin-right: 28px; }
+  .season-card { min-height: 250px; padding: 42px; }
+  .episode-list { grid-template-columns: repeat(3, 1fr); }
+  .episode-card { grid-template-columns: 1fr; min-height: 330px; }
+  .episode-art { min-height: 145px; }
+  .episode-copy { min-height: 185px; }
+}
+
+@media (max-width: 620px) {
+  .episode-list { grid-template-columns: 1fr; }
+  .episode-card { min-height: 190px; }
+}
+
+@media (max-width: 420px) {
+  .episode-card { grid-template-columns: 40% 60%; }
+}
+
+/* ============================================================
+   Timeline route — legend, timeline list
+   Ported from the legacy styles.css timeline() layout rules.
+   ============================================================ */
+
+.legend { display: flex; flex-wrap: wrap; gap: 13px; padding: 0 22px 22px; color: var(--muted); font-size: 10px; }
+.legend span { display: flex; align-items: center; gap: 6px; }
+.legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
+.legend .derived { background: #88aabd; }
+.legend .approx { background: #b38a65; }
+.legend .undated { background: #67747b; }
+
+.timeline-list { padding: 0 22px 70px; }
+.timeline-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px 1fr 25px;
+  gap: 14px;
+  width: 100%;
+  padding: 0 0 28px;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.timeline-item:disabled { cursor: default; opacity: .55; }
+.timeline-dot {
+  position: relative;
+  z-index: 2;
+  width: 11px;
+  height: 11px;
+  margin-top: 5px;
+  border: 2px solid var(--bg);
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+.timeline-item.derived .timeline-dot { background: #88aabd; box-shadow: 0 0 0 1px #88aabd; }
+.timeline-item.approx .timeline-dot { background: #b38a65; box-shadow: 0 0 0 1px #b38a65; }
+.timeline-item.undated .timeline-dot { background: #67747b; box-shadow: 0 0 0 1px #67747b; }
+.timeline-line { position: absolute; left: 5px; top: 16px; bottom: 0; width: 1px; background: var(--line); }
+.timeline-item:last-child .timeline-line { display: none; }
+.timeline-copy small { color: var(--gold); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.timeline-copy h3 { margin: 6px 0; font-size: 18px; font-weight: 500; }
+.timeline-copy p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+.timeline-item > strong { color: rgba(255, 255, 255, .18); font: 500 13px Cinzel, serif; }
+
+@media (min-width: 900px) {
+  .timeline-list, .legend { margin-left: 28px; margin-right: 28px; }
+}
+
+/* ---- .reveal --------------------------------------------------
+   Fade+rise entrance, driven by the Reveal component's
+   IntersectionObserver. See src/components/Reveal.tsx. */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s ease;
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: none;
+}
+
+/* ============================================================
+   Reader route — header, content, reflection/summary, footer,
+   loading/error states
+   Ported from the legacy styles.css/production.css episode()
+   layout rules. .reader-reflection and .reader-summary are new:
+   the legacy reader parsed `reflection`/`summary` from every
+   episode JSON but never rendered either.
+   ============================================================ */
+
+.reader-head {
+  position: relative;
+  isolation: isolate;
+  min-height: 420px;
+  padding: 36px 22px 24px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+}
+.reader-head::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--bg) 55%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 38%, transparent) 30%,
+    var(--bg) 94%);
+}
+.reader-head > * { position: relative; z-index: 1; }
+.reader-head .eyebrow,
+.reader-head h1,
+.reader-head p,
+.reader-head .reader-meta { text-shadow: 0 2px 18px rgba(0, 0, 0, .5); }
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 30px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--surface) 65%, transparent);
+  backdrop-filter: blur(8px);
+  color: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.back-btn svg { width: 15px; }
+
+.reader-head h1 { margin: 9px 0 12px; font-size: clamp(36px, 9vw, 60px); font-weight: 500; letter-spacing: -.04em; }
+.reader-head p { max-width: 720px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.7; }
+
+.reader-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+.save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 11px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: inherit;
+  cursor: pointer;
+}
+.save-btn svg { width: 15px; }
+.save-btn.saved { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 40%, transparent); }
+
+.reader-content { max-width: 684px; margin: 0 auto; padding: 0 22px 30px; }
+
+/* ---- .reading-progress -------------------------------------------
+   Thin scroll-progress bar, sticky just under the (also sticky)
+   .topbar so the two stack as the reader scrolls. */
+.reading-progress {
+  position: sticky;
+  top: 72px;
+  z-index: 25;
+  height: 3px;
+  background: var(--surface-2);
+}
+.reading-progress > i {
+  display: block;
+  height: 100%;
+  width: 0%;
+  background: var(--gold);
+  transition: width .1s linear;
+}
+
+/* ---- .reader-layout / .section-rail -------------------------------
+   Two-column reading layout (rail + article) at desktop widths;
+   single column below. The rail collapses to a horizontal strip on
+   mobile rather than disappearing. */
+.reader-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+}
+.reader-layout .reader-content { max-width: none; margin: 0; }
+
+.section-rail { display: flex; flex-direction: column; gap: 10px; padding: 14px 22px 0; }
+.section-rail ol { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.section-rail button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-left: 2px solid transparent;
+  border-radius: 0 4px 4px 0;
+  background: none;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+}
+.section-rail button:hover { color: var(--text); }
+.section-rail button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.section-rail button.active {
+  border-left-color: var(--gold);
+  background: color-mix(in srgb, var(--gold) 8%, transparent);
+  color: var(--gold);
+}
+
+@media (max-width: 899px) {
+  .section-rail ol { flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
+  .section-rail button { border-left: 0; border-bottom: 2px solid transparent; border-radius: 4px; white-space: nowrap; }
+  .section-rail button.active { border-left-color: transparent; border-bottom-color: var(--gold); }
+}
+
+@media (min-width: 900px) {
+  .reader-layout {
+    grid-template-columns: 200px minmax(0, 684px);
+    align-items: start;
+    padding-left: 50px;
+    padding-right: 50px;
+  }
+  .reader-layout .reader-content { padding-left: 0; padding-right: 0; }
+  .section-rail { position: sticky; top: 96px; padding: 0; }
+  .reading-progress { top: 80px; }
+}
+
+.reading-section { padding: 28px 0; border-bottom: 1px solid var(--line); }
+.reading-section:last-child { border-bottom: 0; }
+.reading-section > .eyebrow { margin-bottom: 12px; }
+.reading-section h2, .reading-section h3 { font-weight: 500; }
+
+/* ---- .reader-reflection ---------------------------------------
+   Numbered "questions to consider" list — editorial styling to
+   match the .day/.ev numbered-list treatments above. */
+.reader-reflection h2, .reader-summary h2 { margin: 4px 0 20px; font-size: clamp(22px, 4vw, 28px); }
+.reader-reflection ol {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: reflect;
+}
+.reader-reflection li {
+  position: relative;
+  padding-left: 42px;
+  color: var(--text);
+  font-size: 16px;
+  line-height: 1.65;
+  counter-increment: reflect;
+}
+.reader-reflection li::before {
+  content: counter(reflect);
+  position: absolute;
+  left: 0;
+  top: -1px;
+  display: grid;
+  place-items: center;
+  width: 27px;
+  height: 27px;
+  border: 1px solid color-mix(in srgb, var(--gold) 45%, transparent);
+  border-radius: 50%;
+  color: var(--gold);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---- .reader-summary --------------------------------------------
+   Compact recap list, set apart from prose with a gold rule. */
+.reader-summary ul {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.reader-summary li {
+  padding-left: 16px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---- Footer navigation ------------------------------------------ */
+.reader-footer { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 18px 22px 70px; }
+.reader-sequence { width: min(684px, 100%); display: flex; justify-content: space-between; gap: 12px; }
+.continue-btn { justify-content: center; width: min(100%, 520px); }
+
+/* ---- Loading / error states --------------------------------------- */
+.reader-loading,
+.reader-error {
+  min-height: 60dvh;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 14px;
+  padding: 80px 22px;
+  text-align: center;
+}
+.reader-loading h1, .reader-error h1 { margin: 0; font-size: clamp(32px, 7vw, 52px); }
+.reader-loading p, .reader-error p { max-width: 560px; margin: 0; color: var(--muted); line-height: 1.7; }
+
+.loading-indicator { display: flex; gap: 7px; margin: 8px 0; }
+.loading-indicator span { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); animation: be-pulse 1s ease-in-out infinite; }
+.loading-indicator span:nth-child(2) { animation-delay: .15s; }
+.loading-indicator span:nth-child(3) { animation-delay: .3s; }
+@keyframes be-pulse { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+
+.skeleton-lines { display: flex; flex-direction: column; gap: 10px; width: min(420px, 100%); }
+.skeleton {
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--surface) 25%, var(--surface-2) 45%, var(--surface) 65%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.6s ease infinite;
+}
+@keyframes skeleton-shimmer { 0% { background-position: 100% 0; } 100% { background-position: -100% 0; } }
+
+@media (min-width: 900px) {
+  .reader-head { padding: 118px 50px 32px; }
+  .reader-content { padding-left: 50px; padding-right: 50px; }
+}
+
+/* ---- Explore: relief map scene ------------------------------------- */
+.scene-card {
+  position: relative;
+  height: min(560px, 68dvh);
+  min-height: 430px;
+  margin: 0 22px 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #071018;
+  box-shadow: var(--shadow);
+}
+.scene-card canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+.scene-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 30px;
+}
+.three-fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: end center;
+  padding: 30px;
+  background-size: cover;
+  background-position: center;
+  text-align: center;
+}
+.three-fallback p {
+  margin: 0;
+  max-width: 320px;
+  color: #cdd5da;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.scene-copy {
+  position: absolute;
+  z-index: 2;
+  left: 20px;
+  top: 20px;
+  max-width: 300px;
+  pointer-events: none;
+}
+.scene-copy h2 {
+  margin: 7px 0 5px;
+  font-size: 27px;
+  font-weight: 500;
+}
+.scene-copy p {
+  margin: 0;
+  color: #abb5ba;
+  font-size: 12px;
+}
+.scene-actions {
+  position: absolute;
+  z-index: 3;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  gap: 8px;
+}
+.scene-actions button {
+  padding: 9px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  background: rgba(7, 16, 24, 0.7);
+  color: #eee;
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  font-size: 11px;
+}
+.location-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding: 0 22px 70px;
+}
+.location-list button {
+  position: relative;
+  padding: 17px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  text-align: left;
+  cursor: pointer;
+}
+.location-list button.active {
+  border-color: var(--gold);
+}
+.location-list b,
+.location-list small {
+  display: block;
+}
+.location-list b {
+  font-family: Cinzel, serif;
+  font-weight: 500;
+}
+.location-list small {
+  margin-top: 5px;
+  color: var(--muted);
+  font-size: 10px;
+}
+.location-list span {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  color: var(--gold);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 640px) {
+  .location-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   Library route — study cards, saved experiences, quote card
+   Ported from the legacy styles.css library() layout rules.
+   ============================================================ */
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 22px 30px;
+}
+.library-card {
+  min-height: 140px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  text-align: left;
+}
+.library-card.disabled { opacity: .82; }
+.library-card span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--gold);
+}
+.library-card span svg { width: 16px; }
+.library-card b, .library-card small { display: block; }
+.library-card b { font-size: 13px; }
+.library-card small { margin-top: 4px; color: var(--muted); font-size: 10px; }
+.library-card em {
+  display: block;
+  margin-top: 10px;
+  color: var(--gold);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.saved-section { padding: 0 22px 36px; }
+.saved-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 15px 40px 15px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.saved-item span, .saved-item b { display: block; }
+.saved-item span { color: var(--gold); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
+.saved-item b { margin-top: 5px; font-family: Cinzel, Georgia, serif; font-weight: 500; }
+.saved-item svg { position: absolute; right: 5px; top: 50%; width: 16px; transform: translateY(-50%); color: var(--gold); }
+
+.empty-state { padding: 30px 0; color: var(--muted); font-size: 12px; }
+
+.quote-card {
+  margin: 0 22px 70px;
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  background-size: cover;
+  background-position: center;
+}
+.quote-card blockquote { margin: 12px 0; font: 500 19px/1.6 Cinzel, Georgia, serif; }
+.quote-card cite { color: var(--muted); font-size: 10px; }
+
+@media (min-width: 900px) {
+  .library-grid, .saved-section, .quote-card { margin-left: 28px; margin-right: 28px; }
+}
+
+@media (max-width: 620px) {
+  .library-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   Search overlay
+   Ported from the legacy styles.css openSearch()/closeSearch()
+   dialog rules.
+   ============================================================ */
+
+.search-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: start center;
+  padding: 70px 18px 20px;
+  background: rgba(0, 0, 0, .7);
+  backdrop-filter: blur(12px);
+}
+.search-panel {
+  position: relative;
+  width: min(640px, 100%);
+  max-height: calc(100dvh - 90px);
+  overflow: auto;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.search-panel h2 { margin: 7px 0 18px; font-weight: 500; }
+.close-search {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 25px;
+  cursor: pointer;
+}
+#searchInput {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+}
+#searchResults { margin-top: 12px; }
+#searchResults .search-hint,
+#searchResults .no-results { color: var(--muted); font-size: 12px; }
+.search-panel [data-result] {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 13px 35px 13px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.search-panel [data-result] small, .search-panel [data-result] b, .search-panel [data-result] p {
+  display: block;
+}
+.search-panel [data-result] small { color: var(--gold); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
+.search-panel [data-result] b { margin-top: 4px; font-family: Cinzel, Georgia, serif; font-weight: 500; }
+.search-panel [data-result] p { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.search-panel [data-result] svg { position: absolute; right: 5px; top: 50%; width: 16px; transform: translateY(-50%); color: var(--gold); }
+
+/* ---- Reduced motion ------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: .01ms;
+    animation-duration: .01ms;
+    animation-iteration-count: 1;
+  }
+}

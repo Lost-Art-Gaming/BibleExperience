@@ -15,9 +15,6 @@ concurrency:
   group: pages
   cancel-in-progress: true
 
-env:
-  STATIC_VERSION: ${{ github.run_number }}
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -36,9 +33,9 @@ jobs:
               image/jpeg|image/png) echo "OK: $file ($mime)" ;;
               *) echo "Invalid artwork: $file ($mime)"; exit 1 ;;
             esac
-          done < <(find assets -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 | sort -z)
+          done < <(find public/assets -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 | sort -z)
           if [ "$found" -eq 0 ]; then
-            echo "No JPEG/PNG artwork found in assets/"
+            echo "No JPEG/PNG artwork found in public/assets/"
             exit 1
           fi
           echo "Uploaded artwork passed validation. Missing future artwork is allowed during the incremental asset rollout."
@@ -46,30 +43,22 @@ jobs:
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
 
-      - name: Prepare static site
-        run: |
-          set -euo pipefail
-          rm -rf _site
-          mkdir -p _site
-          rsync -av --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
-      - name: Publish build version
-        run: |
-          set -euo pipefail
-          printf '{"release":"%s","commit":"%s","shortCommit":"%s","run":%s,"publishedAt":"%s"}\n' \
-            "$STATIC_VERSION" "$GITHUB_SHA" "${GITHUB_SHA:0:7}" "$GITHUB_RUN_NUMBER" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            > _site/version.json
-          # Keep the browser asset version and service-worker cache version aligned
-          # automatically for every deployment; no manual cache-version bump is needed.
-          sed -i -E "s/\?v=[0-9]+/\?v=${STATIC_VERSION}/g" _site/index.html _site/sw.js
-          sed -i -E "s/bible-experience-production-v[0-9]+/bible-experience-production-v${STATIC_VERSION}/g" _site/sw.js
-          echo "Published release ${STATIC_VERSION} (${GITHUB_SHA:0:7})"
-          cat _site/version.json
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: ./_site
+          path: ./dist
 
   deploy:
     needs: build
