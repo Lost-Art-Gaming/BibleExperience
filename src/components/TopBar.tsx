@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Icon } from './Icon';
 import { Nav } from './Nav';
+import { openSearch } from '../lib/search';
 import type { UseThemeResult } from '../hooks/useTheme';
 
 export interface TopBarProps {
@@ -25,7 +26,7 @@ export function TopBar({ theme, onToggleTheme }: TopBarProps) {
         <button className="round-btn" id="themeBtn" aria-label={themeLabel} onClick={onToggleTheme}>
           <Icon name={theme === 'light' ? 'moon' : 'sun'} />
         </button>
-        <button className="round-btn" id="searchBtn" aria-label="Search">
+        <button className="round-btn" id="searchBtn" aria-label="Search" onClick={openSearch}>
           <Icon name="search" />
         </button>
       </div>

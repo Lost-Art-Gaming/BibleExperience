@@ -1202,6 +1202,159 @@ main {
   }
 }
 
+/* ============================================================
+   Library route — study cards, saved experiences, quote card
+   Ported from the legacy styles.css library() layout rules.
+   ============================================================ */
+
+.library-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 0 22px 30px;
+}
+.library-card {
+  min-height: 140px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  text-align: left;
+}
+.library-card.disabled { opacity: .82; }
+.library-card span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  margin-bottom: 24px;
+  border-radius: 50%;
+  background: var(--surface-2);
+  color: var(--gold);
+}
+.library-card span svg { width: 16px; }
+.library-card b, .library-card small { display: block; }
+.library-card b { font-size: 13px; }
+.library-card small { margin-top: 4px; color: var(--muted); font-size: 10px; }
+.library-card em {
+  display: block;
+  margin-top: 10px;
+  color: var(--gold);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+
+.saved-section { padding: 0 22px 36px; }
+.saved-item {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 15px 40px 15px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.saved-item span, .saved-item b { display: block; }
+.saved-item span { color: var(--gold); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
+.saved-item b { margin-top: 5px; font-family: Cinzel, Georgia, serif; font-weight: 500; }
+.saved-item svg { position: absolute; right: 5px; top: 50%; width: 16px; transform: translateY(-50%); color: var(--gold); }
+
+.empty-state { padding: 30px 0; color: var(--muted); font-size: 12px; }
+
+.quote-card {
+  margin: 0 22px 70px;
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  background-size: cover;
+  background-position: center;
+}
+.quote-card blockquote { margin: 12px 0; font: 500 19px/1.6 Cinzel, Georgia, serif; }
+.quote-card cite { color: var(--muted); font-size: 10px; }
+
+@media (min-width: 900px) {
+  .library-grid, .saved-section, .quote-card { margin-left: 28px; margin-right: 28px; }
+}
+
+@media (max-width: 620px) {
+  .library-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   Search overlay
+   Ported from the legacy styles.css openSearch()/closeSearch()
+   dialog rules.
+   ============================================================ */
+
+.search-overlay {
+  position: fixed;
+  z-index: 100;
+  inset: 0;
+  display: grid;
+  place-items: start center;
+  padding: 70px 18px 20px;
+  background: rgba(0, 0, 0, .7);
+  backdrop-filter: blur(12px);
+}
+.search-panel {
+  position: relative;
+  width: min(640px, 100%);
+  max-height: calc(100dvh - 90px);
+  overflow: auto;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.search-panel h2 { margin: 7px 0 18px; font-weight: 500; }
+.close-search {
+  position: absolute;
+  right: 18px;
+  top: 14px;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 25px;
+  cursor: pointer;
+}
+#searchInput {
+  width: 100%;
+  padding: 13px 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+}
+#searchResults { margin-top: 12px; }
+#searchResults .search-hint,
+#searchResults .no-results { color: var(--muted); font-size: 12px; }
+.search-panel [data-result] {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 13px 35px 13px 0;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+.search-panel [data-result] small, .search-panel [data-result] b, .search-panel [data-result] p {
+  display: block;
+}
+.search-panel [data-result] small { color: var(--gold); font-size: 9px; text-transform: uppercase; letter-spacing: .06em; }
+.search-panel [data-result] b { margin-top: 4px; font-family: Cinzel, Georgia, serif; font-weight: 500; }
+.search-panel [data-result] p { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.search-panel [data-result] svg { position: absolute; right: 5px; top: 50%; width: 16px; transform: translateY(-50%); color: var(--gold); }
+
 /* ---- Reduced motion ------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }

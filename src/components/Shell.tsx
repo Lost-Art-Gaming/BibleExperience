@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { Nav } from './Nav';
+import { SearchOverlay } from './SearchOverlay';
 import { Toast } from './Toast';
 import { useTheme } from '../hooks/useTheme';
 
@@ -27,6 +28,7 @@ export function Shell() {
       </main>
       <Nav className="bottom-nav" />
       <Toast />
+      <SearchOverlay />
     </div>
   );
 }
