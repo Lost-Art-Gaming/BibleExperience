@@ -123,6 +123,21 @@ async def main():
                 assert await page.locator('.index-item').count() >= 1
                 assert await page.locator('.ep-chip[data-episode]').count() >= 1
 
+            # The Tapestry weaves connections from completed episodes; with a
+            # couple completed it renders the loom (desktop) or warp (mobile)
+            # with at least one woven thread.
+            await page.evaluate("() => { localStorage.setItem('be-episode-ep3','done'); localStorage.setItem('be-episode-ep4','done'); }")
+            await page.goto(BASE + '#/tapestry', wait_until='networkidle')
+            await page.wait_for_selector('#main h1')
+            if label == 'desktop':
+                await page.wait_for_selector('.loom-svg')
+                assert await page.locator('.loom-chord').count() >= 1
+                assert await page.locator('.loom-thread').count() >= 1
+            else:
+                await page.wait_for_selector('.warp')
+                assert await page.locator('.warp-row.done').count() >= 1
+            await page.evaluate("() => { localStorage.removeItem('be-episode-ep3'); localStorage.removeItem('be-episode-ep4'); }")
+
             await page.goto(BASE + '#/', wait_until='networkidle')
             await page.locator('#searchBtn').click()
             await page.wait_for_selector('#searchInput')

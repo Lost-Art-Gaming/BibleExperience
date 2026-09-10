@@ -10,8 +10,10 @@ function ep(id: string, opts: { themes?: [string, string][]; people?: [string, s
   const sections: EpisodeData['sections'] = [];
   if (opts.themes) {
     const lis = opts.themes.map(([t, g]) => `<li><strong>${t}</strong>: ${g}</li>`).join('');
-    sections.push({ label: 'Major themes', html: `<section class="ep-sec"><ul>${lis}</ul></section>` });
+    sections.push({ label: 'Major themes', html: `<section class="ep-sec" data-rail="Major themes"><ul>${lis}</ul></section>` });
   }
+  // A summary section with its own <li> list — must NOT be picked up as themes.
+  sections.push({ label: 'Episode summary', html: `<section class="ep-sec" data-rail="Episode summary"><ul><li><strong>Events</strong>: x</li></ul></section>` });
   if (opts.people) {
     const profs = opts.people
       .map(([n, r]) => `<div class="profile"><div class="p-name">${n}</div><div class="p-role">${r}</div><p>x</p></div>`)
@@ -50,6 +52,10 @@ describe('buildContentIndex', () => {
     expect(sovereignty!.episodes).toEqual(['ep1', 'ep2']);
     const dignity = index.themes.find((t) => t.label === 'Human dignity');
     expect(dignity!.episodes).toEqual(['ep2', 'ep3']);
+  });
+
+  it('does not pull summary-section bullets in as themes', () => {
+    expect(index.themes.find((t) => t.label === 'Events')).toBeUndefined();
   });
 
   it('collects people and merges obvious name variants (Jehovah God / Jehovah)', () => {
