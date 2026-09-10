@@ -41,7 +41,12 @@ jobs:
         run: npm run preview -- --host &
 
       - name: Wait for preview server
-        run: npx wait-on http://localhost:4173/BibleExperience/ --timeout 60000
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:4173/BibleExperience/ >/dev/null; then echo "up"; exit 0; fi
+            sleep 1
+          done
+          echo "preview server did not become ready" >&2; exit 1
 
       - name: Verify views and navigation
         run: python tests/playwright_acceptance.py

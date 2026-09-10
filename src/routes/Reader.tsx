@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ConnectionsPanel } from '../components/ConnectionsPanel';
@@ -126,11 +126,19 @@ export default function Reader() {
 
     article.querySelectorAll<HTMLElement>('.ref').forEach((el) => {
       el.tabIndex = 0;
-      el.setAttribute('role', 'link');
       const label = el.textContent?.trim();
       if (label) el.title = label;
     });
   }, [data]);
+
+  // Sanitizing every section re-parses its HTML via DOMParser, which is
+  // wasteful to redo on each render (e.g. every scroll-driven progress/
+  // scroll-spy state update). Memoize on episode `data` so it only runs
+  // once per episode load.
+  const sanitizedSections = useMemo(
+    () => (data ? data.sections.map((section) => ({ ...section, html: sanitizeHtml(section.html) })) : []),
+    [data],
+  );
 
   if (status === 'loading') {
     return (
@@ -219,12 +227,12 @@ export default function Reader() {
         <SectionRail sections={railSections} activeId={activeSectionId} />
 
         <article className="reader-content reader" ref={articleRef}>
-          {data.sections.map((section, sectionIndex) => (
+          {sanitizedSections.map((section, sectionIndex) => (
             <section
               key={`${meta.id}-${sectionIndex}`}
               id={sectionIds[sectionIndex]}
               className="reading-section"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(section.html) }}
+              dangerouslySetInnerHTML={{ __html: section.html }}
             />
           ))}
 
