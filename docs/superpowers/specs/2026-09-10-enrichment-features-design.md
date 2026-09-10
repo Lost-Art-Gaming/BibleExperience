@@ -188,6 +188,24 @@ localStorage, matching the existing `be-*` scheme. New keys:
   Library; tapestry renders; a verse ref is an external link; a highlight
   persists across reload).
 
+## 9b. Feature 5 — Progression gating (added on request)
+
+Episodes unlock in order so the story is a journey, not a wall of contents.
+
+- **Unlocked:** every completed episode plus the *current* one (the first not
+  completed). **Sealed (shown, greyed):** the single next episode. **Hidden:**
+  everything beyond it. The window advances as you complete episodes.
+- Logic in `src/lib/progress.ts` (`currentIndex`, `isEpisodeUnlocked`,
+  `visibleEpisodes`, `hiddenCount`), unit-tested. `done` is injectable.
+- **Journey** renders `visibleEpisodes`; the sealed teaser is a non-interactive
+  `EpisodeCard locked` (dimmed art, lock, title withheld) + a "N more unlock as
+  you continue" footer.
+- **Reader** guards sealed episodes (deep links, or links from timeline/
+  tapestry/search): shows a "This experience is sealed" state pointing to the
+  current episode, never the content.
+- **Tapestry** weaves only `visibleEpisodes`, so the loom/warp grows with
+  progress rather than revealing the whole map.
+
 ## 10. Out of scope
 
 - Inventing cross-reference or scripture datasets.
