@@ -1,9 +1,13 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type RefObject } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ConnectionsPanel } from '../components/ConnectionsPanel';
 import { Icon } from '../components/Icon';
+import { SectionRail } from '../components/SectionRail';
 import { Skeleton } from '../components/Skeleton';
 import { useEpisode } from '../hooks/useEpisode';
 import { useEpisodes } from '../hooks/useEpisodes';
+import { useScrollSpy } from '../hooks/useScrollSpy';
 import { episodeArt, FALLBACKS } from '../lib/art';
 import { sanitizeHtml } from '../lib/sanitize';
 import { cleanTitle, getBookmarks, isDone, setDone, toggleBookmark } from '../lib/storage';
@@ -31,6 +35,57 @@ function hasInAppHistory(): boolean {
   return (state?.idx ?? 0) > 0;
 }
 
+function slugify(label: string): string {
+  return label.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'section';
+}
+
+// Derives a stable `sec-<slug>` id per episode section (from its label),
+// deduping in the rare case two sections share a label so ids stay unique.
+function buildSectionIds(labels: string[]): string[] {
+  const used = new Set<string>();
+  return labels.map((label) => {
+    const base = `sec-${slugify(label)}`;
+    let id = base;
+    let n = 2;
+    while (used.has(id)) id = `${base}-${n++}`;
+    used.add(id);
+    return id;
+  });
+}
+
+// Tracks scroll progress (0-100) through the reader article, for the thin
+// reading-progress bar fixed under the top bar. Recomputes whenever `dep`
+// changes (episode data), since the article's height changes with it even
+// though the <article> DOM node itself persists across in-app navigation.
+function useReadingProgress(ref: RefObject<HTMLElement>, dep: unknown): number {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const update = () => {
+      const rect = el.getBoundingClientRect();
+      const total = rect.height - window.innerHeight;
+      if (total <= 0) {
+        setProgress(100);
+        return;
+      }
+      setProgress(Math.max(0, Math.min(100, (-rect.top / total) * 100)));
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [ref, dep]);
+
+  return progress;
+}
+
 export default function Reader() {
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -39,6 +94,8 @@ export default function Reader() {
 
   const [saved, setSaved] = useState(() => getBookmarks().includes(id));
   const [done, setDoneState] = useState(() => isDone(id));
+  const articleRef = useRef<HTMLElement>(null);
+  const [threadHost, setThreadHost] = useState<HTMLElement | null>(null);
 
   // Reader stays mounted across "Next"/"Continue" navigations (same route,
   // different :id param), so saved/done must be re-read whenever id changes
@@ -47,6 +104,33 @@ export default function Reader() {
     setSaved(getBookmarks().includes(id));
     setDoneState(isDone(id));
   }, [id]);
+
+  const sectionIds = buildSectionIds(data?.sections.map((section) => section.label) ?? []);
+  const activeSectionId = useScrollSpy(sectionIds);
+  const progress = useReadingProgress(articleRef, data);
+
+  // After each episode's section HTML mounts, enhance it in place — without
+  // touching the sanitized markup itself: make `.ref` spans keyboard
+  // focusable with a tooltip, and portal the ConnectionsPanel into that
+  // episode's `.threadHost[data-ep]` placeholder. Re-runs whenever the
+  // episode data changes (including Next/Continue navigation, which keeps
+  // this component mounted).
+  useEffect(() => {
+    const article = articleRef.current;
+    if (!article || !data) {
+      setThreadHost(null);
+      return;
+    }
+
+    setThreadHost(article.querySelector<HTMLElement>('.threadHost[data-ep]'));
+
+    article.querySelectorAll<HTMLElement>('.ref').forEach((el) => {
+      el.tabIndex = 0;
+      el.setAttribute('role', 'link');
+      const label = el.textContent?.trim();
+      if (label) el.title = label;
+    });
+  }, [data]);
 
   if (status === 'loading') {
     return (
@@ -105,6 +189,11 @@ export default function Reader() {
     toast('Episode completed');
   };
 
+  const railSections = data.sections.map((section, sectionIndex) => ({
+    id: sectionIds[sectionIndex],
+    label: section.label,
+  }));
+
   return (
     <>
       <section className="reader-head" style={headStyle(meta.id, Math.max(index, 0))}>
@@ -122,39 +211,50 @@ export default function Reader() {
         </div>
       </section>
 
-      <article className="reader-content reader">
-        {data.sections.map((section, sectionIndex) => (
-          <section
-            key={`${meta.id}-${sectionIndex}`}
-            className="reading-section"
-            dangerouslySetInnerHTML={{ __html: sanitizeHtml(section.html) }}
-          />
-        ))}
+      <div className="reading-progress" aria-hidden="true">
+        <i style={{ width: `${progress}%` }} />
+      </div>
 
-        {data.reflection.length > 0 && (
-          <section className="reading-section reader-reflection">
-            <span className="eyebrow">REFLECT</span>
-            <h2>Questions to consider</h2>
-            <ol>
-              {data.reflection.map((question, questionIndex) => (
-                <li key={questionIndex}>{question}</li>
-              ))}
-            </ol>
-          </section>
-        )}
+      <div className="reader-layout">
+        <SectionRail sections={railSections} activeId={activeSectionId} />
 
-        {data.summary.length > 0 && (
-          <section className="reading-section reader-summary">
-            <span className="eyebrow">RECAP</span>
-            <h2>In summary</h2>
-            <ul>
-              {data.summary.map((item, itemIndex) => (
-                <li key={itemIndex}>{item}</li>
-              ))}
-            </ul>
-          </section>
-        )}
-      </article>
+        <article className="reader-content reader" ref={articleRef}>
+          {data.sections.map((section, sectionIndex) => (
+            <section
+              key={`${meta.id}-${sectionIndex}`}
+              id={sectionIds[sectionIndex]}
+              className="reading-section"
+              dangerouslySetInnerHTML={{ __html: sanitizeHtml(section.html) }}
+            />
+          ))}
+
+          {threadHost ? createPortal(<ConnectionsPanel episodeId={meta.id} sections={data.sections} />, threadHost) : null}
+
+          {data.reflection.length > 0 && (
+            <section className="reading-section reader-reflection">
+              <span className="eyebrow">REFLECT</span>
+              <h2>Questions to consider</h2>
+              <ol>
+                {data.reflection.map((question, questionIndex) => (
+                  <li key={questionIndex}>{question}</li>
+                ))}
+              </ol>
+            </section>
+          )}
+
+          {data.summary.length > 0 && (
+            <section className="reading-section reader-summary">
+              <span className="eyebrow">RECAP</span>
+              <h2>In summary</h2>
+              <ul>
+                {data.summary.map((item, itemIndex) => (
+                  <li key={itemIndex}>{item}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+        </article>
+      </div>
 
       <div className="reader-footer">
         <div className="reader-sequence">
