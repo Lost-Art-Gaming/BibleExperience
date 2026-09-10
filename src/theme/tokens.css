@@ -1,1 +1,27 @@
-/* Design tokens — filled in Task 3 */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #071018;
+  --surface: #0d1822;
+  --surface-2: #12202b;
+  --text: #f4efe5;
+  --muted: #9ba8b2;
+  --gold: #d9ad61;
+  --gold-2: #f0cf91;
+  --line: rgba(255,255,255,.09);
+  --shadow: 0 24px 70px rgba(0,0,0,.35);
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f4f0e8;
+  --surface: #fffdf8;
+  --surface-2: #eee8dc;
+  --text: #18242b;
+  --muted: #68737a;
+  --gold: #a87931;
+  --gold-2: #8b6328;
+  --line: rgba(18,32,43,.11);
+  --shadow: 0 24px 70px rgba(49,42,31,.14);
+  color-scheme: light;
+}

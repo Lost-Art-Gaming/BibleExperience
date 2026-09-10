@@ -1,1 +1,359 @@
-/* Global styles — filled in Task 3 */
+/* ============================================================
+   Global base + reader prose
+   Single stylesheet — no forced overrides, no cascade wars. Every
+   rule here is written to win on its own specificity.
+   ============================================================ */
+
+/* ---- Reset & base elements --------------------------------- */
+* { box-sizing: border-box; }
+
+html {
+  min-width: 320px;
+  background: var(--bg);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Inter, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, textarea, select { font: inherit; }
+button { color: inherit; }
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+}
+
+/* Headings receive programmatic focus on route change for screen
+   readers; never paint a ring for it. */
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible {
+  outline: none;
+}
+
+svg {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+h1, h2, h3, h4, p { margin-top: 0; }
+h1, h2, h3, h4 { font-family: Cinzel, Georgia, serif; }
+h1 { line-height: .95; letter-spacing: -.025em; }
+h2 { line-height: 1.15; letter-spacing: -.01em; }
+h3, h4 { line-height: 1.25; }
+
+a { color: var(--gold); }
+
+.eyebrow {
+  display: block;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+/* ---- Buttons -------------------------------------------------
+   Two-tier hierarchy: primary (filled gold gradient) for the main
+   call to action, secondary (outlined) for everything alongside it. */
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--gold-2), var(--gold));
+  color: #1b1711;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 12px 35px rgba(217, 173, 97, .18);
+}
+.primary-btn svg { width: 17px; }
+
+.secondary-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+.secondary-btn:hover { border-color: rgba(217, 173, 97, .45); }
+.secondary-btn svg { width: 17px; }
+
+/* ============================================================
+   Reader prose
+   The authored episode HTML, from the html field of each episode
+   section in public/data, is rendered verbatim inside a `.reader`
+   wrapper. Everything below styles that exact markup.
+   ============================================================ */
+
+.reader {
+  max-width: 684px;
+  margin: 0 auto;
+  color: var(--text);
+}
+
+.reader p,
+.reader li {
+  color: var(--muted);
+  font-size: 18px;
+  line-height: 1.75;
+  text-wrap: pretty;
+}
+.reader li { margin-bottom: .45em; }
+.reader ul,
+.reader ol { padding-left: 1.35em; }
+.reader strong { color: var(--text); font-weight: 600; }
+.reader em { color: var(--text); font-style: italic; }
+.reader h4 {
+  margin: 1.6em 0 .5em;
+  color: var(--gold-2);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+@media (max-width: 720px) {
+  .reader p,
+  .reader li { font-size: 17px; line-height: 1.72; }
+}
+
+/* ---- .ep-sec / .sec-head -----------------------------------
+   Each authored <section class="ep-sec"> is one editorial block,
+   separated by a hairline. .sec-head pairs the section's eyebrow
+   label with a rule that fills the remaining width. */
+.ep-sec {
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
+}
+.ep-sec:last-child { border-bottom: 0; }
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.sec-head .eyebrow { flex: 0 0 auto; white-space: nowrap; }
+
+.rule {
+  flex: 1 1 auto;
+  height: 0;
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+/* ---- .dropcap ------------------------------------------------ */
+.dropcap::first-letter {
+  float: left;
+  margin: 2px 10px 0 0;
+  color: var(--gold);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 3.6em;
+  font-weight: 600;
+  line-height: .82;
+}
+
+/* ---- .ref ------------------------------------------------------
+   Inline scripture reference. Distinct and tappable, per the
+   design spec (a future VerseRef component slots in over this). */
+.ref {
+  color: var(--gold);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: rgba(217, 173, 97, .55);
+  text-underline-offset: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* ---- .quiet ----------------------------------------------------
+   Editorial aside — a historical/interpretive note set apart from
+   the main narrative voice. */
+.quiet {
+  padding-left: 16px;
+  border-left: 2px solid var(--line);
+  color: var(--muted);
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+/* ---- .day-list / .day ------------------------------------------
+   The six/seven creative-day breakdown. */
+.day-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 20px 0;
+}
+.day {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 16px;
+  align-items: baseline;
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.day:first-child { border-top: 0; padding-top: 0; }
+.d-num {
+  color: var(--gold);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+.d-title {
+  margin-bottom: 4px;
+  color: var(--text);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+.d-body {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+/* ---- .profile ----------------------------------------------------
+   Character profile card. */
+.profile {
+  margin: 20px 0;
+  padding: 18px 20px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold);
+  border-radius: 4px;
+  background: var(--surface);
+}
+.profile + .profile { margin-top: 14px; }
+.p-name {
+  font-family: Cinzel, Georgia, serif;
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text);
+}
+.p-role {
+  margin: 4px 0 12px;
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+.profile p:last-child { margin-bottom: 0; }
+
+/* ---- .figure / .fig-cap ------------------------------------------
+   Timeline-placement figure, wrapping an .evline. */
+.figure {
+  margin: 20px 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+}
+.fig-cap {
+  margin-bottom: 14px;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+/* ---- .evline / .ev ------------------------------------------------
+   A small chronological list: when / what / an optional note. */
+.evline {
+  display: flex;
+  flex-direction: column;
+}
+.ev {
+  display: grid;
+  grid-template-columns: minmax(112px, auto) 1fr;
+  gap: 4px 16px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+}
+.ev:first-child { border-top: 0; padding-top: 0; }
+.ev-when {
+  color: var(--gold);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.ev-what {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+}
+.ev-note {
+  grid-column: 2 / -1;
+  color: var(--muted);
+  font-size: 12px;
+  font-style: italic;
+  line-height: 1.5;
+}
+.ev-note.lp { color: var(--gold-2); }
+
+/* Highlighted / pivotal events stand out from the rest of the line. */
+.ev.hl {
+  padding-left: 12px;
+  border-top: 0;
+  border-left: 2px solid var(--gold);
+  background: rgba(217, 173, 97, .06);
+  border-radius: 0 4px 4px 0;
+}
+.ev.hl + .ev { border-top: 1px solid var(--line); }
+
+/* ---- .threadHost / .thread-row -------------------------------------
+   Mount point for the "Connections in this episode" panel, and the
+   row styling it (and the home page's thread-section) share. */
+.threadHost {
+  margin-top: 16px;
+}
+.thread-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px 10px;
+  margin: 15px 0;
+  font-size: 12px;
+}
+.thread-row b { color: var(--muted); font-weight: 500; }
+.thread-row > div { grid-column: 1 / -1; height: 3px; background: var(--surface-2); }
+.thread-row i { display: block; height: 100%; background: var(--gold); }
+
+/* ---- Reduced motion ------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: .01ms;
+    animation-duration: .01ms;
+    animation-iteration-count: 1;
+  }
+}
