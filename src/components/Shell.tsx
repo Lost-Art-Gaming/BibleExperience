@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
 import { TopBar } from './TopBar';
 import { Nav } from './Nav';
-import { PageTransition } from './PageTransition';
+import { PageTransition, useScrollSave } from './PageTransition';
 import { SearchOverlay } from './SearchOverlay';
 import { Toast } from './Toast';
 import { useTheme } from '../hooks/useTheme';
@@ -9,6 +9,7 @@ import { useTheme } from '../hooks/useTheme';
 export function Shell() {
   const { theme, toggle } = useTheme();
   const location = useLocation();
+  useScrollSave();
 
   // Route-to-route focus is handled inside PageTransition (see
   // FocusHeading there): it must fire only once the new route's content is
