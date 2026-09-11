@@ -5,9 +5,6 @@ import { useEpisodes } from '../hooks/useEpisodes';
 import { FALLBACKS, HOME_ART, OVERLAYS } from '../lib/art';
 import { currentIndex, hiddenCount, visibleEpisodes } from '../lib/progress';
 
-// Season card reuses the Home route's HOME_ART/OVERLAYS wiring for
-// '.season-card' (ep01 art + its overlay gradient), same layering pattern
-// as Home.tsx's artStyle: image on top of an underlying fallback gradient.
 function seasonCardStyle(): CSSProperties {
   const asset = HOME_ART['.season-card'];
   const overlay = OVERLAYS['.season-card'];
@@ -24,20 +21,21 @@ export default function Journey() {
   const current = currentIndex(episodes);
   const visible = visibleEpisodes(episodes);
   const remaining = hiddenCount(episodes);
+  const seasonOneCount = episodes.filter((episode) => episode.season === 1).length;
 
   return (
     <>
       <section className="page-intro">
         <span className="eyebrow">WALK WITH SCRIPTURE</span>
         <h1>Origins</h1>
-        <p>From creation to the promise given to Abraham. Ten experiences, one unfolding story.</p>
+        <p>From creation through the nations and toward the promise given to Abraham. Nine Season 1 experiences, with the next chapter waiting beyond.</p>
       </section>
 
       <section className="season-card" style={seasonCardStyle()}>
         <div>
           <span>SEASON 1 · ORIGINS</span>
           <h2>The beginning of the story.</h2>
-          <p>Genesis 1–12 · {episodes.length} experiences</p>
+          <p>Genesis 1–11 · {seasonOneCount} Season 1 experiences</p>
         </div>
         <div className="season-sun" />
       </section>
