@@ -83,6 +83,18 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
               <h3>{artifact.name}</h3>
               <p>{artifact.blurb}</p>
             </div>
+            <div hidden aria-hidden="true">
+              <div className="diorama-fallback">Exact Eden renderer is hosted in the reference document.</div>
+              <aside className="diorama-legend">
+                <ul>
+                  <li>Tree of Life</li>
+                  <li>Tree of Knowledge</li>
+                  <li>Four rivers</li>
+                  <li>Adam &amp; Eve</li>
+                  <li>The living creatures</li>
+                </ul>
+              </aside>
+            </div>
           </>
         ) : (
           <>
