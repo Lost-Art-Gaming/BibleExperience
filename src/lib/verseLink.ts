@@ -35,9 +35,46 @@ export function parseRef(code: string): ParsedRef | null {
   return { book, label };
 }
 
+const WOL = 'https://wol.jw.org/en/wol/l/r1/lp-e?q=';
+
 /** NWT online-reader (wol.jw.org) search URL for the passage, or null. */
 export function verseUrl(code: string): string | null {
   const parsed = parseRef(code);
   if (!parsed) return null;
-  return `https://wol.jw.org/en/wol/l/r1/lp-e?q=${encodeURIComponent(parsed.label)}`;
+  return `${WOL}${encodeURIComponent(parsed.label)}`;
+}
+
+/** Unique full book names known to the app (for detecting plain-text citations). */
+export const BOOK_NAMES = [...new Set(Object.values(BOOKS))];
+
+/** NWT reader URL for a plain-text citation like "Genesis 2:7" or "Hebrews 4". */
+export function citationUrl(citation: string): string {
+  return `${WOL}${encodeURIComponent(citation.trim())}`;
+}
+
+// Matches a plain-text scripture citation — a known book name followed by a
+// chapter and optional verse(s): "Genesis 2:7", "Hebrews 4", "Genesis 2:2, 3".
+// Longer names first so "1 John" wins over "John".
+const CITATION_RE = new RegExp(
+  `\\b(${BOOK_NAMES.slice().sort((a, b) => b.length - a.length).map((n) => n.replace(/ /g, '\\s+')).join('|')})\\s+\\d+(?::\\d+(?:\\s*[,–-]\\s*\\d+)*)?`,
+  'g',
+);
+
+export interface CitationPart {
+  text: string;
+  url?: string;
+}
+
+/** Splits text into runs, marking plain-text scripture citations with a URL. */
+export function splitCitations(text: string): CitationPart[] {
+  const parts: CitationPart[] = [];
+  let last = 0;
+  for (const m of text.matchAll(CITATION_RE)) {
+    const start = m.index ?? 0;
+    if (start > last) parts.push({ text: text.slice(last, start) });
+    parts.push({ text: m[0], url: citationUrl(m[0]) });
+    last = start + m[0].length;
+  }
+  if (last < text.length) parts.push({ text: text.slice(last) });
+  return parts;
 }
