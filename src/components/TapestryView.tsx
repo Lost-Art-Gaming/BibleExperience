@@ -14,7 +14,7 @@ type Dimension = 'theme' | 'person';
 
 interface Shared {
   tap: Tapestry;
-  entries: IndexEntry[]; // woven threads for the active dimension
+  entries: IndexEntry[];
   completed: Set<string>;
   epNum: (id: string) => string;
   epTitle: (id: string) => string;
@@ -31,8 +31,6 @@ export function TapestryView() {
   const tap = useMemo(() => {
     if (!threads) return null;
     const entries = dimension === 'theme' ? threads.motifs : threads.people;
-    // Only unlocked (+ the sealed next) episodes are woven, so the loom grows
-    // with progress rather than revealing the whole map up front.
     return buildTapestry(visibleEpisodes(episodes), toThreads(entries), completed);
   }, [threads, dimension, episodes, completed]);
 
@@ -52,7 +50,7 @@ export function TapestryView() {
   };
   const epTitle = (id: string) => episodes.find((e) => e.id === id)?.title.replace(/[“”"]/g, '') || id;
   const shared: Shared = { tap, entries, completed, epNum, epTitle };
-  const empty = tap.discovered === 0;
+  const empty = completed.size === 0;
 
   return (
     <div className="tapestry-wrap">
@@ -79,7 +77,7 @@ export function TapestryView() {
         </div>
       </div>
 
-      {empty ? <EmptyLoom completedCount={completed.size} /> : isDesktop ? <Loom {...shared} /> : <Warp {...shared} />}
+      {empty ? <EmptyLoom completedCount={0} /> : isDesktop ? <Loom {...shared} /> : <Warp {...shared} />}
     </div>
   );
 }
@@ -109,9 +107,7 @@ function EmptyLoom({ completedCount }: { completedCount: number }) {
   );
 }
 
-/* ---------------------------------------------------------------- Desktop */
-
-const R = 250; // ring radius
+const R = 250;
 const CX = 320;
 const CY = 320;
 const angle = (i: number, n: number) => (-90 + (i / n) * 360) * (Math.PI / 180);
@@ -143,13 +139,11 @@ function Loom({ tap, entries, epNum, epTitle }: Shared) {
           </defs>
           <circle cx={CX} cy={CY} r={R - 20} fill="url(#loomGlow)" />
 
-          {/* chords */}
           {woven.map((e, i) => {
             const ai = nodeIndex.get(e.a)!;
             const bi = nodeIndex.get(e.b)!;
             const [ax, ay] = pt(ai, n);
             const [bx, by] = pt(bi, n);
-            // pull control points toward the centre for a woven, taut look
             const cax = ax + (CX - ax) * 0.6;
             const cay = ay + (CY - ay) * 0.6;
             const cbx = bx + (CX - bx) * 0.6;
@@ -166,7 +160,6 @@ function Loom({ tap, entries, epNum, epTitle }: Shared) {
             );
           })}
 
-          {/* nodes */}
           {tap.nodes.map((nd) => {
             const [x, y] = pt(nd.index, n);
             const [lx, ly] = pt(nd.index, n, R + 30);
@@ -174,17 +167,18 @@ function Loom({ tap, entries, epNum, epTitle }: Shared) {
             return (
               <g
                 key={nd.id}
-                className={`loom-node ${nd.completed ? 'done' : ''} ${hov ? 'hover' : ''}`}
+                className={`loom-node ${nd.completed ? 'done' : ''}`}
                 onMouseEnter={() => nd.completed && setHoverNode(nd.id)}
                 onMouseLeave={() => setHoverNode(null)}
-                onClick={() => navigate(`/episode/${encodeURIComponent(nd.id)}`)}
+                onClick={() => nd.completed && navigate(`/episode/${encodeURIComponent(nd.id)}`)}
                 role="button"
-                tabIndex={0}
-                aria-label={`Episode ${epNum(nd.id)}: ${epTitle(nd.id)}`}
+                tabIndex={nd.completed ? 0 : -1}
+                aria-disabled={!nd.completed}
+                aria-label={nd.completed ? `Episode ${epNum(nd.id)}: ${epTitle(nd.id)}` : `Episode ${epNum(nd.id)} locked`}
                 onFocus={() => nd.completed && setHoverNode(nd.id)}
                 onBlur={() => setHoverNode(null)}
                 onKeyDown={(ev) => {
-                  if (ev.key === 'Enter' || ev.key === ' ') {
+                  if (nd.completed && (ev.key === 'Enter' || ev.key === ' ')) {
                     ev.preventDefault();
                     navigate(`/episode/${encodeURIComponent(nd.id)}`);
                   }
@@ -208,36 +202,40 @@ function Loom({ tap, entries, epNum, epTitle }: Shared) {
 
       <aside className="loom-ledger" aria-label="Woven threads">
         <span className="eyebrow">{entries.length} threads woven</span>
-        <ul>
-          {entries.map((t) => (
-            <li key={t.id}>
-              <button
-                className={`loom-thread ${selThread === t.id ? 'active' : ''}`}
-                onMouseEnter={() => setSelThread(t.id)}
-                onMouseLeave={() => setSelThread(null)}
-                onFocus={() => setSelThread(t.id)}
-                onBlur={() => setSelThread(null)}
-                onClick={() => setSelThread(selThread === t.id ? null : t.id)}
-              >
-                <b>{t.label}</b>
-                <span className="loom-thread-eps">{t.episodes.filter((id) => tap.nodes.find((nn) => nn.id === id)?.completed).map(epNum).join(' · ')}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
+        {entries.length ? (
+          <ul>
+            {entries.map((t) => (
+              <li key={t.id}>
+                <button
+                  className={`loom-thread ${selThread === t.id ? 'active' : ''}`}
+                  onMouseEnter={() => setSelThread(t.id)}
+                  onMouseLeave={() => setSelThread(null)}
+                  onFocus={() => setSelThread(t.id)}
+                  onBlur={() => setSelThread(null)}
+                  onClick={() => setSelThread(selThread === t.id ? null : t.id)}
+                >
+                  <b>{t.label}</b>
+                  <span className="loom-thread-eps">{t.episodes.filter((id) => tap.nodes.find((nn) => nn.id === id)?.completed).map(epNum).join(' · ')}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="loom-ledger-empty">
+            {completed.size === 1
+              ? 'Episode 01 is woven. Complete Episode 02 to reveal the first shared thread.'
+              : 'Complete another experience to reveal the next shared thread.'}
+          </p>
+        )}
       </aside>
     </div>
   );
 }
 
-/* ----------------------------------------------------------------- Mobile */
-
 function Warp({ tap, entries, completed, epNum, epTitle }: Shared) {
   const navigate = useNavigate();
   const [open, setOpen] = useState<string | null>(null);
 
-  // For a given episode, the woven threads that pass through it and the other
-  // completed episodes they connect to.
   const threadsFor = (id: string) =>
     entries
       .filter((t) => t.episodes.includes(id))
@@ -261,7 +259,7 @@ function Warp({ tap, entries, completed, epNum, epTitle }: Shared) {
               <span className="warp-num">{epNum(nd.id)}</span>
               <span className="warp-title">{epTitle(nd.id)}</span>
               <span className="warp-tally">
-                {nd.completed ? (woven.length ? `${woven.length} threads` : '—') : 'Locked'}
+                {nd.completed ? (woven.length ? `${woven.length} threads` : 'First thread awaits') : 'Locked'}
               </span>
             </button>
             {isOpen && (
@@ -284,7 +282,7 @@ function Warp({ tap, entries, completed, epNum, epTitle }: Shared) {
           </div>
         );
       })}
-      <p className="warp-hint">Tap a lit episode to pull its threads. Complete more to weave the rest.</p>
+      <p className="warp-hint">Your completed experiences light the loom. Complete the next experience to weave its first connection.</p>
     </div>
   );
 }
