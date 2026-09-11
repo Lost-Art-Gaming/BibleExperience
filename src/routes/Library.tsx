@@ -1,22 +1,15 @@
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../components/Icon';
-import { useEpisodes } from '../hooks/useEpisodes';
 import { FALLBACKS, HOME_ART, OVERLAYS } from '../lib/art';
-import { cleanTitle, getBookmarks } from '../lib/storage';
 
-// Study cards — [icon, title, copy, route?]. A route makes the card a live
-// link; without one it stays a "coming soon" placeholder.
 const STUDY_CARDS: Array<[string, string, string, string?]> = [
   ['spark', 'The Tapestry', 'The connections you’ve woven', '/tapestry'],
   ['journey', 'People of Genesis', 'Who’s who, and where they appear', '/people'],
   ['library', 'Themes & Threads', 'The ideas that connect the books', '/themes'],
-  ['search', 'Verse Insights', 'Study the text in context'],
+  ['search', 'Verse Insights', 'Study the text in context', '/insights'],
 ];
 
-// Same art-layering pattern as Home/Journey's artStyle helpers: image over
-// its overlay gradient over a FALLBACKS gradient. '.quote-card' uses
-// fallback index 4, matching the legacy artAttr('assets/study-reflect.jpg', 4) call.
 function quoteCardStyle(): CSSProperties {
   const asset = HOME_ART['.quote-card'];
   const overlay = OVERLAYS['.quote-card'];
@@ -29,17 +22,14 @@ function quoteCardStyle(): CSSProperties {
 }
 
 export default function Library() {
-  const { episodes } = useEpisodes();
   const navigate = useNavigate();
-  const bookmarks = getBookmarks();
-  const saved = episodes.filter((episode) => bookmarks.includes(episode.id));
 
   return (
     <>
       <section className="page-intro">
         <span className="eyebrow">THE LIBRARY</span>
         <h1>Discover more.</h1>
-        <p>Keep your saved experiences close while the library grows into a deeper study companion.</p>
+        <p>Explore the people, themes, threads and Scripture connections that deepen the experiences.</p>
       </section>
 
       <div className="library-grid">
@@ -67,31 +57,6 @@ export default function Library() {
           ),
         )}
       </div>
-
-      <section className="saved-section">
-        <div className="section-heading">
-          <div>
-            <span className="eyebrow">YOUR SAVED EXPERIENCES</span>
-            <h2>{saved.length ? `${saved.length} saved` : 'Nothing saved yet'}</h2>
-          </div>
-        </div>
-        {saved.length ? (
-          saved.map((episode) => (
-            <button
-              className="saved-item"
-              data-episode={episode.id}
-              key={episode.id}
-              onClick={() => navigate(`/episode/${encodeURIComponent(episode.id)}`)}
-            >
-              <span>{episode.label}</span>
-              <b>{cleanTitle(episode.title)}</b>
-              <Icon name="arrow" />
-            </button>
-          ))
-        ) : (
-          <div className="empty-state">Bookmark an episode to keep it here.</div>
-        )}
-      </section>
 
       <section className="quote-card" style={quoteCardStyle()}>
         <span className="eyebrow">THE CENTRAL THREAD</span>

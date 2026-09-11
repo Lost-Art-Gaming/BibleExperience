@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { isDone, setDone, getBookmarks, toggleBookmark, getTheme, setTheme } from '../storage';
+import { isDone, setDone, getTheme, setTheme } from '../storage';
 
 describe('storage', () => {
   beforeEach(() => localStorage.clear());
@@ -9,13 +9,6 @@ describe('storage', () => {
     setDone('ep1');
     expect(localStorage.getItem('be-episode-ep1')).toBe('done');
     expect(isDone('ep1')).toBe(true);
-  });
-
-  it('toggles bookmarks and persists as be-bookmarks JSON', () => {
-    expect(getBookmarks()).toEqual([]);
-    expect(toggleBookmark('ep2')).toEqual(['ep2']);
-    expect(JSON.parse(localStorage.getItem('be-bookmarks')!)).toEqual(['ep2']);
-    expect(toggleBookmark('ep2')).toEqual([]);
   });
 
   it('defaults theme to dark and persists changes', () => {

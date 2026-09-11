@@ -12,7 +12,9 @@ export const ART: Record<string, string> = {
   ep5: asset('ep05-adams-story.jpg'),
   ep6: asset('ep06-noah.jpg'),
   ep7: asset('ep07-deluge.jpg'),
-  ep8: asset('ep08-bow.jpg'),
+  // Episode 8 currently has no production artwork in public/assets.
+  // Leave it unmapped so callers use their intentional visual fallback
+  // instead of issuing a guaranteed 404 image request.
   ep9: asset('ep09-babel.jpg'),
   ep10: asset('ep10-abraham.jpg'),
 };
@@ -51,8 +53,8 @@ export const LIGHT_FALLBACKS: string[] = [
   'linear-gradient(145deg,#dbe5e7,#bda47b)',
 ];
 
-export function episodeArt(id: string): string {
-  return ART[id] || asset('ep01-beginning.jpg');
+export function episodeArt(id: string): string | undefined {
+  return ART[id];
 }
 
 export function overlayFor(key: string): string | undefined {
