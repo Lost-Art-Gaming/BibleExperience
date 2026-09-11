@@ -337,7 +337,6 @@ export default function Reader() {
                   <li key={itemIndex}>{item}</li>
                 ))}
               </ul>
-            </section>
           )}
 
           <section className="reading-section reader-note">
@@ -357,6 +356,30 @@ export default function Reader() {
       </div>
 
       <div className="reader-footer">
+        {done && next && (
+          <section className="completion-reveal" aria-live="polite">
+            <div className="completion-reveal-head">
+              <span className="completion-seal" aria-hidden="true"><Icon name="check" /></span>
+              <div>
+                <span className="eyebrow">EXPERIENCE COMPLETE</span>
+                <h2>{cleanTitle(meta.title)} is woven into your journey.</h2>
+              </div>
+            </div>
+            <p>Episode {String(index + 2).padStart(2, '0')} is now unlocked. Continue the story or see what changed in your Tapestry.</p>
+            <div className="completion-actions">
+              <button className="primary-btn" onClick={() => goToEpisode(next.id)}>
+                <Icon name="play" /> Continue to {cleanTitle(next.title)}
+              </button>
+              <button className="secondary-btn" onClick={() => navigate('/tapestry')}>
+                <Icon name="spark" /> See the Tapestry
+              </button>
+            </div>
+            <div className="completion-discovery">
+              <b>Next discovery:</b> complete Episode {String(index + 2).padStart(2, '0')} to begin weaving its connections with this experience.
+            </div>
+          </section>
+        )}
+
         <div className="reader-sequence">
           {previous ? (
             <button className="secondary-btn" onClick={() => goToEpisode(previous.id)}>
