@@ -5,18 +5,13 @@ import { useEpisodes } from '../hooks/useEpisodes';
 import { FALLBACKS, HOME_ART, OVERLAYS } from '../lib/art';
 import { cleanTitle, getBookmarks } from '../lib/storage';
 
-// Study cards — [icon, title, copy, route?]. A route makes the card a live
-// link; without one it stays a "coming soon" placeholder.
 const STUDY_CARDS: Array<[string, string, string, string?]> = [
   ['spark', 'The Tapestry', 'The connections you’ve woven', '/tapestry'],
   ['journey', 'People of Genesis', 'Who’s who, and where they appear', '/people'],
   ['library', 'Themes & Threads', 'The ideas that connect the books', '/themes'],
-  ['search', 'Verse Insights', 'Study the text in context'],
+  ['search', 'Verse Insights', 'Study the text in context', '/insights'],
 ];
 
-// Same art-layering pattern as Home/Journey's artStyle helpers: image over
-// its overlay gradient over a FALLBACKS gradient. '.quote-card' uses
-// fallback index 4, matching the legacy artAttr('assets/study-reflect.jpg', 4) call.
 function quoteCardStyle(): CSSProperties {
   const asset = HOME_ART['.quote-card'];
   const overlay = OVERLAYS['.quote-card'];
