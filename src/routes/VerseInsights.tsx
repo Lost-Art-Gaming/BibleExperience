@@ -123,9 +123,17 @@ export default function VerseInsights() {
         <p>Find where a Scripture reference appears in the experience, then follow it to the New World Translation.</p>
       </section>
 
-      <section className="insights-search" aria-label="Verse Insights search">
-        <label htmlFor="insightsInput">Search Scripture or a subject</label>
-        <div className="insights-search-row">
+      <section
+        className="content-section"
+        aria-label="Verse Insights search"
+        style={{ marginBottom: 32 }}
+      >
+        <label htmlFor="insightsInput" style={{ display: 'block', marginBottom: 10, color: 'var(--muted)', fontSize: 12, fontWeight: 600 }}>
+          Search Scripture or a subject
+        </label>
+        <div
+          style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 52, padding: '0 14px', border: '1px solid var(--line)', borderRadius: 4, background: 'var(--surface)' }}
+        >
           <Icon name="search" />
           <input
             id="insightsInput"
@@ -133,14 +141,19 @@ export default function VerseInsights() {
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Try “Genesis 3:15”, “covenant”, or “Noah”…"
             autoComplete="off"
+            style={{ flex: 1, minWidth: 0, border: 0, outline: 0, background: 'transparent', color: 'var(--text)' }}
           />
           {query && (
-            <button className="insights-clear" aria-label="Clear search" onClick={() => setQuery('')}>
+            <button
+              aria-label="Clear search"
+              onClick={() => setQuery('')}
+              style={{ border: 0, background: 'transparent', color: 'var(--muted)', fontSize: 22, cursor: 'pointer', lineHeight: 1 }}
+            >
               ×
             </button>
           )}
         </div>
-        <div className="insights-quick" aria-label="Suggested references">
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }} aria-label="Suggested references">
           {popular.map((code) => (
             <button key={code} className="ep-chip" onClick={() => setQuery(parseRef(code)?.label ?? code)}>
               {parseRef(code)?.label ?? code}
@@ -186,10 +199,12 @@ export default function VerseInsights() {
           {results.length === 0 && <div className="empty-state">No matching Scripture or experience content found.</div>}
         </section>
       ) : (
-        <section className="insights-empty">
+        <section className="content-section" style={{ textAlign: 'center', padding: '48px 24px' }}>
           <Icon name="spark" />
           <h2>Start with a reference or a theme.</h2>
-          <p>Verse Insights searches the authored experience content and exposes its Scripture references without bundling copyrighted Bible text.</p>
+          <p style={{ maxWidth: 620, margin: '0 auto', color: 'var(--muted)' }}>
+            Verse Insights searches the authored experience content and exposes its Scripture references without bundling copyrighted Bible text.
+          </p>
         </section>
       )}
     </>
