@@ -54,10 +54,15 @@ async def main():
                     assert await page.locator('.bottom-nav').evaluate("el => getComputedStyle(el).display !== 'none'")
 
                 if view == 'explore':
-                    canvas_count = await page.locator('canvas').count()
-                    fallback_count = await page.locator('.three-fallback').count()
-                    assert canvas_count >= 1 or fallback_count >= 1, 'expected canvas or .three-fallback on Explore'
-                    assert await page.locator('[data-location]').count() >= 1
+                    # The Collection lists every artifact, sealed or not —
+                    # the grid is always present, so it is safe to assert on.
+                    assert await page.locator('.collection-grid').count() == 1
+                    assert await page.locator('[data-artifact]').count() >= 1
+                    # With nothing completed the meter reads 0 and the empty
+                    # state stands in for the stage. The diorama itself is
+                    # only asserted once an episode has been completed
+                    # (see the collection check further down).
+                    assert await page.locator('.collection-meter').count() == 1
 
                 await page.screenshot(path=str(OUT / f'{label}-{view}.png'), full_page=True)
 
@@ -135,6 +140,37 @@ async def main():
                 await page.wait_for_selector('.warp')
                 assert await page.locator('.warp-row.done').count() >= 1
             await page.evaluate("() => { for (const i of [1,2,3]) localStorage.removeItem('be-episode-ep'+i); }")
+
+            # The Collection: completing ep2 uncovers Eden, which then puts a
+            # diorama on the stage. Headless Chromium may not expose WebGL,
+            # so the stage legitimately renders either the <canvas> or the
+            # static `.diorama-fallback` — accept either, but the chrome
+            # (plate, legend) must be there in both cases.
+            await page.evaluate("() => { for (const i of [1,2]) localStorage.setItem('be-episode-ep'+i,'done'); }")
+            await page.goto(BASE + '#/explore', wait_until='networkidle')
+            await page.wait_for_selector('.diorama')
+            assert await page.locator('.collection-count').inner_text() == '1'
+            assert await page.locator('[data-artifact="eden"].artifact-card.sealed').count() == 0
+            assert await page.locator('[data-artifact="ark"].artifact-card.sealed').count() == 1
+            assert await page.locator('.diorama-plate h3').inner_text() == 'Eden'
+            assert await page.locator('.diorama-legend li').count() >= 3
+            canvas_count = await page.locator('.diorama-stage canvas').count()
+            fallback_count = await page.locator('.diorama-fallback').count()
+            assert canvas_count >= 1 or fallback_count >= 1, 'expected canvas or .diorama-fallback on the stage'
+            # Scroll the grid into view so its reveal-on-scroll cards are
+            # actually painted in the full-page screenshot.
+            await page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+            await page.wait_for_timeout(700)  # let the route/reveal transition settle
+            assert await page.locator('.artifact-card').count() == 4
+            await page.screenshot(path=str(OUT / f'{label}-collection.png'), full_page=True)
+
+            # The same model appears inside the episode that tells its story.
+            await page.goto(BASE + '#/episode/ep2', wait_until='networkidle')
+            await page.wait_for_selector('.reader-model .diorama')
+            assert await page.locator('.reader-model .diorama-plate h3').inner_text() == 'Eden'
+            await page.wait_for_timeout(700)
+            await page.screenshot(path=str(OUT / f'{label}-episode-ep2-model.png'), full_page=True)
+            await page.evaluate("() => { for (const i of [1,2]) localStorage.removeItem('be-episode-ep'+i); }")
 
             await page.goto(BASE + '#/', wait_until='networkidle')
             await page.locator('#searchBtn').click()

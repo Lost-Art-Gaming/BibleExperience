@@ -1031,7 +1031,11 @@ main {
 /* ---- .reader-reflection ---------------------------------------
    Numbered "questions to consider" list — editorial styling to
    match the .day/.ev numbered-list treatments above. */
-.reader-reflection h2, .reader-summary h2, .reader-note h2 { margin: 4px 0 20px; font-size: clamp(22px, 4vw, 28px); }
+.reader-reflection h2, .reader-summary h2, .reader-note h2, .reader-model h2 { margin: 4px 0 20px; font-size: clamp(22px, 4vw, 28px); }
+
+/* ---- .reader-model — the episode's place or structure, modelled ---- */
+.reader-model h2 { margin-bottom: 8px; }
+.reader-model-lede { margin: 0 0 18px; color: var(--muted); font-size: 13px; line-height: 1.6; }
 
 /* ---- Personal layer: highlights + notes ---- */
 .reader-content .ep-sec p.hl {
@@ -1174,155 +1178,331 @@ main {
   .reader-content { padding-left: 50px; padding-right: 50px; }
 }
 
-/* ---- Explore: relief map scene ------------------------------------- */
-.scene-card {
+/* ============================================================
+   Artifact dioramas — the miniatures
+   A layered earth cross-section carrying the model, lit and framed
+   like a studio display object: title plate, legend with its
+   scripture, and controls to turn, reset and open it up.
+   ============================================================ */
+
+.diorama { margin: 0 0 22px; padding: 0 22px; }
+
+.diorama-stage {
   position: relative;
-  height: min(560px, 68dvh);
-  min-height: 430px;
-  margin: 0 22px 20px;
-  overflow: hidden;
+  height: clamp(330px, 56dvh, 560px);
   border: 1px solid var(--line);
-  border-radius: 5px;
-  background: #071018;
-  box-shadow: var(--shadow);
+  border-radius: 14px;
+  overflow: hidden;
+  /* studio backdrop — the miniature reads as a display object */
+  background: radial-gradient(120% 90% at 50% 8%, #cdd6dd 0%, #aeb9c2 34%, #7f8a95 70%, #5c656f 100%);
 }
-.scene-card canvas {
-  display: block;
-  width: 100%;
-  height: 100%;
-  touch-action: none;
-}
-.scene-loading {
+
+.diorama-compact { padding: 0; }
+.diorama-compact .diorama-stage { height: clamp(280px, 44dvh, 420px); }
+
+.diorama-plate {
   position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  padding: 30px;
-}
-.three-fallback {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: end center;
-  padding: 30px;
-  background-size: cover;
-  background-position: center;
-  text-align: center;
-}
-.three-fallback p {
-  margin: 0;
-  max-width: 320px;
-  color: #cdd5da;
-  font-size: 12px;
-  line-height: 1.6;
-}
-.scene-copy {
-  position: absolute;
-  z-index: 2;
-  left: 20px;
-  top: 20px;
-  max-width: 300px;
+  left: 18px;
+  top: 16px;
+  max-width: min(52%, 330px);
   pointer-events: none;
 }
-.scene-copy h2 {
-  margin: 7px 0 5px;
-  font-size: 27px;
-  font-weight: 500;
-}
-.scene-copy p {
+.diorama-plate h3 {
   margin: 0;
-  color: #abb5ba;
-  font-size: 12px;
-}
-/* The detail panel holds interactive links, so it opts back into pointer
-   events (the rest of .scene-copy stays click-through for orbit-drag). */
-.scene-detail { max-width: 320px; }
-.scene-detail p { margin: 0 0 10px; color: #c2cbd0; font-size: 12px; line-height: 1.5; }
-.scene-detail a, .scene-detail button { pointer-events: auto; }
-.scene-ep-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 8px 13px;
-  border: 1px solid color-mix(in srgb, var(--place) 55%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--place) 12%, transparent);
-  color: var(--place);
-  font-size: 12px;
+  color: #1b2026;
+  font-family: Cinzel, Georgia, serif;
+  font-size: 22px;
   font-weight: 600;
-  cursor: pointer;
+  line-height: 1.05;
 }
-.scene-ep-link svg { width: 13px; }
-.scene-ep-link:hover { background: color-mix(in srgb, var(--place) 20%, transparent); }
-.scene-ep-locked { display: block; color: var(--muted); font-size: 11px; font-style: italic; }
-.scene-actions {
+.diorama-plate p {
+  margin: 6px 0 0;
+  color: rgba(27, 32, 38, 0.78);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.diorama-controls {
   position: absolute;
-  z-index: 3;
-  left: 20px;
-  right: 20px;
-  bottom: 20px;
+  left: 18px;
+  bottom: 16px;
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
-.scene-actions button {
-  padding: 9px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 4px;
-  background: rgba(7, 16, 24, 0.7);
-  color: #eee;
-  backdrop-filter: blur(10px);
+.diorama-controls button {
+  padding: 8px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  background: rgba(20, 24, 31, 0.72);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 12px;
   cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.diorama-controls button:hover {
+  background: rgba(40, 46, 56, 0.86);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+.diorama-controls button[aria-pressed='true'] {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: #22200f;
+  font-weight: 600;
+}
+
+.diorama-legend {
+  position: absolute;
+  right: 16px;
+  bottom: 16px;
+  width: min(78%, 290px);
+  padding: 12px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  background: rgba(20, 24, 31, 0.84);
+  backdrop-filter: blur(9px);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.34);
+  transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+}
+/* Closed, only the head shows — the body fades so nothing peeks out below it. */
+.diorama-legend.closed { transform: translateY(calc(100% - 42px)); }
+.diorama-legend .diorama-cite,
+.diorama-legend ul { transition: opacity 0.2s ease; }
+.diorama-legend.closed .diorama-cite,
+.diorama-legend.closed ul { opacity: 0; pointer-events: none; }
+.diorama-legend-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.diorama-legend-head i {
+  font-style: normal;
+  font-size: 11px;
+  opacity: 0.7;
+  transition: transform 0.3s ease;
+}
+.diorama-legend.closed .diorama-legend-head i { transform: rotate(180deg); }
+
+.diorama-cite {
+  margin: 5px 0 10px;
+  color: rgba(255, 255, 255, 0.58);
   font-size: 11px;
 }
-.location-list {
+.diorama-cite .cite-link { color: var(--gold-2); }
+
+.diorama-legend ul {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.diorama-legend li {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 12px;
+  line-height: 1.32;
+}
+.diorama-legend .sw {
+  flex: 0 0 auto;
+  width: 11px;
+  height: 11px;
+  margin-top: 3px;
+  border-radius: 3px;
+  /* a bright-enough ring that the near-black swatches still read */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.3);
+}
+.diorama-legend b { color: #fff; font-weight: 600; }
+.diorama-legend .dim { color: rgba(255, 255, 255, 0.58); }
+
+.diorama-loading,
+.diorama-fallback {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: 24px;
+  text-align: center;
+}
+.diorama-fallback p {
+  max-width: 380px;
+  margin: 0;
+  color: #1b2026;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.diorama-caption {
+  margin: 10px 2px 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+@media (min-width: 900px) {
+  .diorama { padding-left: 50px; padding-right: 50px; }
+  .diorama-compact { padding-left: 0; padding-right: 0; }
+}
+@media (max-width: 620px) {
+  .diorama-plate { max-width: 62%; }
+  .diorama-plate h3 { font-size: 18px; }
+  .diorama-plate p { display: none; }
+  /* The legend spans the stage on a narrow screen, so the controls move
+     out from under it — top-right, opposite the title plate. */
+  .diorama-controls {
+    left: auto;
+    right: 14px;
+    top: 14px;
+    bottom: auto;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .diorama-legend {
+    right: 16px;
+    left: 16px;
+    width: auto;
+    max-height: 62%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .diorama-legend.closed { overflow: hidden; }
+}
+
+/* ============================================================
+   The Collection — what the journey has uncovered
+   ============================================================ */
+
+.collection-meter {
+  display: flex;
+  align-items: center;
   gap: 10px;
+  padding: 0 22px 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.collection-count {
+  color: var(--gold-2);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+}
+.collection-bar {
+  position: relative;
+  width: 90px;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.collection-bar i {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, var(--gold), var(--gold-2));
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.collection-empty {
+  margin: 0 22px 24px;
+  padding: 40px 24px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+  text-align: center;
+}
+.collection-empty h2 { margin: 0 0 8px; font-size: 22px; font-weight: 500; }
+.collection-empty p {
+  max-width: 440px;
+  margin: 0 auto 18px;
+  color: var(--read);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
   padding: 0 22px 70px;
 }
-.location-list button {
-  position: relative;
-  padding: 17px;
+.collection-grid > .reveal { display: flex; }
+
+.artifact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  width: 100%;
+  padding: 16px;
   border: 1px solid var(--line);
-  border-radius: 5px;
+  border-left: 2px solid var(--place);
+  border-radius: 6px;
   background: var(--surface);
   text-align: left;
   cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
-.location-list button.active {
-  border-color: var(--place);
+.artifact-card:hover { border-color: color-mix(in srgb, var(--place) 45%, transparent); }
+.artifact-card.selected {
   background: color-mix(in srgb, var(--place) 8%, var(--surface));
+  border-color: var(--place);
 }
-.location-list button:hover { border-color: color-mix(in srgb, var(--place) 45%, transparent); }
-.location-list b,
-.location-list small {
-  display: block;
+.artifact-card.sealed {
+  border-left-color: var(--line);
+  opacity: 0.62;
+  cursor: default;
 }
-.location-list b {
-  font-family: Cinzel, serif;
+.artifact-kind {
+  color: var(--place);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.artifact-card.sealed .artifact-kind { color: var(--muted); }
+.artifact-card b {
+  color: var(--text);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 17px;
   font-weight: 500;
 }
-.location-list small {
-  margin-top: 5px;
+.artifact-card small { color: var(--muted); font-size: 11.5px; line-height: 1.45; }
+.artifact-card em {
+  margin-top: 6px;
+  color: var(--gold);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.artifact-locked {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--muted);
-  font-size: 10px;
 }
-.location-list span {
-  position: absolute;
-  right: 14px;
-  top: 14px;
-  color: var(--place);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-}
-/* Geography reads teal (place), so gold stays reserved for significance. */
-.scene-card .eyebrow { color: var(--place); }
-.scene-actions button:hover { border-color: color-mix(in srgb, var(--place) 55%, transparent); }
+.artifact-locked svg { width: 12px; height: 12px; }
 
-@media (max-width: 640px) {
-  .location-list {
-    grid-template-columns: 1fr;
-  }
+@media (min-width: 900px) {
+  .collection-meter,
+  .collection-empty,
+  .collection-grid { padding-left: 50px; padding-right: 50px; }
+  .collection-empty { margin-left: 0; margin-right: 0; }
+  .collection-grid { grid-template-columns: repeat(4, 1fr); }
+}
+@media (max-width: 620px) {
+  .collection-grid { grid-template-columns: 1fr; }
 }
 
 /* ============================================================
