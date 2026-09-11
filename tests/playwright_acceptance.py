@@ -83,17 +83,19 @@ async def main():
 
                 await page.screenshot(path=str(OUT / f'{label}-{view}.png'), full_page=True)
 
-            await page.goto(BASE + '#/episode/ep6', wait_until='networkidle')
+            # Reader content is tested on ep1 — always unlocked under the
+            # progression gating (later episodes are sealed until reached).
+            await page.goto(BASE + '#/episode/ep1', wait_until='networkidle')
             await page.wait_for_selector('.reader-head h1')
-            assert page.url.endswith('#/episode/ep6'), page.url
+            assert page.url.endswith('#/episode/ep1'), page.url
             await wait_for_focus(page, '.reader-head h1')
             assert await page.locator('.reader-head').count() == 1
             assert await page.locator('.reader-head').evaluate("el => getComputedStyle(el).backgroundImage !== 'none'")
             assert await page.locator('.continue-btn').count() == 1
             assert await page.locator('.secondary-btn.next-link').count() == 1
 
-            # New: reflection ("Questions to consider") and summary
-            # ("In summary") blocks render in the article body.
+            # Reflection ("Questions to consider") and summary ("In summary")
+            # blocks render in the article body.
             await page.wait_for_selector('.reader-reflection')
             assert await page.locator('.reader-reflection h2').inner_text() == 'Questions to consider'
             assert await page.locator('.reader-reflection li').count() >= 1
@@ -101,10 +103,26 @@ async def main():
             assert await page.locator('.reader-summary h2').inner_text() == 'In summary'
             assert await page.locator('.reader-summary li').count() >= 1
 
-            await page.screenshot(path=str(OUT / f'{label}-episode-ep6.png'), full_page=True)
+            # Verse refs are real links to the NWT reader; the personal-layer
+            # note field is present.
+            assert await page.locator('.ref-link[role="link"]').count() >= 1
+            assert await page.locator('.reader-note .note-field').count() == 1
 
+            await page.screenshot(path=str(OUT / f'{label}-episode-ep1.png'), full_page=True)
+
+            # Progression gating: a sealed episode reached by deep link shows
+            # the sealed state, never the content.
+            await page.goto(BASE + '#/episode/ep5', wait_until='networkidle')
+            await page.wait_for_selector('#main h1')
+            assert await page.locator('.reader-sealed').count() == 1
+            assert await page.locator('.reader-head').count() == 0
+
+            # Journey shows the current episode plus a single sealed teaser;
+            # the current card navigates, the locked one is not clickable.
             await page.goto(BASE + '#/journey', wait_until='networkidle')
-            await page.locator('[data-episode="ep6"]').click()
+            await page.wait_for_selector('#main h1')
+            assert await page.locator('.episode-card.locked').count() >= 1
+            await page.locator('[data-episode="ep1"]').click()
             await page.wait_for_selector('.reader-head h1')
             await page.locator('#readerBack').click()
             await page.wait_for_selector('#main h1')
@@ -126,7 +144,9 @@ async def main():
             # The Tapestry weaves connections from completed episodes; with a
             # couple completed it renders the loom (desktop) or warp (mobile)
             # with at least one woven thread.
-            await page.evaluate("() => { localStorage.setItem('be-episode-ep3','done'); localStorage.setItem('be-episode-ep4','done'); }")
+            # Complete a contiguous run so those episodes are unlocked and
+            # weave together (a gap wouldn't unlock the later ones).
+            await page.evaluate("() => { for (const i of [1,2,3]) localStorage.setItem('be-episode-ep'+i,'done'); }")
             await page.goto(BASE + '#/tapestry', wait_until='networkidle')
             await page.wait_for_selector('#main h1')
             if label == 'desktop':
@@ -136,7 +156,7 @@ async def main():
             else:
                 await page.wait_for_selector('.warp')
                 assert await page.locator('.warp-row.done').count() >= 1
-            await page.evaluate("() => { localStorage.removeItem('be-episode-ep3'); localStorage.removeItem('be-episode-ep4'); }")
+            await page.evaluate("() => { for (const i of [1,2,3]) localStorage.removeItem('be-episode-ep'+i); }")
 
             await page.goto(BASE + '#/', wait_until='networkidle')
             await page.locator('#searchBtn').click()

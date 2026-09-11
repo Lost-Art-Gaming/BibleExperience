@@ -8,6 +8,7 @@ const ICONS: Record<string, string> = {
   search: 'M20 20l-4-4m1-5.5A6.5 6.5 0 1 1 4 10.5a6.5 6.5 0 0 1 13 0z',
   bookmark: 'M6 3h12v18l-6-3-6 3z',
   play: 'M8 5l11 7-11 7z',
+  lock: 'M6 10V7a6 6 0 0 1 12 0v3m-13 0h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1z',
   arrow: 'M5 12h14m-6-6 6 6-6 6',
   back: 'M19 12H5m6-6-6 6 6 6',
   spark: 'M12 2l1.8 6.2L20 10l-6.2 1.8L12 18l-1.8-6.2L4 10l6.2-1.8z',
