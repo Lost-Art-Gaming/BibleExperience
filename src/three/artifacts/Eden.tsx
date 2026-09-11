@@ -63,10 +63,7 @@ function RootSystem({ scale = 1 }: { scale?: number }) {
 }
 
 function Fruit({ position, scale = 1, golden = false }: { position: [number, number, number]; scale?: number; golden?: boolean }) {
-  return <group position={position} scale={scale}>
-    <mesh material={golden ? GOLDEN : MAT.fruit} castShadow><sphereGeometry args={[0.82, 12, 10]} /></mesh>
-    <mesh position={[0.05, 0.88, 0]} rotation={[0.2, 0, -0.15]} material={LEAF_DEEP}><coneGeometry args={[0.22, 0.75, 5]} /></mesh>
-  </group>;
+  return <group position={position} scale={scale}><mesh material={golden ? GOLDEN : MAT.fruit} castShadow><sphereGeometry args={[0.82, 12, 10]} /></mesh><mesh position={[0.05, 0.88, 0]} rotation={[0.2, 0, -0.15]} material={LEAF_DEEP}><coneGeometry args={[0.22, 0.75, 5]} /></mesh></group>;
 }
 
 function GardenTree({ position, scale = 1, sacred = false, fruit = true }: { position: [number, number, number]; scale?: number; sacred?: boolean; fruit?: boolean }) {
@@ -77,12 +74,7 @@ function GardenTree({ position, scale = 1, sacred = false, fruit = true }: { pos
     [-4.8, 2.5, 2.6], [4.4, 2.6, -2.5], [0.8, 5.8, -3.5], [-2.1, 1.0, 4.5],
     [5.1, -0.1, 1.7], [-5.6, 0.2, -1.3], [2.4, 3.8, 4.1], [-3.4, 4.2, -2.3],
   ];
-  useFrame(({ clock }) => {
-    if (!crown.current) return;
-    const t = clock.getElapsedTime();
-    crown.current.rotation.z = Math.sin(t * 0.42 + phase.current) * 0.012;
-    crown.current.rotation.x = Math.cos(t * 0.33 + phase.current) * 0.009;
-  });
+  useFrame(({ clock }) => { if (!crown.current) return; const t = clock.getElapsedTime(); crown.current.rotation.z = Math.sin(t * 0.42 + phase.current) * 0.012; crown.current.rotation.x = Math.cos(t * 0.33 + phase.current) * 0.009; });
   return <group position={position} scale={scale}>
     <mesh position={[0, 6, 0]} material={BARK_LIGHT} castShadow receiveShadow><cylinderGeometry args={[1.55, 2.8, 12, 12]} /></mesh>
     <RootSystem />
@@ -107,33 +99,15 @@ function GardenTree({ position, scale = 1, sacred = false, fruit = true }: { pos
 function Palm({ position, scale = 1, rotation = 0 }: { position: [number, number, number]; scale?: number; rotation?: number }) {
   const crown = useRef<THREE.Group>(null);
   const phase = useRef(Math.random() * Math.PI * 2);
-  useFrame(({ clock }) => {
-    if (crown.current) {
-      const t = clock.getElapsedTime();
-      crown.current.rotation.z = Math.sin(t * 0.45 + phase.current) * 0.025;
-      crown.current.rotation.x = Math.cos(t * 0.34 + phase.current) * 0.017;
-    }
-  });
+  useFrame(({ clock }) => { if (crown.current) { const t = clock.getElapsedTime(); crown.current.rotation.z = Math.sin(t * 0.45 + phase.current) * 0.025; crown.current.rotation.x = Math.cos(t * 0.34 + phase.current) * 0.017; } });
   return <group position={position} rotation={[0, rotation, 0]} scale={scale}>
     <mesh position={[0, 6.6, 0]} material={BARK_LIGHT} castShadow><cylinderGeometry args={[0.48, 1.04, 11.2, 10]} /></mesh>
-    <group ref={crown} position={[0, 12.25, 0]}>
-      {Array.from({ length: 12 }).map((_, i) => {
-        const a = (i / 12) * Math.PI * 2;
-        return <group key={i} rotation={[0, a, 0]}>
-          <mesh position={[0, -0.1, 3.35]} rotation={[0.55, 0, 0.03]} material={i % 4 === 0 ? LEAF_LIGHT : LEAF_DEEP} castShadow><coneGeometry args={[0.72, 8.1, 5]} /></mesh>
-          <mesh position={[0, 0.18, 1.2]} rotation={[0.36, 0, 0]} material={LEAF_MID} castShadow><coneGeometry args={[0.92, 3.4, 5]} /></mesh>
-        </group>;
-      })}
-    </group>
+    <group ref={crown} position={[0, 12.25, 0]}>{Array.from({ length: 12 }).map((_, i) => { const a = (i / 12) * Math.PI * 2; return <group key={i} rotation={[0, a, 0]}><mesh position={[0, -0.1, 3.35]} rotation={[0.55, 0, 0.03]} material={i % 4 === 0 ? LEAF_LIGHT : LEAF_DEEP} castShadow><coneGeometry args={[0.72, 8.1, 5]} /></mesh><mesh position={[0, 0.18, 1.2]} rotation={[0.36, 0, 0]} material={LEAF_MID} castShadow><coneGeometry args={[0.92, 3.4, 5]} /></mesh></group>; })}</group>
   </group>;
 }
 
 function Fern({ position, scale = 1, rotation = 0, material = LEAF_DEEP }: { position: [number, number, number]; scale?: number; rotation?: number; material?: THREE.Material }) {
-  return <group position={position} rotation={[0, rotation, 0]} scale={scale}>{Array.from({ length: 11 }).map((_, i) => {
-    const a = (i / 11) * Math.PI * 2;
-    const length = 4.6 - Math.abs(i - 5) * 0.18;
-    return <mesh key={i} position={[Math.sin(a) * length * 0.44, length * 0.17, Math.cos(a) * length * 0.44]} rotation={[0.8, a, 0.08]} material={material} castShadow><coneGeometry args={[0.45, length, 5]} /></mesh>;
-  })}</group>;
+  return <group position={position} rotation={[0, rotation, 0]} scale={scale}>{Array.from({ length: 11 }).map((_, i) => { const a = (i / 11) * Math.PI * 2; const length = 4.6 - Math.abs(i - 5) * 0.18; return <mesh key={i} position={[Math.sin(a) * length * 0.44, length * 0.17, Math.cos(a) * length * 0.44]} rotation={[0.8, a, 0.08]} material={material} castShadow><coneGeometry args={[0.45, length, 5]} /></mesh>; })}</group>;
 }
 
 function GrassTuft({ position, scale = 1, rotation = 0 }: { position: [number, number, number]; scale?: number; rotation?: number }) {
@@ -141,20 +115,12 @@ function GrassTuft({ position, scale = 1, rotation = 0 }: { position: [number, n
 }
 
 function Flower({ position, scale = 1, rotation = 0, petal = FLOWER_IVORY }: { position: [number, number, number]; scale?: number; rotation?: number; petal?: THREE.Material }) {
-  return <group position={position} rotation={[0, rotation, 0]} scale={scale}>
-    <mesh position={[0, 0.84, 0]} material={LEAF_MID}><cylinderGeometry args={[0.065, 0.1, 1.7, 5]} /></mesh>
-    <group position={[0, 1.7, 0]}>{Array.from({ length: 6 }).map((_, i) => { const a = (i / 6) * Math.PI * 2; return <mesh key={i} position={[Math.cos(a) * 0.33, 0, Math.sin(a) * 0.33]} scale={[1, 0.6, 1]} material={petal}><sphereGeometry args={[0.3, 7, 6]} /></mesh>; })}<mesh material={GOLDEN}><sphereGeometry args={[0.17, 8, 6]} /></mesh></group>
-  </group>;
+  return <group position={position} rotation={[0, rotation, 0]} scale={scale}><mesh position={[0, 0.84, 0]} material={LEAF_MID}><cylinderGeometry args={[0.065, 0.1, 1.7, 5]} /></mesh><group position={[0, 1.7, 0]}>{Array.from({ length: 6 }).map((_, i) => { const a = (i / 6) * Math.PI * 2; return <mesh key={i} position={[Math.cos(a) * 0.33, 0, Math.sin(a) * 0.33]} scale={[1, 0.6, 1]} material={petal}><sphereGeometry args={[0.3, 7, 6]} /></mesh>; })}<mesh material={GOLDEN}><sphereGeometry args={[0.17, 8, 6]} /></mesh></group></group>;
 }
 
 function Shrub({ position, scale = 1, variant = 0 }: { position: [number, number, number]; scale?: number; variant?: number }) {
   const palette = [LEAF_MID, LEAF_DEEP, LEAF_GOLD, LEAF_BLUEGREEN];
-  return <group position={position} scale={scale}>
-    <mesh position={[0, 2.2, 0]} material={palette[variant % palette.length]} castShadow><dodecahedronGeometry args={[3.5, 1]} /></mesh>
-    <mesh position={[-2.1, 1.4, 1.35]} material={LEAF_LIGHT} castShadow><icosahedronGeometry args={[2.45, 1]} /></mesh>
-    <mesh position={[2.2, 1.45, -1.05]} material={LEAF_DEEP} castShadow><icosahedronGeometry args={[2.35, 1]} /></mesh>
-    <mesh position={[0.3, 3.35, 1.0]} scale={0.72} material={LEAF_GOLD} castShadow><icosahedronGeometry args={[2.15, 1]} /></mesh>
-  </group>;
+  return <group position={position} scale={scale}><mesh position={[0, 2.2, 0]} material={palette[variant % palette.length]} castShadow><dodecahedronGeometry args={[3.5, 1]} /></mesh><mesh position={[-2.1, 1.4, 1.35]} material={LEAF_LIGHT} castShadow><icosahedronGeometry args={[2.45, 1]} /></mesh><mesh position={[2.2, 1.45, -1.05]} material={LEAF_DEEP} castShadow><icosahedronGeometry args={[2.35, 1]} /></mesh><mesh position={[0.3, 3.35, 1.0]} scale={0.72} material={LEAF_GOLD} castShadow><icosahedronGeometry args={[2.15, 1]} /></mesh></group>;
 }
 
 function Rock({ position, scale = 1, rotation = 0, material }: { position: [number, number, number]; scale?: number; rotation?: number; material?: THREE.Material }) {
@@ -279,7 +245,6 @@ export default function Eden() {
       <MeadowPatch position={[34, 0.76, 16]} scale={[2.2, 0.07, 1.4]} material={LEAF_MID} />
       <MeadowPatch position={[-38, 0.77, -19]} scale={[2.3, 0.08, 1.5]} material={LEAF_BLUEGREEN} />
       <MeadowPatch position={[21, 0.78, -27]} scale={[2.35, 0.07, 1.55]} material={LEAF_LIGHT} />
-
       <mesh position={[0, 1.0, 0]} material={WATER_EDGE} receiveShadow><cylinderGeometry args={[12.8, 13.6, 0.9, 52]} /></mesh>
       <mesh position={[0, 1.62, 0]} material={WATER_SURFACE} receiveShadow><circleGeometry args={[11.9, 72]} /></mesh>
       <mesh position={[0, 1.77, 0]} material={WATER_GLEAM}><ringGeometry args={[7.0, 10.2, 64]} /></mesh>
@@ -288,40 +253,28 @@ export default function Eden() {
       <MistOrb position={[-1, 5.5, 0]} scale={1.75} />
       <MistOrb position={[-4.5, 4.25, 0.8]} scale={1.1} />
       <MistOrb position={[4.4, 4.25, -0.8]} scale={1.0} />
-
       <mesh position={[14, 1.5, -6]} material={LEAF_DEEP} receiveShadow scale={[1.9, 0.15, 1.55]}><sphereGeometry args={[12.8, 24, 10]} /></mesh>
       <mesh position={[14, 2.25, -6]} material={MAT.ground} receiveShadow scale={[1.6, 0.05, 1.25]}><sphereGeometry args={[12.8, 22, 8]} /></mesh>
       <GardenTree position={[8, 2.2, -4]} scale={1.2} sacred />
       <GardenTree position={[22, 2.25, -12]} scale={1.0} sacred />
-
       {perimeterTrees.map(([x, z, s, r], i) => <group key={`t-${i}`} rotation={[0, r, 0]}><GardenTree position={[x, 0, z]} scale={s} fruit={false} /></group>)}
       {palms.map(([x, z, s, r], i) => <Palm key={`p-${i}`} position={[x, 0, z]} scale={s} rotation={r} />)}
       {shrubs.map(([x, z, s, variant], i) => <Shrub key={`s-${i}`} position={[x, 0.16, z]} scale={s} variant={variant} />)}
-      {meadows.map(([x, z, s, r, variant], i) => <MeadowPatch key={`m-${i}`} position={[x, 0.7, z]} scale={[s * 1.55, 0.07, s]} material={variant % 3 === 0 ? LEAF_LIGHT : variant % 3 === 1 ? LEAF_MID : LEAF_GOLD} />)}
+      {meadows.map(([x, z, s, , variant], i) => <MeadowPatch key={`m-${i}`} position={[x, 0.7, z]} scale={[s * 1.55, 0.07, s]} material={variant % 3 === 0 ? LEAF_LIGHT : variant % 3 === 1 ? LEAF_MID : LEAF_GOLD} />)}
       {ferns.map(([x, z, s, r, variant], i) => <Fern key={`f-${i}`} position={[x, 1.16, z]} scale={s} rotation={r} material={variant % 2 ? LEAF_DEEP : LEAF_MID} />)}
       {grass.map(([x, z, s, r], i) => <GrassTuft key={`g-${i}`} position={[x, 1.08, z]} scale={s} rotation={r} />)}
       {flowers.map(([x, z, s, r, p], i) => <Flower key={`fl-${i}`} position={[x, 1.16, z]} scale={s} rotation={r} petal={flowerMats[p]} />)}
       {rocks.map(([x, z, s, r], i) => <Rock key={`r-${i}`} position={[x, 1.55, z]} scale={s} rotation={r} />)}
-
-      {Array.from({ length: 62 }).map((_, i) => {
-        const a = i * 2.19;
-        const r = 19 + ((i * 19) % 35);
-        const x = Math.cos(a) * r;
-        const z = Math.sin(a) * r * 0.72;
-        return <group key={`u-${i}`}><GrassTuft position={[x, 1.05, z]} scale={0.28 + (i % 5) * 0.06} rotation={a} />{i % 4 === 0 && <Flower position={[x + 1.0, 1.15, z - 0.9]} scale={0.35 + (i % 2) * 0.08} rotation={a * 0.7} petal={flowerMats[i % flowerMats.length]} />}</group>;
-      })}
-
+      {Array.from({ length: 62 }).map((_, i) => { const a = i * 2.19; const r = 19 + ((i * 19) % 35); const x = Math.cos(a) * r; const z = Math.sin(a) * r * 0.72; return <group key={`u-${i}`}><GrassTuft position={[x, 1.05, z]} scale={0.28 + (i % 5) * 0.06} rotation={a} />{i % 4 === 0 && <Flower position={[x + 1.0, 1.15, z - 0.9]} scale={0.35 + (i % 2) * 0.08} rotation={a * 0.7} petal={flowerMats[i % flowerMats.length]} />}</group>; })}
       <Vine start={[-57, 10, 40]} end={[-53, 2.8, 35]} sag={2.5} />
       <Vine start={[-44, 11, 29]} end={[-40, 2.8, 24]} sag={2.0} material={VINE_LIGHT} />
       <Vine start={[42, 11, 40]} end={[47, 2.8, 34]} sag={2.8} />
       <Vine start={[-18, 10, 41]} end={[-13, 2.8, 37]} sag={2.1} />
       <Vine start={[29, 11, -40]} end={[34, 2.8, -34]} sag={2.5} material={VINE_LIGHT} />
       <Vine start={[52, 10, -30]} end={[55, 2.6, -25]} sag={2.2} />
-
       <FlyingBird position={[-24, 34, -12]} scale={0.9} phase={0.3} />
       <FlyingBird position={[16, 39, 14]} scale={0.72} phase={1.8} />
       <FlyingBird position={[38, 32, -3]} scale={0.78} phase={3.2} />
-
       <Figure position={[-6, 1.28, 14]} scale={0.92} />
       <Figure position={[-12, 1.28, 9]} scale={0.86} />
     </group>
