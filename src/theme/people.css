@@ -1,0 +1,211 @@
+/* ============================================================
+   People — progressive character cards
+   One card represents one person. The card gains revealed
+   milestones as the reader progresses through the journey.
+   ============================================================ */
+.people-progress {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+.people-progress span + span::before {
+  content: '·';
+  margin-right: 18px;
+  color: var(--line-strong, var(--line));
+}
+
+.people-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.person-card {
+  position: relative;
+  overflow: hidden;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background:
+    radial-gradient(circle at 100% 0, color-mix(in srgb, var(--gold) 8%, transparent), transparent 34%),
+    var(--surface);
+  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.person-card:hover {
+  border-color: color-mix(in srgb, var(--gold) 34%, var(--line));
+  transform: translateY(-2px);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, .12);
+}
+
+.person-card-head {
+  display: grid;
+  grid-template-columns: 52px minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+.person-avatar {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border: 1px solid color-mix(in srgb, var(--gold) 42%, var(--line));
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--gold) 7%, var(--surface));
+  color: var(--gold-2);
+  font-family: Cinzel, Georgia, serif;
+  font-size: 20px;
+}
+.person-identity h2 {
+  margin: 4px 0 3px;
+  font-size: clamp(18px, 2.1vw, 25px);
+}
+.person-identity p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.45;
+}
+.person-progress-ring {
+  display: grid;
+  justify-items: center;
+  min-width: 46px;
+  color: var(--muted);
+  font-family: Cinzel, Georgia, serif;
+  line-height: 1;
+}
+.person-progress-ring strong { color: var(--gold); font-size: 20px; }
+.person-progress-ring span { margin-top: 3px; font-size: 10px; }
+
+.person-card-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 18px 0 4px;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+  letter-spacing: .04em;
+}
+.person-card-meta b { color: var(--text); font-weight: 600; }
+
+.person-journey { margin-top: 4px; }
+.person-milestone {
+  position: relative;
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 74px;
+  padding: 13px 0 8px;
+}
+.person-line {
+  position: absolute;
+  top: 31px;
+  bottom: -8px;
+  left: 10px;
+  width: 1px;
+  background: var(--line);
+}
+.person-milestone:last-child .person-line { display: none; }
+.person-marker {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 9px;
+}
+.person-milestone.revealed .person-marker {
+  border-color: color-mix(in srgb, var(--gold) 65%, var(--line));
+  background: color-mix(in srgb, var(--gold) 12%, var(--surface));
+  color: var(--gold);
+}
+.person-milestone.current .person-marker {
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--gold) 8%, transparent);
+}
+.person-milestone-copy { min-width: 0; }
+.person-milestone-label {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .14em;
+}
+.person-milestone-copy strong {
+  display: block;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.person-milestone-copy > span:last-child {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+.person-milestone-copy button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 5px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.person-milestone-copy button svg { width: 12px; height: 12px; }
+.person-milestone.locked { opacity: .52; }
+.person-milestone.locked .person-marker { border-style: dashed; }
+
+.person-card-footer {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+.person-footer-mark { color: var(--gold); font-size: 12px; line-height: 1.4; }
+.person-card-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+@media (max-width: 899px) {
+  .people-list { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 520px) {
+  .person-card { padding: 18px; }
+  .person-card-head { grid-template-columns: 44px minmax(0, 1fr) auto; gap: 11px; }
+  .person-avatar { width: 44px; height: 44px; font-size: 17px; }
+  .person-progress-ring { min-width: 38px; }
+  .person-progress-ring strong { font-size: 17px; }
+  .person-card-meta { flex-direction: column; gap: 4px; }
+  .person-progress-ring span { font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .person-card { transition: none; }
+}
