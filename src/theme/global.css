@@ -1234,6 +1234,27 @@ main {
   color: #abb5ba;
   font-size: 12px;
 }
+/* The detail panel holds interactive links, so it opts back into pointer
+   events (the rest of .scene-copy stays click-through for orbit-drag). */
+.scene-detail { max-width: 320px; }
+.scene-detail p { margin: 0 0 10px; color: #c2cbd0; font-size: 12px; line-height: 1.5; }
+.scene-detail a, .scene-detail button { pointer-events: auto; }
+.scene-ep-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 13px;
+  border: 1px solid color-mix(in srgb, var(--place) 55%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--place) 12%, transparent);
+  color: var(--place);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.scene-ep-link svg { width: 13px; }
+.scene-ep-link:hover { background: color-mix(in srgb, var(--place) 20%, transparent); }
+.scene-ep-locked { display: block; color: var(--muted); font-size: 11px; font-style: italic; }
 .scene-actions {
   position: absolute;
   z-index: 3;

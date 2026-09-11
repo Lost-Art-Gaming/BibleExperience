@@ -1,5 +1,11 @@
 import { Component, lazy, Suspense, useMemo, useState, type ReactNode } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CitationText } from '../components/CitationText';
+import { Icon } from '../components/Icon';
 import { Skeleton } from '../components/Skeleton';
+import { useEpisodes } from '../hooks/useEpisodes';
+import { isEpisodeUnlocked } from '../lib/progress';
+import { cleanTitle } from '../lib/storage';
 import { GEO_POINTS } from '../three/geoPoints';
 
 // Code-split three.js: the relief map (and all of three/@react-three) loads
@@ -55,14 +61,15 @@ export default function Explore() {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [autoRotate, setAutoRotate] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
+  const navigate = useNavigate();
+  const { episodes } = useEpisodes();
 
   // WebGL support is fixed for the session; check once.
   const webglOK = useMemo(() => hasWebGL(), []);
 
   const active = GEO_POINTS.find((point) => point.id === activeId);
-  const detail = active
-    ? `${active.name}: ${active.description}`
-    : 'Select a waypoint to see why it matters to the story.';
+  const activeEp = active?.episode ? episodes.find((e) => e.id === active.episode) : undefined;
+  const epUnlocked = active?.episode ? isEpisodeUnlocked(active.episode, episodes) : false;
 
   const handleReset = () => {
     setActiveId(null);
@@ -109,7 +116,25 @@ export default function Explore() {
         <div className="scene-copy">
           <span className="eyebrow">GENESIS ROUTE</span>
           <h2>Eden → Ararat → Babel → Ur → Haran → Canaan</h2>
-          <p id="sceneDetail">{detail}</p>
+          <div id="sceneDetail" className="scene-detail">
+            {active ? (
+              <>
+                <p>
+                  <CitationText text={active.description} />
+                </p>
+                {activeEp &&
+                  (epUnlocked ? (
+                    <button className="scene-ep-link" onClick={() => navigate(`/episode/${encodeURIComponent(activeEp.id)}`)}>
+                      <Icon name="play" /> Read “{cleanTitle(activeEp.title)}”
+                    </button>
+                  ) : (
+                    <span className="scene-ep-locked">Sealed — reach “{cleanTitle(activeEp.title)}” in your journey to read it.</span>
+                  ))}
+              </>
+            ) : (
+              <p>Select a waypoint to see why it matters — and step into the episode where its story is told.</p>
+            )}
+          </div>
         </div>
 
         {webglOK && (
