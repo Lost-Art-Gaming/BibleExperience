@@ -9,9 +9,6 @@ import { FALLBACKS, HOME_ART, OVERLAYS } from '../lib/art';
 import { cleanTitle, getBookmarks, getLastRead, isDone } from '../lib/storage';
 import { isEpisodeUnlocked } from '../lib/progress';
 
-// Layers the art image over its overlay gradient (when one exists) and a
-// FALLBACKS gradient underneath, so a failed image load still shows a
-// themed gradient rather than a blank background.
 function artStyle(selector: string, fallbackIndex: number): CSSProperties {
   const asset = HOME_ART[selector];
   const overlay = OVERLAYS[selector];
@@ -29,13 +26,13 @@ export default function Home() {
   const total = episodes.length;
   const pct = total ? Math.round((doneCount / total) * 100) : 0;
   const savedCount = getBookmarks().length;
+  const nextIndex = next ? Math.max(0, episodes.findIndex((episode) => episode.id === next.id)) : 0;
+  const heroNumber = total ? Math.min(nextIndex + 1, total) : 0;
 
   const goToNext = () => {
     if (next) navigate(`/episode/${encodeURIComponent(next.id)}`);
   };
 
-  // Resume: the last episode opened, if it's still unlocked and isn't just
-  // the same episode the hero's "continue" already points at.
   const last = getLastRead();
   const resume =
     last && isEpisodeUnlocked(last.id, episodes) && last.id !== next?.id
@@ -74,8 +71,8 @@ export default function Home() {
               <Icon name="play" /> {pct ? 'Continue your journey' : 'Begin the journey'}
             </button>
           </div>
-          <div className="hero-mark">
-            01<span>/</span>10
+          <div className="hero-mark" aria-label={`Next experience ${heroNumber} of ${total}`}>
+            {String(heroNumber).padStart(2, '0')}<span>/</span>{String(total).padStart(2, '0')}
           </div>
         </section>
       </Reveal>
