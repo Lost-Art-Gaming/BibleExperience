@@ -1,10 +1,10 @@
-import { useRef, type ReactNode } from 'react';
+import { useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 import { Figure, Palm, Water } from '../Diorama';
 import { MAT } from '../dioramaMaterials';
 
-const GOLDEN = new THREE.Color(0xd8b04a);
+const GOLDEN = new THREE.MeshStandardMaterial({ color: 0xd8b04a, roughness: 0.72, metalness: 0.02 });
 const LEAF_LIGHT = new THREE.MeshStandardMaterial({ color: 0x739b4f, roughness: 0.94 });
 const LEAF_DEEP = new THREE.MeshStandardMaterial({ color: 0x345d35, roughness: 0.98 });
 const LEAF_MID = new THREE.MeshStandardMaterial({ color: 0x4f7f42, roughness: 0.96 });
@@ -55,7 +55,6 @@ function LeafCluster({ position, scale = 1, material = LEAF_MID }: { position: [
   );
 }
 
-/** A broad-leafed garden tree with visible branching, roots and fruit. */
 function GardenTree({
   position,
   fruit,
@@ -115,28 +114,6 @@ function GardenTree({
           </mesh>
         ))}
       </group>
-    </group>
-  );
-}
-
-function Fern({ position, scale = 1, rotation = 0 }: { position: [number, number, number]; scale?: number; rotation?: number }) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]} scale={scale}>
-      {Array.from({ length: 9 }).map((_, i) => {
-        const a = (i / 9) * Math.PI * 2;
-        const length = 4.2 - Math.abs(i - 4) * 0.25;
-        return (
-          <mesh
-            key={i}
-            position={[Math.sin(a) * length * 0.42, length * 0.18, Math.cos(a) * length * 0.42]}
-            rotation={[0.75, a, 0.15]}
-            material={LEAF_DEEP}
-            castShadow
-          >
-            <coneGeometry args={[0.55, length, 5]} />
-          </mesh>
-        );
-      })}
     </group>
   );
 }
@@ -223,11 +200,11 @@ function River({ points, width = 4.2 }: { points: [number, number, number][]; wi
   const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
   return (
     <group>
-      <mesh material={MAT.water} receiveShadow>
-        <tubeGeometry args={[curve, 42, width, 10, false]} />
-      </mesh>
       <mesh material={WATER_EDGE} position={[0, -0.35, 0]}>
         <tubeGeometry args={[curve, 42, width * 1.18, 8, false]} />
+      </mesh>
+      <mesh material={MAT.water} receiveShadow>
+        <tubeGeometry args={[curve, 42, width, 10, false]} />
       </mesh>
     </group>
   );
