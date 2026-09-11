@@ -8,6 +8,7 @@ import { useEpisodes } from '../hooks/useEpisodes';
 import { cleanTitle, isDone } from '../lib/storage';
 import { currentIndex, isEpisodeUnlocked } from '../lib/progress';
 import type { IndexEntry } from '../lib/contentIndex';
+import '../theme/people.css';
 
 export interface IndexPageProps {
   kind: 'theme' | 'person';
