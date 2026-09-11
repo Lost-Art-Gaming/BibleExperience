@@ -32,12 +32,3 @@ export interface TimelineItem {
   what: string;
   note: string;
 }
-
-export interface GeoPoint {
-  id: string;
-  name: string;
-  description: string;
-  position: [number, number, number];
-  /** The episode where this place's story is told (for cross-linking). */
-  episode?: string;
-}

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ArtifactStage } from '../components/ArtifactStage';
 import { ConnectionsPanel } from '../components/ConnectionsPanel';
 import { Icon } from '../components/Icon';
 import { SectionRail } from '../components/SectionRail';
@@ -11,6 +12,7 @@ import { useScrollSpy } from '../hooks/useScrollSpy';
 import { useTapestryThreads } from '../hooks/useTapestryThreads';
 import { newlyWovenLabels } from '../lib/tapestry';
 import { episodeArt, FALLBACKS } from '../lib/art';
+import { artifactsForEpisode } from '../lib/artifacts';
 import { sanitizeHtml } from '../lib/sanitize';
 import {
   cleanTitle,
@@ -127,8 +129,13 @@ export default function Reader() {
     setHighlightMode(false);
   }, [id]);
 
+  // The places and structures this episode tells the story of, modelled in
+  // the reading itself — and collected in The Collection once it is complete.
+  const artifacts = useMemo(() => artifactsForEpisode(id), [id]);
+  const modelId = 'sec-the-model';
+
   const sectionIds = buildSectionIds(data?.sections.map((section) => section.label) ?? []);
-  const activeSectionId = useScrollSpy(sectionIds);
+  const activeSectionId = useScrollSpy(artifacts.length > 0 ? [...sectionIds, modelId] : sectionIds);
   const progress = useReadingProgress(articleRef, data);
 
   // After each episode's section HTML mounts, enhance it in place — without
@@ -312,6 +319,7 @@ export default function Reader() {
     id: sectionIds[sectionIndex],
     label: section.label,
   }));
+  if (artifacts.length > 0) railSections.push({ id: modelId, label: 'The model' });
 
   return (
     <>
@@ -355,6 +363,19 @@ export default function Reader() {
           ))}
 
           {threadHost ? createPortal(<ConnectionsPanel episodeId={meta.id} sections={data.sections} />, threadHost) : null}
+
+          {artifacts.length > 0 && (
+            <section id={modelId} className="reading-section reader-model">
+              <span className="eyebrow">THE PLACE</span>
+              <h2>What it looked like</h2>
+              <p className="reader-model-lede">
+                Built to the proportions Scripture gives — nothing here is invented beyond what the text describes.
+              </p>
+              {artifacts.map((artifact) => (
+                <ArtifactStage key={artifact.id} artifact={artifact} compact />
+              ))}
+            </section>
+          )}
 
           {data.reflection.length > 0 && (
             <section className="reading-section reader-reflection">
