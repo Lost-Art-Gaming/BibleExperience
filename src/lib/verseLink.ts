@@ -56,7 +56,7 @@ export function citationUrl(citation: string): string {
 // chapter and optional verse(s): "Genesis 2:7", "Hebrews 4", "Genesis 2:2, 3".
 // Longer names first so "1 John" wins over "John".
 const CITATION_RE = new RegExp(
-  `\\b(${BOOK_NAMES.slice().sort((a, b) => b.length - a.length).map((n) => n.replace(/ /g, '\\s+')).join('|')})\\s+\\d+(?::\\d+(?:\\s*[,–-]\\s*\\d+)*)?`,
+  `\\b(${BOOK_NAMES.slice().sort((a, b) => b.length - a.length).map((n) => n.replace(/ /g, '\\s+')).join('|')})\\s+\\d+(?:\\s*[:–-]\\s*\\d+(?:\\s*[,–-]\\s*\\d+)*)?`,
   'g',
 );
 
