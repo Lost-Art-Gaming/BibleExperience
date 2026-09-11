@@ -113,7 +113,7 @@ const CY = 320;
 const angle = (i: number, n: number) => (-90 + (i / n) * 360) * (Math.PI / 180);
 const pt = (i: number, n: number, radius = R) => [CX + radius * Math.cos(angle(i, n)), CY + radius * Math.sin(angle(i, n))] as const;
 
-function Loom({ tap, entries, epNum, epTitle }: Shared) {
+function Loom({ tap, entries, completed, epNum, epTitle }: Shared) {
   const navigate = useNavigate();
   const n = tap.nodes.length;
   const [hoverNode, setHoverNode] = useState<string | null>(null);
