@@ -57,6 +57,7 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
   const [cutaway, setCutaway] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
   const [legendOpen, setLegendOpen] = useState(() => !compact && !isNarrow());
+  const [sceneReady, setSceneReady] = useState(false);
 
   const fallback = (
     <div className="diorama-fallback">
@@ -69,6 +70,14 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
   return (
     <figure className={`diorama${compact ? ' diorama-compact' : ''}`} data-artifact={artifact.id}>
       <div className="diorama-stage">
+        {/* Keep a stable fallback node in the DOM. It is hidden only after the
+            actual Three.js renderer reports successful initialization. This
+            prevents a WebGL creation failure from leaving the stage empty and
+            gives headless browsers a deterministic non-WebGL representation. */}
+        <div hidden={webglOK && sceneReady} aria-hidden={webglOK && sceneReady}>
+          {fallback}
+        </div>
+
         {webglOK ? (
           <SceneBoundary fallback={fallback}>
             <Suspense fallback={<div className="diorama-loading"><Skeleton /></div>}>
@@ -78,12 +87,11 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
                 autoRotate={autoRotate}
                 resetSignal={resetSignal}
                 reducedMotion={reduced}
+                onReady={() => setSceneReady(true)}
               />
             </Suspense>
           </SceneBoundary>
-        ) : (
-          fallback
-        )}
+        ) : null}
 
         <div className="diorama-plate">
           <h3>{artifact.name}</h3>

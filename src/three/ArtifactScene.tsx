@@ -25,13 +25,14 @@ export interface ArtifactSceneProps {
   autoRotate?: boolean;
   resetSignal?: number;
   reducedMotion?: boolean;
+  onReady?: () => void;
 }
 
 /**
  * Renders one artifact's miniature on the shared diorama stage. This whole
  * module is lazy-loaded, so three.js only arrives when a model is opened.
  */
-export default function ArtifactScene({ id, cutaway, autoRotate, resetSignal, reducedMotion }: ArtifactSceneProps) {
+export default function ArtifactScene({ id, cutaway, autoRotate, resetSignal, reducedMotion, onReady }: ArtifactSceneProps) {
   const frame = FRAMING[id] ?? FRAMING.eden;
   const Scene = SCENES[id];
   if (!Scene) return null;
@@ -44,6 +45,7 @@ export default function ArtifactScene({ id, cutaway, autoRotate, resetSignal, re
       autoRotate={autoRotate}
       resetSignal={resetSignal}
       reducedMotion={reducedMotion}
+      onReady={onReady}
     >
       <Scene cutaway={cutaway} />
     </Diorama>
