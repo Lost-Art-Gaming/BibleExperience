@@ -26,7 +26,6 @@ function EarthBlock({ w, d }: { w: number; d: number }) {
           <boxGeometry args={[w, L.h, d]} />
         </mesh>
       ))}
-      {/* the trodden surface the artifact stands on */}
       <mesh position={[0, 0.6, 0]} material={MAT.ground} receiveShadow>
         <boxGeometry args={[w - 1, 1.2, d - 1]} />
       </mesh>
@@ -34,7 +33,6 @@ function EarthBlock({ w, d }: { w: number; d: number }) {
   );
 }
 
-/** A miniature person — the scale cue that makes the model read as a model. */
 export function Figure({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
   return (
     <group position={position} scale={scale}>
@@ -48,7 +46,6 @@ export function Figure({ position, scale = 1 }: { position: [number, number, num
   );
 }
 
-/** A flame that flickers on a periodic (loop-friendly) curve. */
 export function Flame({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
   const group = useRef<THREE.Group>(null);
   const light = useRef<THREE.PointLight>(null);
@@ -79,7 +76,6 @@ export function Flame({ position, scale = 1 }: { position: [number, number, numb
   );
 }
 
-/** A palm whose crown sways — the reference's sign of life in the air. */
 export function Palm({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
   const crown = useRef<THREE.Group>(null);
   const phase = useRef(Math.random() * Math.PI * 2);
@@ -117,7 +113,6 @@ export function Palm({ position, scale = 1 }: { position: [number, number, numbe
   );
 }
 
-/** Water surface that shimmers on a sum of sines. */
 export function Water({ radius, y, segments = 40 }: { radius: number; y: number; segments?: number }) {
   const ref = useRef<THREE.Mesh>(null);
   const base = useRef<Float32Array | null>(null);
@@ -127,9 +122,6 @@ export function Water({ radius, y, segments = 40 }: { radius: number; y: number;
     const pos = mesh.geometry.attributes.position as THREE.BufferAttribute;
     if (!base.current) base.current = Float32Array.from(pos.array);
     const t = clock.getElapsedTime();
-    // The disc is authored in its own XY plane and laid flat by the -90° X
-    // rotation, so local *z* is the one that becomes world height. Local x/y
-    // carry the circle itself and must be left alone.
     for (let i = 0; i < pos.count; i++) {
       const ix = i * 3;
       const x = base.current[ix];
@@ -148,16 +140,14 @@ export function Water({ radius, y, segments = 40 }: { radius: number; y: number;
 
 export interface DioramaProps {
   children: ReactNode;
-  /** Earth block footprint. */
   width?: number;
   depth?: number;
-  /** Camera framing. */
   distance?: number;
   target?: [number, number, number];
   autoRotate?: boolean;
-  /** Increment to snap the camera back to its opening framing. */
   resetSignal?: number;
   reducedMotion?: boolean;
+  onReady?: () => void;
 }
 
 function Rig({
@@ -171,7 +161,6 @@ function Rig({
   autoRotate: boolean;
   resetSignal: number;
 }) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const controls = useRef<any>(null);
   useEffect(() => {
     controls.current?.reset?.();
@@ -202,6 +191,7 @@ export function Diorama({
   autoRotate = false,
   resetSignal = 0,
   reducedMotion = false,
+  onReady,
 }: DioramaProps) {
   const S = Math.max(width, depth) * 0.9;
   return (
@@ -213,6 +203,7 @@ export function Diorama({
       onCreated={({ gl }) => {
         gl.toneMapping = THREE.ACESFilmicToneMapping;
         gl.toneMappingExposure = 1.12;
+        onReady?.();
       }}
     >
       <hemisphereLight args={[0xdfe7ef, 0x6b5a3f, 0.55]} />
