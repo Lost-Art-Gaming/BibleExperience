@@ -33,11 +33,9 @@ function episodeText(data: EpisodeData): string {
 function episodeRefs(data: EpisodeData): string[] {
   const refs = new Set<string>();
   data.sections.forEach((section) => {
-    const html = section.html;
     const pattern = /data-ref=["']([^"']+)["']/g;
-    for (const match of html.matchAll(pattern)) {
-      const parsed = parseRef(match[1]);
-      if (parsed) refs.add(parsed.label);
+    for (const match of section.html.matchAll(pattern)) {
+      if (parseRef(match[1])) refs.add(match[1]);
     }
   });
   return [...refs];
@@ -85,11 +83,11 @@ export default function VerseInsights() {
 
   const popular = useMemo(() => {
     const counts = new Map<string, number>();
-    dataMap.forEach((data) => episodeRefs(data).forEach((ref) => counts.set(ref, (counts.get(ref) ?? 0) + 1)));
+    dataMap.forEach((data) => episodeRefs(data).forEach((code) => counts.set(code, (counts.get(code) ?? 0) + 1)));
     return [...counts.entries()]
       .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
       .slice(0, 8)
-      .map(([ref]) => ref);
+      .map(([code]) => code);
   }, [dataMap]);
 
   const results = useMemo<InsightResult[]>(() => {
@@ -102,20 +100,20 @@ export default function VerseInsights() {
         if (!data) return null;
         const text = episodeText(data);
         const refs = episodeRefs(data);
-        const refMatch = refs.some((ref) => ref.toLowerCase().includes(normalized));
+        const matchingRefs = refs.filter((code) => parseRef(code)?.label.toLowerCase().includes(normalized));
         const textMatch = text.toLowerCase().includes(normalized);
-        if (!refMatch && !textMatch) return null;
+        if (!matchingRefs.length && !textMatch) return null;
         return {
           meta,
-          snippet: textMatch ? makeSnippet(text, normalized) : `Scripture connection: ${refs.find((ref) => ref.toLowerCase().includes(normalized))}`,
-          refs: refMatch ? refs.filter((ref) => ref.toLowerCase().includes(normalized)).slice(0, 5) : refs.slice(0, 5),
+          snippet: textMatch
+            ? makeSnippet(text, normalized)
+            : `Scripture connection: ${parseRef(matchingRefs[0])?.label ?? matchingRefs[0]}`,
+          refs: matchingRefs.length ? matchingRefs.slice(0, 5) : refs.slice(0, 5),
         };
       })
       .filter((result): result is InsightResult => Boolean(result))
       .slice(0, 10);
   }, [query, episodes, dataMap]);
-
-  const applyQuery = (value: string) => setQuery(value);
 
   return (
     <>
@@ -132,7 +130,7 @@ export default function VerseInsights() {
           <input
             id="insightsInput"
             value={query}
-            onChange={(event) => applyQuery(event.target.value)}
+            onChange={(event) => setQuery(event.target.value)}
             placeholder="Try “Genesis 3:15”, “covenant”, or “Noah”…"
             autoComplete="off"
           />
@@ -143,9 +141,9 @@ export default function VerseInsights() {
           )}
         </div>
         <div className="insights-quick" aria-label="Suggested references">
-          {popular.map((ref) => (
-            <button key={ref} className="ep-chip" onClick={() => applyQuery(ref)}>
-              {ref}
+          {popular.map((code) => (
+            <button key={code} className="ep-chip" onClick={() => setQuery(parseRef(code)?.label ?? code)}>
+              {parseRef(code)?.label ?? code}
             </button>
           ))}
         </div>
@@ -173,11 +171,14 @@ export default function VerseInsights() {
                 </div>
                 <p className="index-detail">{result.snippet}</p>
                 <div className="index-eps">
-                  {result.refs.map((ref) => (
-                    <a className="ep-chip cite-link" key={ref} href={verseUrl(ref.match(/^[A-Za-z]+/) ? ref : '') ?? '#'} target="_blank" rel="noopener noreferrer">
-                      {ref} <Icon name="arrow" />
-                    </a>
-                  ))}
+                  {result.refs.map((code) => {
+                    const parsed = parseRef(code);
+                    return parsed ? (
+                      <a className="ep-chip cite-link" key={code} href={verseUrl(code) ?? '#'} target="_blank" rel="noopener noreferrer">
+                        {parsed.label} <Icon name="arrow" />
+                      </a>
+                    ) : null;
+                  })}
                 </div>
               </article>
             </Reveal>
