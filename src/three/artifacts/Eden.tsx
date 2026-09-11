@@ -1,30 +1,37 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
-import { Figure, Palm, Water } from '../Diorama';
+import { Figure } from '../Diorama';
 import { MAT } from '../dioramaMaterials';
 
-const GOLDEN = new THREE.MeshStandardMaterial({ color: 0xd8b04a, roughness: 0.72, metalness: 0.02 });
-const LEAF_LIGHT = new THREE.MeshStandardMaterial({ color: 0x739b4f, roughness: 0.94 });
-const LEAF_DEEP = new THREE.MeshStandardMaterial({ color: 0x345d35, roughness: 0.98 });
-const LEAF_MID = new THREE.MeshStandardMaterial({ color: 0x4f7f42, roughness: 0.96 });
-const FLOWER_IVORY = new THREE.MeshStandardMaterial({ color: 0xf1dfb6, roughness: 0.7 });
-const FLOWER_GOLD = new THREE.MeshStandardMaterial({ color: 0xe5bc62, roughness: 0.68 });
-const VINE_MAT = new THREE.MeshStandardMaterial({ color: 0x426f3a, roughness: 0.95 });
-const STONE_MAT = new THREE.MeshStandardMaterial({ color: 0x8d876f, roughness: 0.96 });
-const STONE_LIGHT = new THREE.MeshStandardMaterial({ color: 0xb5aa88, roughness: 0.92 });
-const WATER_EDGE = new THREE.MeshStandardMaterial({ color: 0x477f78, roughness: 0.28, metalness: 0.05 });
+const LEAF_LIGHT = new THREE.MeshStandardMaterial({ color: 0x82ad61, roughness: 0.96 });
+const LEAF_MID = new THREE.MeshStandardMaterial({ color: 0x4d8648, roughness: 0.97 });
+const LEAF_DEEP = new THREE.MeshStandardMaterial({ color: 0x245d3a, roughness: 0.99 });
+const LEAF_GOLD = new THREE.MeshStandardMaterial({ color: 0x9cac58, roughness: 0.94 });
+const LEAF_BLUEGREEN = new THREE.MeshStandardMaterial({ color: 0x5f8f7b, roughness: 0.96 });
+const BARK_LIGHT = new THREE.MeshStandardMaterial({ color: 0x9d7344, roughness: 0.94 });
+const BARK_DARK = new THREE.MeshStandardMaterial({ color: 0x69452a, roughness: 0.98 });
+const FLOWER_IVORY = new THREE.MeshStandardMaterial({ color: 0xf7efd9, roughness: 0.58 });
+const FLOWER_PEACH = new THREE.MeshStandardMaterial({ color: 0xf0bd99, roughness: 0.6 });
+const FLOWER_GOLD = new THREE.MeshStandardMaterial({ color: 0xe5c35f, roughness: 0.6 });
+const FLOWER_LILAC = new THREE.MeshStandardMaterial({ color: 0xb9afd2, roughness: 0.64 });
+const VINE_MAT = new THREE.MeshStandardMaterial({ color: 0x3b713e, roughness: 0.97 });
+const VINE_LIGHT = new THREE.MeshStandardMaterial({ color: 0x6f9852, roughness: 0.93 });
+const STONE_MAT = new THREE.MeshStandardMaterial({ color: 0x938a72, roughness: 0.98 });
+const STONE_LIGHT = new THREE.MeshStandardMaterial({ color: 0xc5b995, roughness: 0.9 });
+const STONE_MOSS = new THREE.MeshStandardMaterial({ color: 0x687d51, roughness: 0.98 });
+const WATER_EDGE = new THREE.MeshStandardMaterial({ color: 0x356d66, roughness: 0.38, metalness: 0.02 });
+const WATER_SURFACE = new THREE.MeshStandardMaterial({ color: 0x5a9991, roughness: 0.1, metalness: 0.06, transparent: true, opacity: 0.86 });
+const WATER_GLEAM = new THREE.MeshBasicMaterial({ color: 0xbadfd1, transparent: true, opacity: 0.16, depthWrite: false });
+const MIST = new THREE.MeshBasicMaterial({ color: 0xc9e6d3, transparent: true, opacity: 0.055, depthWrite: false });
+const GOLDEN = new THREE.MeshStandardMaterial({ color: 0xd9b34d, roughness: 0.7, metalness: 0.02 });
 
-function Branch({
-  from,
-  to,
-  radius,
-  material = MAT.trunk,
-}: {
+function Branch({ from, to, radius, material = MAT.trunk, radialSegments = 8 }: {
   from: [number, number, number];
   to: [number, number, number];
   radius: number;
   material?: THREE.Material;
+  radialSegments?: number;
 }) {
   const a = new THREE.Vector3(...from);
   const b = new THREE.Vector3(...to);
@@ -32,308 +39,244 @@ function Branch({
   const length = direction.length();
   const midpoint = a.clone().add(b).multiplyScalar(0.5);
   const quaternion = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), direction.normalize());
-  return (
-    <mesh position={midpoint} quaternion={quaternion} material={material} castShadow>
-      <cylinderGeometry args={[radius * 0.72, radius, length, 8]} />
-    </mesh>
-  );
+  return <mesh position={midpoint} quaternion={quaternion} material={material} castShadow receiveShadow><cylinderGeometry args={[radius * 0.68, radius, length, radialSegments]} /></mesh>;
 }
 
-function LeafCluster({ position, scale = 1, material = LEAF_MID }: { position: [number, number, number]; scale?: number; material?: THREE.Material }) {
+function CanopyCluster({ position, scale = 1, material = LEAF_MID }: { position: [number, number, number]; scale?: number; material?: THREE.Material }) {
   return (
     <group position={position} scale={scale}>
-      <mesh material={material} castShadow>
-        <icosahedronGeometry args={[4.6, 1]} />
-      </mesh>
-      <mesh position={[-2.8, -0.7, 1.2]} scale={0.78} material={material} castShadow>
-        <icosahedronGeometry args={[3.6, 1]} />
-      </mesh>
-      <mesh position={[2.6, -0.5, -1.3]} scale={0.82} material={material} castShadow>
-        <icosahedronGeometry args={[3.8, 1]} />
-      </mesh>
+      <mesh material={material} castShadow><dodecahedronGeometry args={[4.9, 1]} /></mesh>
+      <mesh position={[-3.6, -1.2, 1.5]} rotation={[0.12, 0.48, 0.04]} material={material} castShadow><icosahedronGeometry args={[3.8, 1]} /></mesh>
+      <mesh position={[3.2, -1.0, -1.7]} rotation={[-0.08, -0.35, 0.1]} material={material} castShadow><icosahedronGeometry args={[4.0, 1]} /></mesh>
+      <mesh position={[0.7, 3.4, 2.1]} scale={0.68} material={material} castShadow><icosahedronGeometry args={[3.7, 1]} /></mesh>
     </group>
   );
 }
 
-function GardenTree({
-  position,
-  fruit,
-  scale = 1,
-  sacred = false,
-}: {
-  position: [number, number, number];
-  fruit: 'gold' | 'red';
-  scale?: number;
-  sacred?: boolean;
-}) {
+function RootSystem({ scale = 1 }: { scale?: number }) {
+  const roots: [[number, number, number], [number, number, number], number][] = [
+    [[-1.4, 2.0, 0], [-8.0, 1.15, 0.5], 0.63], [[1.4, 2.0, 0], [8.0, 1.2, -0.8], 0.59],
+    [[0, 2.0, 1.1], [-1.7, 1.15, 7.2], 0.5], [[0, 2.0, -1.1], [1.5, 1.15, -6.8], 0.46],
+    [[-1.0, 2.0, 0.5], [-5.7, 1.2, 4.4], 0.42], [[1.1, 2.0, -0.5], [5.6, 1.2, -4.4], 0.43],
+  ];
+  return <group scale={scale}>{roots.map(([from, to, radius], i) => <Branch key={i} from={from} to={to} radius={radius} material={BARK_DARK} />)}</group>;
+}
+
+function Fruit({ position, scale = 1, golden = false }: { position: [number, number, number]; scale?: number; golden?: boolean }) {
+  return <group position={position} scale={scale}><mesh material={golden ? GOLDEN : MAT.fruit} castShadow><sphereGeometry args={[0.82, 12, 10]} /></mesh><mesh position={[0.05, 0.88, 0]} rotation={[0.2, 0, -0.15]} material={LEAF_DEEP}><coneGeometry args={[0.22, 0.75, 5]} /></mesh></group>;
+}
+
+function GardenTree({ position, scale = 1, sacred = false, fruit = true }: { position: [number, number, number]; scale?: number; sacred?: boolean; fruit?: boolean }) {
   const crown = useRef<THREE.Group>(null);
   const phase = useRef(Math.random() * Math.PI * 2);
-  const fruitMat = fruit === 'gold' ? GOLDEN : MAT.fruit;
-  const foliage = sacred ? LEAF_LIGHT : LEAF_MID;
-
-  useFrame(({ clock }) => {
-    if (!crown.current) return;
-    const t = clock.getElapsedTime();
-    crown.current.rotation.z = Math.sin(t * 0.45 + phase.current) * 0.012;
-    crown.current.rotation.x = Math.cos(t * 0.38 + phase.current) * 0.009;
-  });
-
-  return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 6, 0]} material={MAT.trunk} castShadow receiveShadow>
-        <cylinderGeometry args={[1.35, 2.35, 12, 12]} />
-      </mesh>
-      <Branch from={[0, 6, 0]} to={[-5, 11, 1]} radius={0.82} />
-      <Branch from={[0, 7, 0]} to={[5.5, 12, -1]} radius={0.9} />
-      <Branch from={[0, 8, 0]} to={[-2.2, 13.5, -4]} radius={0.62} />
-      <Branch from={[1, 8, 0]} to={[3, 14.5, 4]} radius={0.58} />
-      <Branch from={[-1.4, 2, 0]} to={[-7, 1.25, 0.5]} radius={0.48} />
-      <Branch from={[1.1, 2, 0]} to={[6, 1.35, -1]} radius={0.44} />
-      <Branch from={[0, 2, 0]} to={[0, 1.25, 6]} radius={0.42} />
-      <Branch from={[0, 2, 0]} to={[1, 1.25, -6]} radius={0.4} />
-
-      <group ref={crown} position={[0, 12, 0]}>
-        <LeafCluster position={[0, 2.3, 0]} scale={1.12} material={foliage} />
-        <LeafCluster position={[-5, 0.5, 1.8]} scale={0.78} material={LEAF_DEEP} />
-        <LeafCluster position={[5, 0.8, -1.8]} scale={0.82} material={LEAF_LIGHT} />
-        <LeafCluster position={[-1.5, 5.2, -3.2]} scale={0.72} material={LEAF_MID} />
-        <LeafCluster position={[2.2, 4.8, 3.1]} scale={0.72} material={LEAF_DEEP} />
-
-        {[
-          [-4.6, 3.0, 2.7],
-          [4.3, 2.8, -2.7],
-          [0.7, 5.7, -3.7],
-          [-1.8, 1.1, 4.6],
-          [5.5, 0.1, 1.5],
-          [-5.7, 0.4, -1.1],
-          [2.5, 3.7, 4.2],
-          [-3.4, 4.2, -2.5],
-        ].map((p, i) => (
-          <mesh key={i} position={p as [number, number, number]} material={fruitMat} castShadow>
-            <sphereGeometry args={[0.85 + (i % 3) * 0.12, 12, 10]} />
-          </mesh>
-        ))}
-      </group>
+  const foliage = sacred ? LEAF_GOLD : LEAF_MID;
+  const fruitPositions: [number, number, number][] = [
+    [-4.8, 2.5, 2.6], [4.4, 2.6, -2.5], [0.8, 5.8, -3.5], [-2.1, 1.0, 4.5],
+    [5.1, -0.1, 1.7], [-5.6, 0.2, -1.3], [2.4, 3.8, 4.1], [-3.4, 4.2, -2.3],
+  ];
+  useFrame(({ clock }) => { if (!crown.current) return; const t = clock.getElapsedTime(); crown.current.rotation.z = Math.sin(t * 0.42 + phase.current) * 0.012; crown.current.rotation.x = Math.cos(t * 0.33 + phase.current) * 0.009; });
+  return <group position={position} scale={scale}>
+    <mesh position={[0, 6, 0]} material={BARK_LIGHT} castShadow receiveShadow><cylinderGeometry args={[1.55, 2.8, 12, 12]} /></mesh>
+    <RootSystem />
+    <Branch from={[0, 6, 0]} to={[-5.7, 11.5, 1.0]} radius={0.94} material={BARK_LIGHT} />
+    <Branch from={[0, 7, 0]} to={[6.0, 12.2, -1.0]} radius={0.97} material={MAT.trunk} />
+    <Branch from={[-0.2, 8, 0]} to={[-2.6, 14.2, -4.6]} radius={0.69} material={MAT.trunk} />
+    <Branch from={[0.8, 8, 0]} to={[3.7, 14.7, 4.1]} radius={0.65} material={BARK_LIGHT} />
+    <Branch from={[-4.9, 11.1, 0.9]} to={[-8.4, 14.5, 2.7]} radius={0.43} material={MAT.trunk} />
+    <Branch from={[5.0, 11.5, -0.7]} to={[8.6, 14.8, -2.5]} radius={0.42} material={MAT.trunk} />
+    <group ref={crown} position={[0, 12, 0]}>
+      <CanopyCluster position={[0, 2.0, 0]} scale={1.17} material={foliage} />
+      <CanopyCluster position={[-5.2, 0.3, 1.7]} scale={0.83} material={LEAF_DEEP} />
+      <CanopyCluster position={[5.0, 0.75, -1.7]} scale={0.85} material={LEAF_LIGHT} />
+      <CanopyCluster position={[-2.0, 5.3, -3.0]} scale={0.77} material={LEAF_MID} />
+      <CanopyCluster position={[2.5, 5.0, 3.0]} scale={0.75} material={LEAF_DEEP} />
+      <CanopyCluster position={[0.0, -1.5, 3.6]} scale={0.59} material={LEAF_BLUEGREEN} />
+      {fruit && fruitPositions.map((p, i) => <Fruit key={i} position={p} scale={0.82 + (i % 3) * 0.1} golden={sacred} />)}
     </group>
-  );
+  </group>;
+}
+
+function Palm({ position, scale = 1, rotation = 0 }: { position: [number, number, number]; scale?: number; rotation?: number }) {
+  const crown = useRef<THREE.Group>(null);
+  const phase = useRef(Math.random() * Math.PI * 2);
+  useFrame(({ clock }) => { if (crown.current) { const t = clock.getElapsedTime(); crown.current.rotation.z = Math.sin(t * 0.45 + phase.current) * 0.025; crown.current.rotation.x = Math.cos(t * 0.34 + phase.current) * 0.017; } });
+  return <group position={position} rotation={[0, rotation, 0]} scale={scale}>
+    <mesh position={[0, 6.6, 0]} material={BARK_LIGHT} castShadow><cylinderGeometry args={[0.48, 1.04, 11.2, 10]} /></mesh>
+    <group ref={crown} position={[0, 12.25, 0]}>{Array.from({ length: 12 }).map((_, i) => { const a = (i / 12) * Math.PI * 2; return <group key={i} rotation={[0, a, 0]}><mesh position={[0, -0.1, 3.35]} rotation={[0.55, 0, 0.03]} material={i % 4 === 0 ? LEAF_LIGHT : LEAF_DEEP} castShadow><coneGeometry args={[0.72, 8.1, 5]} /></mesh><mesh position={[0, 0.18, 1.2]} rotation={[0.36, 0, 0]} material={LEAF_MID} castShadow><coneGeometry args={[0.92, 3.4, 5]} /></mesh></group>; })}</group>
+  </group>;
+}
+
+function Fern({ position, scale = 1, rotation = 0, material = LEAF_DEEP }: { position: [number, number, number]; scale?: number; rotation?: number; material?: THREE.Material }) {
+  return <group position={position} rotation={[0, rotation, 0]} scale={scale}>{Array.from({ length: 11 }).map((_, i) => { const a = (i / 11) * Math.PI * 2; const length = 4.6 - Math.abs(i - 5) * 0.18; return <mesh key={i} position={[Math.sin(a) * length * 0.44, length * 0.17, Math.cos(a) * length * 0.44]} rotation={[0.8, a, 0.08]} material={material} castShadow><coneGeometry args={[0.45, length, 5]} /></mesh>; })}</group>;
 }
 
 function GrassTuft({ position, scale = 1, rotation = 0 }: { position: [number, number, number]; scale?: number; rotation?: number }) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]} scale={scale}>
-      {Array.from({ length: 7 }).map((_, i) => (
-        <mesh
-          key={i}
-          position={[Math.sin(i * 1.9) * 0.8, 1.1, Math.cos(i * 1.7) * 0.8]}
-          rotation={[0.12 + (i % 2) * 0.12, i * 0.9, -0.2 + (i % 3) * 0.12]}
-          material={i % 3 === 0 ? LEAF_LIGHT : LEAF_DEEP}
-          castShadow
-        >
-          <coneGeometry args={[0.18, 2.8 + (i % 3) * 0.7, 4]} />
-        </mesh>
-      ))}
-    </group>
-  );
+  return <group position={position} rotation={[0, rotation, 0]} scale={scale}>{Array.from({ length: 10 }).map((_, i) => <mesh key={i} position={[Math.sin(i * 1.7) * 0.72, 1.0, Math.cos(i * 1.35) * 0.65]} rotation={[0.14 + (i % 3) * 0.06, i * 0.72, -0.14 + (i % 2) * 0.12]} material={i % 4 === 0 ? LEAF_LIGHT : i % 3 === 0 ? LEAF_MID : LEAF_DEEP} castShadow><coneGeometry args={[0.14, 2.8 + (i % 4) * 0.52, 4]} /></mesh>)}</group>;
 }
 
-function Flower({ position, scale = 1, rotation = 0 }: { position: [number, number, number]; scale?: number; rotation?: number }) {
-  return (
-    <group position={position} rotation={[0, rotation, 0]} scale={scale}>
-      <mesh position={[0, 0.8, 0]} material={LEAF_MID}>
-        <cylinderGeometry args={[0.09, 0.12, 1.6, 5]} />
-      </mesh>
-      <group position={[0, 1.55, 0]}>
-        {Array.from({ length: 6 }).map((_, i) => {
-          const a = (i / 6) * Math.PI * 2;
-          return (
-            <mesh key={i} position={[Math.cos(a) * 0.38, 0, Math.sin(a) * 0.38]} rotation={[0.25, a, 0]} material={i % 2 ? FLOWER_GOLD : FLOWER_IVORY}>
-              <sphereGeometry args={[0.32, 7, 6]} />
-            </mesh>
-          );
-        })}
-        <mesh material={MAT.gold}>
-          <sphereGeometry args={[0.18, 8, 6]} />
-        </mesh>
-      </group>
-    </group>
-  );
+function Flower({ position, scale = 1, rotation = 0, petal = FLOWER_IVORY }: { position: [number, number, number]; scale?: number; rotation?: number; petal?: THREE.Material }) {
+  return <group position={position} rotation={[0, rotation, 0]} scale={scale}><mesh position={[0, 0.84, 0]} material={LEAF_MID}><cylinderGeometry args={[0.065, 0.1, 1.7, 5]} /></mesh><group position={[0, 1.7, 0]}>{Array.from({ length: 6 }).map((_, i) => { const a = (i / 6) * Math.PI * 2; return <mesh key={i} position={[Math.cos(a) * 0.33, 0, Math.sin(a) * 0.33]} scale={[1, 0.6, 1]} material={petal}><sphereGeometry args={[0.3, 7, 6]} /></mesh>; })}<mesh material={GOLDEN}><sphereGeometry args={[0.17, 8, 6]} /></mesh></group></group>;
 }
 
-function Rock({ position, scale = 1, rotation = 0 }: { position: [number, number, number]; scale?: number; rotation?: number }) {
-  return (
-    <mesh position={position} rotation={[rotation * 0.15, rotation, rotation * 0.08]} scale={[scale * 1.35, scale * 0.65, scale]} material={Math.round(scale * 10) % 2 ? STONE_MAT : STONE_LIGHT} castShadow>
-      <icosahedronGeometry args={[2.2, 1]} />
-    </mesh>
-  );
+function Shrub({ position, scale = 1, variant = 0 }: { position: [number, number, number]; scale?: number; variant?: number }) {
+  const palette = [LEAF_MID, LEAF_DEEP, LEAF_GOLD, LEAF_BLUEGREEN];
+  return <group position={position} scale={scale}><mesh position={[0, 2.2, 0]} material={palette[variant % palette.length]} castShadow><dodecahedronGeometry args={[3.5, 1]} /></mesh><mesh position={[-2.1, 1.4, 1.35]} material={LEAF_LIGHT} castShadow><icosahedronGeometry args={[2.45, 1]} /></mesh><mesh position={[2.2, 1.45, -1.05]} material={LEAF_DEEP} castShadow><icosahedronGeometry args={[2.35, 1]} /></mesh><mesh position={[0.3, 3.35, 1.0]} scale={0.72} material={LEAF_GOLD} castShadow><icosahedronGeometry args={[2.15, 1]} /></mesh></group>;
 }
 
-function Bush({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
-  return (
-    <group position={position} scale={scale}>
-      <mesh position={[0, 2, 0]} material={LEAF_DEEP} castShadow>
-        <icosahedronGeometry args={[3.2, 1]} />
-      </mesh>
-      <mesh position={[-2, 1.5, 1.2]} material={LEAF_MID} castShadow>
-        <icosahedronGeometry args={[2.3, 1]} />
-      </mesh>
-      <mesh position={[2.1, 1.35, -0.8]} material={LEAF_LIGHT} castShadow>
-        <icosahedronGeometry args={[2.1, 1]} />
-      </mesh>
-    </group>
-  );
+function Rock({ position, scale = 1, rotation = 0, material }: { position: [number, number, number]; scale?: number; rotation?: number; material?: THREE.Material }) {
+  return <mesh position={position} rotation={[rotation * 0.12, rotation, rotation * 0.08]} scale={[scale * 1.35, scale * 0.68, scale]} material={material ?? (Math.round(scale * 10) % 3 === 0 ? STONE_MOSS : Math.round(scale * 10) % 2 ? STONE_MAT : STONE_LIGHT)} castShadow receiveShadow><icosahedronGeometry args={[2.2, 1]} /></mesh>;
 }
 
-function Vine({ start, end, sag = 2.5, scale = 1 }: { start: [number, number, number]; end: [number, number, number]; sag?: number; scale?: number }) {
-  const curve = new THREE.CatmullRomCurve3([
-    new THREE.Vector3(...start),
-    new THREE.Vector3((start[0] + end[0]) * 0.5, Math.min(start[1], end[1]) - sag, (start[2] + end[2]) * 0.5),
-    new THREE.Vector3(...end),
-  ]);
-  return (
-    <mesh scale={scale} material={VINE_MAT} castShadow>
-      <tubeGeometry args={[curve, 16, 0.16, 5, false]} />
-    </mesh>
-  );
+function Vine({ start, end, sag = 2.2, material = VINE_MAT }: { start: [number, number, number]; end: [number, number, number]; sag?: number; material?: THREE.Material }) {
+  const mid: [number, number, number] = [(start[0] + end[0]) * 0.5, Math.min(start[1], end[1]) - sag, (start[2] + end[2]) * 0.5];
+  const curve = new THREE.CatmullRomCurve3([new THREE.Vector3(...start), new THREE.Vector3(...mid), new THREE.Vector3(...end)]);
+  return <mesh material={material} castShadow><tubeGeometry args={[curve, 18, 0.13, 5, false]} /></mesh>;
 }
 
-function River({ points, width = 4.2 }: { points: [number, number, number][]; width?: number }) {
-  const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
-  return (
-    <group>
-      <mesh material={WATER_EDGE} position={[0, -0.35, 0]}>
-        <tubeGeometry args={[curve, 42, width * 1.18, 8, false]} />
-      </mesh>
-      <mesh material={MAT.water} receiveShadow>
-        <tubeGeometry args={[curve, 42, width, 10, false]} />
-      </mesh>
-    </group>
-  );
+function useRibbonGeometry(points: [number, number, number][], width: number, yOffset = 0) {
+  return useMemo(() => {
+    const curve = new THREE.CatmullRomCurve3(points.map((p) => new THREE.Vector3(...p)));
+    const segments = 54;
+    const vertices: number[] = [];
+    const indices: number[] = [];
+    for (let i = 0; i <= segments; i += 1) {
+      const t = i / segments;
+      const point = curve.getPoint(t);
+      const tangent = curve.getTangent(t).setY(0).normalize();
+      const side = new THREE.Vector3(-tangent.z, 0, tangent.x);
+      const w = width * (0.9 + Math.sin(t * Math.PI) * 0.1);
+      vertices.push(point.x + side.x * w, point.y + yOffset, point.z + side.z * w);
+      vertices.push(point.x - side.x * w, point.y + yOffset, point.z - side.z * w);
+      if (i < segments) { const a = i * 2; indices.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); }
+    }
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    geometry.setIndex(indices);
+    geometry.computeVertexNormals();
+    return geometry;
+  }, [points, width, yOffset]);
+}
+
+function River({ points, width }: { points: [number, number, number][]; width: number }) {
+  const bank = useRibbonGeometry(points, width + 1.15, -0.28);
+  const water = useRibbonGeometry(points, width, 0.02);
+  const gleam = useRibbonGeometry(points, width * 0.42, 0.16);
+  return <group><mesh geometry={bank} material={WATER_EDGE} receiveShadow /><mesh geometry={water} material={WATER_SURFACE} receiveShadow /><mesh geometry={gleam} material={WATER_GLEAM} /></group>;
 }
 
 function Pebbles({ count, seed = 0 }: { count: number; seed?: number }) {
-  return (
-    <group>
-      {Array.from({ length: count }).map((_, i) => {
-        const a = i * 2.399 + seed;
-        const r = 13 + ((i * 17 + seed * 7) % 27);
-        return (
-          <Rock
-            key={i}
-            position={[Math.cos(a) * r, 1.55 + (i % 3) * 0.08, Math.sin(a) * r * 0.78]}
-            scale={0.28 + (i % 5) * 0.08}
-            rotation={a}
-          />
-        );
-      })}
-    </group>
-  );
+  return <group>{Array.from({ length: count }).map((_, i) => { const a = i * 2.399 + seed; const r = 13 + ((i * 17 + seed * 7) % 28); return <Rock key={i} position={[Math.cos(a) * r, 1.42 + (i % 4) * 0.07, Math.sin(a) * r * 0.7]} scale={0.22 + (i % 5) * 0.07} rotation={a} />; })}</group>;
+}
+
+function MeadowPatch({ position, scale = [1, 0.08, 1] as [number, number, number], material = LEAF_LIGHT }: { position: [number, number, number]; scale?: [number, number, number]; material?: THREE.Material }) {
+  return <mesh position={position} scale={scale} material={material} receiveShadow><sphereGeometry args={[12.5, 20, 8]} /></mesh>;
+}
+
+function MistOrb({ position, scale = 1 }: { position: [number, number, number]; scale?: number }) {
+  return <mesh position={position} scale={scale} material={MIST}><sphereGeometry args={[4.2, 14, 10]} /></mesh>;
 }
 
 function GardenAtmosphere() {
-  const light = useRef<THREE.PointLight>(null);
-  useFrame(({ clock }) => {
-    if (light.current) light.current.intensity = 1.15 + Math.sin(clock.getElapsedTime() * 0.35) * 0.08;
-  });
-  return (
-    <>
-      <pointLight ref={light} color={0xffe0a3} intensity={1.15} distance={110} decay={2} position={[5, 28, 2]} />
-      <pointLight color={0x7fb7a1} intensity={0.55} distance={90} decay={2} position={[-34, 7, 10]} />
-    </>
-  );
+  const key = useRef<THREE.PointLight>(null);
+  useFrame(({ clock }) => { if (key.current) key.current.intensity = 1.28 + Math.sin(clock.getElapsedTime() * 0.25) * 0.06; });
+  return <><pointLight ref={key} color={0xffe5b0} intensity={1.28} distance={125} decay={2} position={[6, 32, -3]} /><pointLight color={0x8fd1ad} intensity={0.72} distance={110} decay={2} position={[-34, 9, 9]} /><pointLight color={0xe2c97d} intensity={0.3} distance={88} decay={2} position={[36, 11, -30]} /></>;
 }
 
-/**
- * Eden — a lush garden planted eastward, with a river that parts into four
- * heads and the two significant trees at its centre. Genesis 2:8-14.
- */
+function FlyingBird({ position, scale = 1, phase = 0 }: { position: [number, number, number]; scale?: number; phase?: number }) {
+  const ref = useRef<THREE.Group>(null);
+  useFrame(({ clock }) => { if (!ref.current) return; const t = clock.getElapsedTime() * 0.22 + phase; ref.current.position.set(position[0] + Math.cos(t) * 2.4, position[1] + Math.sin(t) * 0.9, position[2] + Math.sin(t * 0.7) * 1.5); });
+  return <group ref={ref} position={position} scale={scale}><mesh position={[-0.78, 0, 0]} rotation={[0, 0, -0.33]} material={LEAF_DEEP}><coneGeometry args={[0.08, 1.45, 4]} /></mesh><mesh position={[0.78, 0, 0]} rotation={[0, 0, 0.33]} material={LEAF_DEEP}><coneGeometry args={[0.08, 1.45, 4]} /></mesh></group>;
+}
+
 export default function Eden() {
-  const heads: { points: [number, number, number][]; width: number }[] = [
-    { width: 3.9, points: [[-28, 1.45, 0], [-40, 1.55, 5], [-52, 1.5, 9], [-66, 1.42, 12]] },
-    { width: 3.6, points: [[-2, 1.48, 2], [6, 1.52, 16], [12, 1.48, 31], [20, 1.4, 48]] },
-    { width: 3.8, points: [[-1, 1.5, -2], [14, 1.52, -8], [29, 1.48, -17], [47, 1.42, -27]] },
-    { width: 3.5, points: [[1, 1.47, 0], [12, 1.48, 5], [28, 1.44, 4], [51, 1.4, 2]] },
+  const rivers: { points: [number, number, number][]; width: number }[] = [
+    { width: 4.0, points: [[-25, 1.5, 0], [-36, 1.56, 5], [-49, 1.52, 11], [-65, 1.45, 14]] },
+    { width: 3.75, points: [[-1, 1.52, 2], [6, 1.58, 15], [13, 1.53, 30], [21, 1.46, 49]] },
+    { width: 4.0, points: [[-1, 1.53, -2], [13, 1.57, -8], [28, 1.53, -17], [47, 1.45, -28]] },
+    { width: 3.72, points: [[1, 1.54, 0], [12, 1.56, 6], [28, 1.51, 5], [54, 1.44, 3]] },
   ];
-
+  const palms: [number, number, number, number][] = [
+    [-58, 40, 0.9, 0.2], [-56, -37, 0.84, -0.5], [42, 40, 0.96, 1.0], [55, -38, 0.94, 2.1],
+    [-29, 47, 0.77, 0.6], [18, -47, 0.8, -0.5], [-64, 7, 0.83, 1.5], [62, 17, 0.78, -0.8],
+  ];
+  const perimeterTrees: [number, number, number, number][] = [
+    [-44, 29, 0.68, 0], [-46, -28, 0.72, 1], [41, 29, 0.7, 2], [47, -25, 0.75, 0],
+    [-18, 41, 0.66, 2], [29, -40, 0.67, 1], [-60, -8, 0.58, 0], [60, -8, 0.61, 2],
+    [-33, 7, 0.56, 1], [39, 7, 0.54, 2],
+  ];
+  const shrubs: [number, number, number, number][] = [
+    [-51, 13, 0.86, 0], [-46, -10, 0.78, 1], [-36, -30, 0.84, 2], [-31, 24, 0.72, 3],
+    [34, 22, 0.8, 0], [44, -11, 0.74, 1], [51, -30, 0.88, 2], [57, 13, 0.7, 3],
+    [-10, 30, 0.64, 1], [19, 32, 0.68, 2], [26, -28, 0.66, 0],
+  ];
+  const ferns: [number, number, number, number, number][] = [
+    [-54, 24, 0.72, 0.4, 0], [-50, -20, 0.8, 1.1, 1], [-37, 34, 0.6, 2.4, 0], [-25, -36, 0.74, 0.2, 2],
+    [-9, 40, 0.62, 1.7, 1], [5, -39, 0.68, 2.7, 0], [17, 40, 0.66, 0.9, 2], [34, -35, 0.72, 1.8, 1],
+    [46, 25, 0.66, 2.3, 0], [55, -17, 0.74, 0.4, 1], [-59, 1, 0.58, 1.4, 0], [58, 5, 0.62, 2.1, 2],
+  ];
+  const flowers: [number, number, number, number, number][] = [
+    [-43, 20, 0.68, 0.2, 0], [-40, -18, 0.72, 1.4, 1], [-30, 31, 0.6, 2.1, 2], [-23, -29, 0.74, 0.8, 3],
+    [-8, 34, 0.68, 1.7, 0], [1, -31, 0.6, 0.4, 2], [13, 35, 0.72, 2.2, 1], [27, -34, 0.64, 1.1, 3],
+    [39, 26, 0.6, 0.6, 0], [48, -20, 0.74, 2.4, 1], [54, 8, 0.62, 1.3, 2], [-54, -8, 0.62, 2.8, 3],
+    [31, 16, 0.56, 0.1, 0], [-16, 16, 0.58, 1.3, 1],
+  ];
   const grass: [number, number, number, number][] = [
-    [-55, 27, 0.9, 0.2], [-48, -25, 1.15, 1.1], [-38, 39, 0.75, 2.2], [-29, -38, 0.9, 0.4],
-    [-18, 48, 0.8, 1.7], [-8, -43, 1.0, 0.8], [3, 42, 0.9, 2.4], [17, -46, 1.1, 1.3],
-    [35, 35, 0.85, 2.8], [47, -38, 1.0, 0.6], [59, 25, 0.75, 1.8], [59, -8, 0.95, 2.1],
-    [-64, -4, 0.8, 0.5], [36, -4, 0.8, 1.4], [-26, 15, 0.65, 2.6], [31, 15, 0.7, 0.9],
+    [-58, 29, 0.88, 0.2], [-50, -28, 1.02, 1.1], [-39, 38, 0.72, 2.2], [-28, -40, 0.94, 0.4],
+    [-16, 45, 0.78, 1.7], [-7, -44, 0.92, 0.8], [4, 43, 0.8, 2.4], [15, -45, 0.98, 1.3],
+    [33, 37, 0.82, 2.8], [48, -39, 0.92, 0.6], [59, 23, 0.72, 1.8], [59, -4, 0.9, 2.1],
+    [-64, -2, 0.76, 0.5], [37, -3, 0.78, 1.4], [-25, 12, 0.64, 2.6], [30, 13, 0.67, 0.9],
   ];
-
-  const flowers: [number, number, number, number][] = [
-    [-43, 20, 0.8, 0.2], [-38, -19, 0.65, 1.4], [-28, 33, 0.7, 2.1], [-21, -29, 0.9, 0.8],
-    [-10, 35, 0.75, 1.7], [1, -35, 0.65, 0.4], [13, 37, 0.8, 2.2], [25, -34, 0.7, 1.1],
-    [40, 28, 0.65, 0.6], [47, -22, 0.85, 2.4], [55, 8, 0.7, 1.3], [-55, -10, 0.65, 2.8],
-  ];
-
-  const bushes: [number, number, number][] = [
-    [-51, 11, 0.8], [-43, -7, 0.7], [-34, -27, 0.9], [-28, 26, 0.72],
-    [34, 24, 0.82], [42, -11, 0.76], [50, -28, 0.95], [58, 15, 0.72],
-  ];
-
   const rocks: [number, number, number, number][] = [
-    [-38, 3, 1.3, 0.2], [-30, 8, 0.75, 1.2], [-23, 2, 1.0, 2.2],
-    [28, 8, 1.2, 0.7], [35, 12, 0.8, 1.9], [45, 3, 1.1, 0.4],
-    [17, 24, 0.7, 2.6], [-48, 15, 0.9, 1.6],
+    [-39, 4, 1.2, 0.2], [-31, 8, 0.74, 1.2], [-23, 3, 0.98, 2.2], [27, 8, 1.16, 0.7],
+    [36, 11, 0.8, 1.9], [45, 3, 1.02, 0.4], [18, 24, 0.7, 2.6], [-49, 15, 0.88, 1.6],
+    [-18, -3, 0.56, 0.2], [8, 21, 0.64, 1.4], [41, -3, 0.6, 2.4], [-45, -4, 0.64, 0.8],
   ];
+  const meadows: [number, number, number, number, number][] = [
+    [-43, 20, 1.05, 0.85, 0], [-35, -17, 0.92, 1.2, 1], [-17, 30, 0.9, 0.5, 2], [-2, 27, 0.84, 1.1, 3],
+    [12, -29, 0.92, 2.2, 0], [27, 25, 0.94, 0.8, 1], [44, -17, 0.9, 1.5, 2], [52, 9, 0.84, 2.4, 0],
+    [-53, 2, 0.86, 0.6, 1], [0, -13, 0.75, 1.9, 2], [36, 6, 0.72, 1.0, 3], [-30, 8, 0.7, 2.5, 0],
+  ];
+  const flowerMats = [FLOWER_IVORY, FLOWER_PEACH, FLOWER_GOLD, FLOWER_LILAC];
 
   return (
     <group>
       <GardenAtmosphere />
-
-      {/* Source of the river. The four streams visibly diverge from this basin. */}
-      <Water radius={11} y={1.52} segments={56} />
-      <mesh position={[0, 1.0, 0]} material={MAT.water} receiveShadow>
-        <cylinderGeometry args={[11.6, 12.3, 0.6, 48]} />
-      </mesh>
-      <Pebbles count={18} seed={4} />
-
-      {/* Natural, winding river heads rather than straight rectangular channels. */}
-      {heads.map((head, i) => <River key={i} points={head.points} width={head.width} />)}
-      <River points={[[-31, 1.47, 0], [-43, 1.5, -1], [-57, 1.46, -3], [-70, 1.42, -6]]} width={4.1} />
-
-      {/* Central rise — the visual heart of the garden. */}
-      <mesh position={[14, 1.45, -6]} material={MAT.grass} receiveShadow>
-        <cylinderGeometry args={[21, 24, 2.0, 36]} />
-      </mesh>
-      <mesh position={[14, 2.38, -6]} material={MAT.ground} receiveShadow>
-        <cylinderGeometry args={[18.5, 20, 0.28, 36]} />
-      </mesh>
-
-      <GardenTree position={[8, 2.3, -4]} fruit="gold" scale={1.18} sacred />
-      <GardenTree position={[22, 2.35, -12]} fruit="red" scale={1.0} sacred />
-
-      {/* Tall canopy around the perimeter, now varied with dense broadleaf trees. */}
-      {[
-        [-48, 34, 1.0], [-53, -31, 0.92], [40, 39, 1.02], [51, -35, 1.05],
-        [-17, 44, 0.92], [30, -43, 0.96], [-61, 7, 1.0], [58, 13, 0.94],
-        [-42, -1, 0.72], [36, 2, 0.76], [-8, 50, 0.72], [4, -49, 0.75],
-      ].map(([x, z, s], i) => <Palm key={i} position={[x, 0, z]} scale={s} />)}
-
-      {bushes.map(([x, z, s], i) => <Bush key={i} position={[x, 0.2, z]} scale={s} />)}
-      {grass.map(([x, z, s, r], i) => <GrassTuft key={i} position={[x, 1.15, z]} scale={s} rotation={r} />)}
-      {flowers.map(([x, z, s, r], i) => <Flower key={i} position={[x, 1.25, z]} scale={s} rotation={r} />)}
-      {rocks.map(([x, z, s, r], i) => <Rock key={i} position={[x, 1.65, z]} scale={s} rotation={r} />)}
-
-      {/* Small flowering undergrowth fills the gaps between the larger silhouettes. */}
-      {Array.from({ length: 36 }).map((_, i) => {
-        const a = i * 2.17;
-        const r = 23 + ((i * 19) % 31);
-        const x = Math.cos(a) * r;
-        const z = Math.sin(a) * r * 0.72;
-        return <GrassTuft key={`g-${i}`} position={[x, 1.1, z]} scale={0.35 + (i % 4) * 0.08} rotation={a} />;
-      })}
-
-      {/* Vines break up the large trunks and make the garden feel old and established. */}
-      <Vine start={[-48, 9, 34]} end={[-45, 2.5, 31]} sag={2.0} />
-      <Vine start={[40, 10, 39]} end={[43, 2.5, 35]} sag={2.4} />
-      <Vine start={[-17, 10, 44]} end={[-14, 2.5, 40]} sag={2.2} />
-      <Vine start={[30, 9, -43]} end={[33, 2.5, -39]} sag={2.3} />
-
-      {/* Adam and Eve remain small so the garden dominates the composition. */}
-      <Figure position={[-6, 1.2, 14]} scale={0.95} />
-      <Figure position={[-12, 1.2, 9]} scale={0.9} />
+      <MeadowPatch position={[-22, 0.82, 22]} scale={[2.55, 0.08, 1.65]} material={LEAF_LIGHT} />
+      <MeadowPatch position={[34, 0.76, 16]} scale={[2.2, 0.07, 1.4]} material={LEAF_MID} />
+      <MeadowPatch position={[-38, 0.77, -19]} scale={[2.3, 0.08, 1.5]} material={LEAF_BLUEGREEN} />
+      <MeadowPatch position={[21, 0.78, -27]} scale={[2.35, 0.07, 1.55]} material={LEAF_LIGHT} />
+      <mesh position={[0, 1.0, 0]} material={WATER_EDGE} receiveShadow><cylinderGeometry args={[12.8, 13.6, 0.9, 52]} /></mesh>
+      <mesh position={[0, 1.62, 0]} material={WATER_SURFACE} receiveShadow><circleGeometry args={[11.9, 72]} /></mesh>
+      <mesh position={[0, 1.77, 0]} material={WATER_GLEAM}><ringGeometry args={[7.0, 10.2, 64]} /></mesh>
+      {rivers.map((river, i) => <River key={i} points={river.points} width={river.width} />)}
+      <Pebbles count={34} seed={8} />
+      <MistOrb position={[-1, 5.5, 0]} scale={1.75} />
+      <MistOrb position={[-4.5, 4.25, 0.8]} scale={1.1} />
+      <MistOrb position={[4.4, 4.25, -0.8]} scale={1.0} />
+      <mesh position={[14, 1.5, -6]} material={LEAF_DEEP} receiveShadow scale={[1.9, 0.15, 1.55]}><sphereGeometry args={[12.8, 24, 10]} /></mesh>
+      <mesh position={[14, 2.25, -6]} material={MAT.ground} receiveShadow scale={[1.6, 0.05, 1.25]}><sphereGeometry args={[12.8, 22, 8]} /></mesh>
+      <GardenTree position={[8, 2.2, -4]} scale={1.2} sacred />
+      <GardenTree position={[22, 2.25, -12]} scale={1.0} sacred />
+      {perimeterTrees.map(([x, z, s, r], i) => <group key={`t-${i}`} rotation={[0, r, 0]}><GardenTree position={[x, 0, z]} scale={s} fruit={false} /></group>)}
+      {palms.map(([x, z, s, r], i) => <Palm key={`p-${i}`} position={[x, 0, z]} scale={s} rotation={r} />)}
+      {shrubs.map(([x, z, s, variant], i) => <Shrub key={`s-${i}`} position={[x, 0.16, z]} scale={s} variant={variant} />)}
+      {meadows.map(([x, z, s, , variant], i) => <MeadowPatch key={`m-${i}`} position={[x, 0.7, z]} scale={[s * 1.55, 0.07, s]} material={variant % 3 === 0 ? LEAF_LIGHT : variant % 3 === 1 ? LEAF_MID : LEAF_GOLD} />)}
+      {ferns.map(([x, z, s, r, variant], i) => <Fern key={`f-${i}`} position={[x, 1.16, z]} scale={s} rotation={r} material={variant % 2 ? LEAF_DEEP : LEAF_MID} />)}
+      {grass.map(([x, z, s, r], i) => <GrassTuft key={`g-${i}`} position={[x, 1.08, z]} scale={s} rotation={r} />)}
+      {flowers.map(([x, z, s, r, p], i) => <Flower key={`fl-${i}`} position={[x, 1.16, z]} scale={s} rotation={r} petal={flowerMats[p]} />)}
+      {rocks.map(([x, z, s, r], i) => <Rock key={`r-${i}`} position={[x, 1.55, z]} scale={s} rotation={r} />)}
+      {Array.from({ length: 62 }).map((_, i) => { const a = i * 2.19; const r = 19 + ((i * 19) % 35); const x = Math.cos(a) * r; const z = Math.sin(a) * r * 0.72; return <group key={`u-${i}`}><GrassTuft position={[x, 1.05, z]} scale={0.28 + (i % 5) * 0.06} rotation={a} />{i % 4 === 0 && <Flower position={[x + 1.0, 1.15, z - 0.9]} scale={0.35 + (i % 2) * 0.08} rotation={a * 0.7} petal={flowerMats[i % flowerMats.length]} />}</group>; })}
+      <Vine start={[-57, 10, 40]} end={[-53, 2.8, 35]} sag={2.5} />
+      <Vine start={[-44, 11, 29]} end={[-40, 2.8, 24]} sag={2.0} material={VINE_LIGHT} />
+      <Vine start={[42, 11, 40]} end={[47, 2.8, 34]} sag={2.8} />
+      <Vine start={[-18, 10, 41]} end={[-13, 2.8, 37]} sag={2.1} />
+      <Vine start={[29, 11, -40]} end={[34, 2.8, -34]} sag={2.5} material={VINE_LIGHT} />
+      <Vine start={[52, 10, -30]} end={[55, 2.6, -25]} sag={2.2} />
+      <FlyingBird position={[-24, 34, -12]} scale={0.9} phase={0.3} />
+      <FlyingBird position={[16, 39, 14]} scale={0.72} phase={1.8} />
+      <FlyingBird position={[38, 32, -3]} scale={0.78} phase={3.2} />
+      <Figure position={[-6, 1.28, 14]} scale={0.92} />
+      <Figure position={[-12, 1.28, 9]} scale={0.86} />
     </group>
   );
 }
