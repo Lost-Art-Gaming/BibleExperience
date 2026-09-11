@@ -12,6 +12,11 @@
   --read: #c7d0d6;
   --gold: #d9ad61;
   --gold-2: #f0cf91;
+  /* Restrained secondary accents, so gold can read as significance/canonical
+     rather than simply "important". Used only in their domain:
+     --place = geography, --time = chronology. */
+  --place: #63b6ba;
+  --time: #8fb0e4;
   --line: rgba(255,255,255,.09);
   --shadow: 0 24px 70px rgba(0,0,0,.35);
   color-scheme: dark;
@@ -26,6 +31,8 @@
   --read: #2c3843;
   --gold: #a87931;
   --gold-2: #8b6328;
+  --place: #2c8a86;
+  --time: #3f6bb0;
   --line: rgba(18,32,43,.11);
   --shadow: 0 24px 70px rgba(49,42,31,.14);
   color-scheme: light;

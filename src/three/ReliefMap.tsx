@@ -19,7 +19,8 @@ export interface ReliefMapProps {
 const SEA_COLOR = new THREE.Color('#12313a');
 const LAND_COLOR = new THREE.Color('#1b2a2f');
 const PEAK_COLOR = new THREE.Color('#b98f4e');
-const MARKER_COLOR = new THREE.Color('#e4b75e');
+// Waypoints read teal (place); the route path stays gold (the journey).
+const MARKER_COLOR = new THREE.Color('#63b6ba');
 
 function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;

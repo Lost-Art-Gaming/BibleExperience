@@ -803,7 +803,7 @@ main {
 .legend { display: flex; flex-wrap: wrap; gap: 13px; padding: 0 22px 22px; color: var(--muted); font-size: 10px; }
 .legend span { display: flex; align-items: center; gap: 6px; }
 .legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
-.legend .derived { background: #88aabd; }
+.legend .derived { background: var(--time); }
 .legend .approx { background: #b38a65; }
 .legend .undated { background: #67747b; }
 
@@ -832,7 +832,7 @@ main {
   background: var(--gold);
   box-shadow: 0 0 0 1px var(--gold);
 }
-.timeline-item.derived .timeline-dot { background: #88aabd; box-shadow: 0 0 0 1px #88aabd; }
+.timeline-item.derived .timeline-dot { background: var(--time); box-shadow: 0 0 0 1px var(--time); }
 .timeline-item.approx .timeline-dot { background: #b38a65; box-shadow: 0 0 0 1px #b38a65; }
 .timeline-item.undated .timeline-dot { background: #67747b; box-shadow: 0 0 0 1px #67747b; }
 .timeline-line { position: absolute; left: 5px; top: 16px; bottom: 0; width: 1px; background: var(--line); }
@@ -1259,8 +1259,10 @@ main {
   cursor: pointer;
 }
 .location-list button.active {
-  border-color: var(--gold);
+  border-color: var(--place);
+  background: color-mix(in srgb, var(--place) 8%, var(--surface));
 }
+.location-list button:hover { border-color: color-mix(in srgb, var(--place) 45%, transparent); }
 .location-list b,
 .location-list small {
   display: block;
@@ -1278,10 +1280,13 @@ main {
   position: absolute;
   right: 14px;
   top: 14px;
-  color: var(--gold);
+  color: var(--place);
   font-size: 10px;
   letter-spacing: 0.08em;
 }
+/* Geography reads teal (place), so gold stays reserved for significance. */
+.scene-card .eyebrow { color: var(--place); }
+.scene-actions button:hover { border-color: color-mix(in srgb, var(--place) 55%, transparent); }
 
 @media (max-width: 640px) {
   .location-list {
