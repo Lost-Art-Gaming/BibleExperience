@@ -12,18 +12,7 @@ import { useTapestryThreads } from '../hooks/useTapestryThreads';
 import { newlyWovenLabels } from '../lib/tapestry';
 import { episodeArt, FALLBACKS } from '../lib/art';
 import { sanitizeHtml } from '../lib/sanitize';
-import {
-  cleanTitle,
-  getBookmarks,
-  getHighlights,
-  getNote,
-  isDone,
-  setDone,
-  setLastRead,
-  setNote,
-  toggleBookmark,
-  toggleHighlight,
-} from '../lib/storage';
+import { cleanTitle, getNote, isDone, setDone, setLastRead, setNote } from '../lib/storage';
 import { currentIndex, isEpisodeUnlocked } from '../lib/progress';
 import { parseRef, verseUrl } from '../lib/verseLink';
 import { toast } from '../lib/toast';
@@ -94,20 +83,14 @@ export default function Reader() {
   const { threads: tapThreads } = useTapestryThreads();
   const { meta, data, status } = useEpisode(id);
 
-  const [saved, setSaved] = useState(() => getBookmarks().includes(id));
   const [done, setDoneState] = useState(() => isDone(id));
   const articleRef = useRef<HTMLElement>(null);
   const [threadHost, setThreadHost] = useState<HTMLElement | null>(null);
-  const [highlightMode, setHighlightMode] = useState(false);
-  const highlightModeRef = useRef(highlightMode);
-  highlightModeRef.current = highlightMode;
   const [note, setNoteState] = useState('');
 
   useEffect(() => {
-    setSaved(getBookmarks().includes(id));
     setDoneState(isDone(id));
     setNoteState(getNote(id));
-    setHighlightMode(false);
   }, [id]);
 
   const sectionIds = buildSectionIds(data?.sections.map((section) => section.label) ?? []);
@@ -143,18 +126,6 @@ export default function Reader() {
           ev.preventDefault();
           open();
         }
-      };
-    });
-
-    const saved = new Set(getHighlights(id));
-    article.querySelectorAll<HTMLElement>('.ep-sec p').forEach((p, i) => {
-      const key = `p${i}`;
-      p.dataset.hl = key;
-      p.classList.toggle('hl', saved.has(key));
-      p.onclick = () => {
-        if (!highlightModeRef.current) return;
-        const on = toggleHighlight(id, key);
-        p.classList.toggle('hl', on.includes(key));
       };
     });
   }, [data, id]);
@@ -245,13 +216,6 @@ export default function Reader() {
 
   const goToEpisode = (episodeId: string) => navigate(`/episode/${encodeURIComponent(episodeId)}`);
 
-  const handleBookmark = () => {
-    const bookmarks = toggleBookmark(meta.id);
-    const nowSaved = bookmarks.includes(meta.id);
-    setSaved(nowSaved);
-    toast(nowSaved ? 'Saved to your library' : 'Removed from saved experiences');
-  };
-
   const handleComplete = () => {
     const before = new Set(episodes.filter((e) => e.id !== meta.id && isDone(e.id)).map((e) => e.id));
     const woven = tapThreads ? newlyWovenLabels([...tapThreads.motifs, ...tapThreads.people], meta.id, before) : [];
@@ -284,16 +248,6 @@ export default function Reader() {
         <p>{meta.subtitle}</p>
         <div className="reader-meta">
           <span>{data.sections.length} sections</span>
-          <button
-            className={`save-btn${highlightMode ? ' saved' : ''}`}
-            aria-pressed={highlightMode}
-            onClick={() => setHighlightMode((v) => !v)}
-          >
-            <Icon name="spark" /> {highlightMode ? 'Done' : 'Highlight'}
-          </button>
-          <button id="bookmark" className={`save-btn${saved ? ' saved' : ''}`} onClick={handleBookmark}>
-            <Icon name="bookmark" /> {saved ? 'Saved' : 'Save'}
-          </button>
         </div>
       </section>
 
@@ -304,7 +258,7 @@ export default function Reader() {
       <div className="reader-layout">
         <SectionRail sections={railSections} activeId={activeSectionId} />
 
-        <article className={`reader-content reader${highlightMode ? ' hl-mode' : ''}`} ref={articleRef}>
+        <article className="reader-content reader" ref={articleRef}>
           {sanitizedSections.map((section, sectionIndex) => (
             <section
               key={`${meta.id}-${sectionIndex}`}
