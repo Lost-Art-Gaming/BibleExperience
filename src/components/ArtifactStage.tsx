@@ -57,7 +57,6 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
   const [cutaway, setCutaway] = useState(false);
   const [resetSignal, setResetSignal] = useState(0);
   const [legendOpen, setLegendOpen] = useState(() => !compact && !isNarrow());
-  const [sceneReady, setSceneReady] = useState(false);
   const isExactEden = artifact.id === 'eden';
 
   const fallback = (
@@ -72,16 +71,22 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
     <figure className={`diorama${compact ? ' diorama-compact' : ''}`} data-artifact={artifact.id}>
       <div className="diorama-stage">
         {isExactEden ? (
-          <iframe
-            src="/eden-reference.html"
-            title="The Garden of Eden — miniature diorama"
-            loading="eager"
-            allow="fullscreen"
-            style={{ width: '100%', height: '100%', border: 0, display: 'block', background: 'transparent' }}
-          />
+          <>
+            <iframe
+              src={`${import.meta.env.BASE_URL}eden-reference.html`}
+              title="The Garden of Eden — miniature diorama"
+              loading="eager"
+              allow="fullscreen"
+              style={{ width: '100%', height: '100%', border: 0, display: 'block', background: 'transparent' }}
+            />
+            <div className="diorama-plate">
+              <h3>{artifact.name}</h3>
+              <p>{artifact.blurb}</p>
+            </div>
+          </>
         ) : (
           <>
-            <div hidden={webglOK && sceneReady} aria-hidden={webglOK && sceneReady}>
+            <div hidden={webglOK} aria-hidden={webglOK}>
               {fallback}
             </div>
 
@@ -94,7 +99,6 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
                     autoRotate={autoRotate}
                     resetSignal={resetSignal}
                     reducedMotion={reduced}
-                    onReady={() => setSceneReady(true)}
                   />
                 </Suspense>
               </SceneBoundary>
