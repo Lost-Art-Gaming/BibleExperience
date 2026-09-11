@@ -800,12 +800,18 @@ main {
    Ported from the legacy styles.css timeline() layout rules.
    ============================================================ */
 
-.legend { display: flex; flex-wrap: wrap; gap: 13px; padding: 0 22px 22px; color: var(--muted); font-size: 10px; }
-.legend span { display: flex; align-items: center; gap: 6px; }
-.legend i { width: 8px; height: 8px; border-radius: 50%; background: var(--gold); }
-.legend .derived { background: var(--time); }
-.legend .approx { background: #b38a65; }
-.legend .undated { background: #67747b; }
+/* ---- Chronology: methodology panel + certainty keying ----
+   --kc is the per-row certainty colour, set on each row/item by kind. */
+.anchor { --kc: var(--gold); }
+.derived { --kc: var(--time); }
+.approx { --kc: #b38a65; }
+.undated { --kc: #67747b; }
+
+.chrono-method { display: grid; gap: 8px; padding: 0 22px 24px; }
+.chrono-method-row { display: grid; grid-template-columns: 10px 68px 1fr; align-items: baseline; gap: 12px; }
+.chrono-method-row i { width: 9px; height: 9px; margin-top: 3px; border-radius: 50%; background: var(--kc); }
+.chrono-method-row b { color: var(--kc); font: 700 11px/1 Inter, sans-serif; letter-spacing: .04em; }
+.chrono-method-row span { color: var(--muted); font-size: 12px; line-height: 1.4; }
 
 .timeline-list { padding: 0 22px 70px; }
 .timeline-item {
@@ -815,12 +821,10 @@ main {
   gap: 14px;
   width: 100%;
   padding: 0 0 28px;
-  border: 0;
-  background: none;
   text-align: left;
-  cursor: pointer;
 }
-.timeline-item:disabled { cursor: default; opacity: .55; }
+.timeline-item.has-ep { cursor: pointer; }
+.timeline-item:not(.has-ep) { opacity: .72; }
 .timeline-dot {
   position: relative;
   z-index: 2;
@@ -829,21 +833,27 @@ main {
   margin-top: 5px;
   border: 2px solid var(--bg);
   border-radius: 50%;
-  background: var(--gold);
-  box-shadow: 0 0 0 1px var(--gold);
+  background: var(--kc);
+  box-shadow: 0 0 0 1px var(--kc);
 }
-.timeline-item.derived .timeline-dot { background: var(--time); box-shadow: 0 0 0 1px var(--time); }
-.timeline-item.approx .timeline-dot { background: #b38a65; box-shadow: 0 0 0 1px #b38a65; }
-.timeline-item.undated .timeline-dot { background: #67747b; box-shadow: 0 0 0 1px #67747b; }
 .timeline-line { position: absolute; left: 5px; top: 16px; bottom: 0; width: 1px; background: var(--line); }
 .timeline-item:last-child .timeline-line { display: none; }
-.timeline-copy small { color: var(--gold); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.timeline-top { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.timeline-copy small { color: var(--muted); font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
+.timeline-kind { flex: 0 0 auto; color: var(--kc); font: 700 9px/1 Inter, sans-serif; letter-spacing: .07em; text-transform: uppercase; }
 .timeline-copy h3 { margin: 6px 0; font-size: 18px; font-weight: 500; }
+.timeline-what { padding: 0; border: 0; background: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; }
+.timeline-item.has-ep:hover .timeline-what { color: var(--gold); }
+.timeline-what:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 2px; }
 .timeline-copy p { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
-.timeline-item > strong { color: rgba(255, 255, 255, .18); font: 500 13px Cinzel, serif; }
+.timeline-item > strong { color: color-mix(in srgb, var(--text) 18%, transparent); font: 500 13px Cinzel, serif; }
+
+/* Plain-text scripture citations in prose become links to the NWT reader. */
+.cite-link { color: var(--gold); text-decoration: underline; text-decoration-style: dotted; text-decoration-color: color-mix(in srgb, var(--gold) 55%, transparent); text-underline-offset: 2px; }
+.cite-link:hover { color: var(--gold-2); }
 
 @media (min-width: 900px) {
-  .timeline-list, .legend { margin-left: 28px; margin-right: 28px; }
+  .timeline-list, .chrono-method { margin-left: 28px; margin-right: 28px; }
 }
 
 /* ---- .reveal --------------------------------------------------
