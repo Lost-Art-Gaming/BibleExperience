@@ -1,10 +1,8 @@
-// Legacy-compatible localStorage semantics, ported from the old app.js.
-// Keys and value shapes must match exactly so existing user data keeps working.
+// LocalStorage persistence for theme, notes, reading position and completion.
+// Keep storage access isolated so UI components do not own persistence details.
 
 const STORAGE = {
-  bookmarks: 'be-bookmarks',
   theme: 'be-theme',
-  highlights: 'be-highlights',
   notes: 'be-notes',
   lastRead: 'be-lastread',
 } as const;
@@ -19,11 +17,12 @@ function readJson<T>(key: string, fallback: T): T {
     return fallback;
   }
 }
+
 function writeJson(key: string, value: unknown): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch {
-    /* storage full / unavailable — a lost highlight is not worth throwing */
+    /* Storage is optional; reading progress should never crash the reader. */
   }
 }
 
@@ -33,32 +32,6 @@ export function isDone(id: string): boolean {
 
 export function setDone(id: string): void {
   localStorage.setItem(`be-episode-${id}`, 'done');
-}
-
-export function getBookmarks(): string[] {
-  try {
-    const raw = localStorage.getItem(STORAGE.bookmarks);
-    const parsed = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function saveBookmarks(bookmarks: string[]): void {
-  localStorage.setItem(STORAGE.bookmarks, JSON.stringify(bookmarks));
-}
-
-export function toggleBookmark(id: string): string[] {
-  const bookmarks = getBookmarks();
-  const index = bookmarks.indexOf(id);
-  if (index >= 0) {
-    bookmarks.splice(index, 1);
-  } else {
-    bookmarks.push(id);
-  }
-  saveBookmarks(bookmarks);
-  return bookmarks;
 }
 
 export function getTheme(): Theme {
@@ -73,24 +46,7 @@ export function cleanTitle(value = ''): string {
   return value.replace(/[“”]/g, '');
 }
 
-/* ---- Personal layer: highlights, notes, resume ---- */
-
-/** Paragraph keys the reader has highlighted for an episode. */
-export function getHighlights(episodeId: string): string[] {
-  const all = readJson<Record<string, string[]>>(STORAGE.highlights, {});
-  return Array.isArray(all[episodeId]) ? all[episodeId] : [];
-}
-
-export function toggleHighlight(episodeId: string, key: string): string[] {
-  const all = readJson<Record<string, string[]>>(STORAGE.highlights, {});
-  const keys = Array.isArray(all[episodeId]) ? all[episodeId] : [];
-  const i = keys.indexOf(key);
-  if (i >= 0) keys.splice(i, 1);
-  else keys.push(key);
-  all[episodeId] = keys;
-  writeJson(STORAGE.highlights, all);
-  return keys;
-}
+/* ---- Personal layer: notes + resume --------------------------- */
 
 export function getNote(episodeId: string): string {
   const all = readJson<Record<string, string>>(STORAGE.notes, {});
