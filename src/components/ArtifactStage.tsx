@@ -1,7 +1,15 @@
 import { Component, lazy, Suspense, useMemo, useState, type ReactNode } from 'react';
+import * as THREE from 'three';
 import { CitationText } from './CitationText';
 import { Skeleton } from './Skeleton';
 import type { Artifact } from '../lib/artifacts';
+
+// The supplied Eden reference runs in a same-origin iframe. Expose the app's
+// bundled Three.js instance so the reference scene has no third-party runtime
+// dependency when embedded in BibleExperience.
+if (typeof window !== 'undefined') {
+  (window as Window & { __BIBLE_EXPERIENCE_THREE__?: typeof THREE }).__BIBLE_EXPERIENCE_THREE__ = THREE;
+}
 
 const ArtifactScene = lazy(() => import('../three/ArtifactScene'));
 
