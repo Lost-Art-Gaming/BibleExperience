@@ -8,10 +8,24 @@ import { Skeleton } from '../components/Skeleton';
 import { useEpisode } from '../hooks/useEpisode';
 import { useEpisodes } from '../hooks/useEpisodes';
 import { useScrollSpy } from '../hooks/useScrollSpy';
+import { useTapestryThreads } from '../hooks/useTapestryThreads';
+import { newlyWovenLabels } from '../lib/tapestry';
 import { episodeArt, FALLBACKS } from '../lib/art';
 import { sanitizeHtml } from '../lib/sanitize';
-import { cleanTitle, getBookmarks, isDone, setDone, toggleBookmark } from '../lib/storage';
+import {
+  cleanTitle,
+  getBookmarks,
+  getHighlights,
+  getNote,
+  isDone,
+  setDone,
+  setLastRead,
+  setNote,
+  toggleBookmark,
+  toggleHighlight,
+} from '../lib/storage';
 import { currentIndex, isEpisodeUnlocked } from '../lib/progress';
+import { parseRef, verseUrl } from '../lib/verseLink';
 import { toast } from '../lib/toast';
 
 // Layers the episode's art image over a FALLBACKS gradient (same rotation
@@ -91,12 +105,17 @@ export default function Reader() {
   const { id = '' } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { episodes } = useEpisodes();
+  const { threads: tapThreads } = useTapestryThreads();
   const { meta, data, status } = useEpisode(id);
 
   const [saved, setSaved] = useState(() => getBookmarks().includes(id));
   const [done, setDoneState] = useState(() => isDone(id));
   const articleRef = useRef<HTMLElement>(null);
   const [threadHost, setThreadHost] = useState<HTMLElement | null>(null);
+  const [highlightMode, setHighlightMode] = useState(false);
+  const highlightModeRef = useRef(highlightMode);
+  highlightModeRef.current = highlightMode;
+  const [note, setNoteState] = useState('');
 
   // Reader stays mounted across "Next"/"Continue" navigations (same route,
   // different :id param), so saved/done must be re-read whenever id changes
@@ -104,6 +123,8 @@ export default function Reader() {
   useEffect(() => {
     setSaved(getBookmarks().includes(id));
     setDoneState(isDone(id));
+    setNoteState(getNote(id));
+    setHighlightMode(false);
   }, [id]);
 
   const sectionIds = buildSectionIds(data?.sections.map((section) => section.label) ?? []);
@@ -125,12 +146,64 @@ export default function Reader() {
 
     setThreadHost(article.querySelector<HTMLElement>('.threadHost[data-ep]'));
 
+    // Turn `.ref` spans into real links to the passage in the NWT online
+    // reader (opens in a new tab). A code we can't parse stays plain,
+    // non-interactive text — never a dead link.
     article.querySelectorAll<HTMLElement>('.ref').forEach((el) => {
+      const code = el.dataset.ref;
+      const url = code ? verseUrl(code) : null;
+      if (!url) {
+        el.removeAttribute('role');
+        el.removeAttribute('tabindex');
+        el.classList.remove('ref-link');
+        return;
+      }
+      const open = () => window.open(url, '_blank', 'noopener,noreferrer');
+      el.classList.add('ref-link');
+      el.setAttribute('role', 'link');
       el.tabIndex = 0;
-      const label = el.textContent?.trim();
-      if (label) el.title = label;
+      el.title = `${parseRef(code!)?.label ?? el.textContent?.trim()} — open in the New World Translation`;
+      el.onclick = open;
+      el.onkeydown = (ev) => {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          open();
+        }
+      };
     });
-  }, [data]);
+
+    // Paragraph highlights: give each authored prose paragraph a stable key
+    // (its order in the article — content is immutable), restore saved ones,
+    // and toggle on click while highlight mode is on.
+    const saved = new Set(getHighlights(id));
+    article.querySelectorAll<HTMLElement>('.ep-sec p').forEach((p, i) => {
+      const key = `p${i}`;
+      p.dataset.hl = key;
+      p.classList.toggle('hl', saved.has(key));
+      p.onclick = () => {
+        if (!highlightModeRef.current) return;
+        const on = toggleHighlight(id, key);
+        p.classList.toggle('hl', on.includes(key));
+      };
+    });
+  }, [data, id]);
+
+  // Resume: remember the last episode read and roughly how far, so Home can
+  // offer "continue reading". Throttled to once a second while scrolling.
+  useEffect(() => {
+    if (status !== 'ready') return;
+    setLastRead(id, window.scrollY);
+    let last = 0;
+    const onScroll = () => {
+      const now = Date.now();
+      if (now - last > 1000) {
+        last = now;
+        setLastRead(id, window.scrollY);
+      }
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [id, status]);
 
   // Sanitizing every section re-parses its HTML via DOMParser, which is
   // wasteful to redo on each render (e.g. every scroll-driven progress/
@@ -218,9 +291,21 @@ export default function Reader() {
   };
 
   const handleComplete = () => {
+    // Which threads this completion newly weaves — connections to episodes
+    // already completed — so finishing feels like a discovery, not a counter.
+    const before = new Set(episodes.filter((e) => e.id !== meta.id && isDone(e.id)).map((e) => e.id));
+    const woven = tapThreads ? newlyWovenLabels([...tapThreads.motifs, ...tapThreads.people], meta.id, before) : [];
+
     setDone(meta.id);
     setDoneState(true);
-    toast('Episode completed');
+
+    if (woven.length) {
+      const named = woven.slice(0, 3).join(', ');
+      const extra = woven.length > 3 ? ` +${woven.length - 3} more` : '';
+      toast(`${woven.length} new connection${woven.length > 1 ? 's' : ''} woven — ${named}${extra}`);
+    } else {
+      toast('Episode completed');
+    }
   };
 
   const railSections = data.sections.map((section, sectionIndex) => ({
@@ -239,6 +324,13 @@ export default function Reader() {
         <p>{meta.subtitle}</p>
         <div className="reader-meta">
           <span>{data.sections.length} sections</span>
+          <button
+            className={`save-btn${highlightMode ? ' saved' : ''}`}
+            aria-pressed={highlightMode}
+            onClick={() => setHighlightMode((v) => !v)}
+          >
+            <Icon name="spark" /> {highlightMode ? 'Done' : 'Highlight'}
+          </button>
           <button id="bookmark" className={`save-btn${saved ? ' saved' : ''}`} onClick={handleBookmark}>
             <Icon name="bookmark" /> {saved ? 'Saved' : 'Save'}
           </button>
@@ -252,7 +344,7 @@ export default function Reader() {
       <div className="reader-layout">
         <SectionRail sections={railSections} activeId={activeSectionId} />
 
-        <article className="reader-content reader" ref={articleRef}>
+        <article className={`reader-content reader${highlightMode ? ' hl-mode' : ''}`} ref={articleRef}>
           {sanitizedSections.map((section, sectionIndex) => (
             <section
               key={`${meta.id}-${sectionIndex}`}
@@ -287,6 +379,20 @@ export default function Reader() {
               </ul>
             </section>
           )}
+
+          <section className="reading-section reader-note">
+            <span className="eyebrow">YOUR NOTES</span>
+            <h2>Your thoughts on this experience</h2>
+            <textarea
+              className="note-field"
+              placeholder="Write a private note — a reflection, a question, something to remember. Saved on this device."
+              value={note}
+              onChange={(e) => {
+                setNoteState(e.target.value);
+                setNote(id, e.target.value);
+              }}
+            />
+          </section>
         </article>
       </div>
 

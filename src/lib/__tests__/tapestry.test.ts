@@ -1,6 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { buildTapestry } from '../tapestry';
+import { buildTapestry, newlyWovenLabels } from '../tapestry';
 import type { IndexEntry } from '../contentIndex';
+
+describe('newlyWovenLabels', () => {
+  const entries: IndexEntry[] = [
+    { id: 'a', kind: 'theme', label: 'Faith', episodes: ['ep1', 'ep2', 'ep4'] },
+    { id: 'b', kind: 'theme', label: 'Blessing', episodes: ['ep3', 'ep4'] },
+    { id: 'c', kind: 'theme', label: 'Rest', episodes: ['ep4'] },
+  ];
+  it('returns threads that connect the just-completed episode to earlier ones', () => {
+    // completing ep4 with ep1,ep2 already done: Faith connects (ep1/ep2), Blessing does not (ep3 not done), Rest is solo
+    expect(newlyWovenLabels(entries, 'ep4', new Set(['ep1', 'ep2']))).toEqual(['Faith']);
+    // with ep3 also done, Blessing now weaves too
+    expect(newlyWovenLabels(entries, 'ep4', new Set(['ep1', 'ep3']))).toEqual(['Faith', 'Blessing']);
+    // nothing completed before: no new connections
+    expect(newlyWovenLabels(entries, 'ep4', new Set())).toEqual([]);
+  });
+});
 
 const meta = (ids: string[]) => ids.map((id) => ({ id, file: '', label: id, title: id, subtitle: '', season: 1, sealed: false }));
 

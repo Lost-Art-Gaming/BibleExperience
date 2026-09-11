@@ -1,11 +1,13 @@
 import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Icon } from '../components/Icon';
+import { HomeTapestryTeaser } from '../components/HomeTapestryTeaser';
 import { ProgressBar } from '../components/ProgressBar';
 import { Reveal } from '../components/Reveal';
 import { useEpisodes } from '../hooks/useEpisodes';
 import { FALLBACKS, HOME_ART, OVERLAYS } from '../lib/art';
-import { getBookmarks, isDone } from '../lib/storage';
+import { cleanTitle, getBookmarks, getLastRead, isDone } from '../lib/storage';
+import { isEpisodeUnlocked } from '../lib/progress';
 
 // Layers the art image over its overlay gradient (when one exists) and a
 // FALLBACKS gradient underneath, so a failed image load still shows a
@@ -32,8 +34,30 @@ export default function Home() {
     if (next) navigate(`/episode/${encodeURIComponent(next.id)}`);
   };
 
+  // Resume: the last episode opened, if it's still unlocked and isn't just
+  // the same episode the hero's "continue" already points at.
+  const last = getLastRead();
+  const resume =
+    last && isEpisodeUnlocked(last.id, episodes) && last.id !== next?.id
+      ? episodes.find((e) => e.id === last.id)
+      : undefined;
+
   return (
     <>
+      {resume && (
+        <button className="resume-bar" onClick={() => navigate(`/episode/${encodeURIComponent(resume.id)}`)}>
+          <span className="resume-icon">
+            <Icon name="play" />
+          </span>
+          <span>
+            <small>Continue reading</small>
+            <b>{cleanTitle(resume.title)}</b>
+          </span>
+          <span className="resume-go">
+            <Icon name="arrow" />
+          </span>
+        </button>
+      )}
       <Reveal>
         <section className="hero-home" style={artStyle('.hero-home', 0)}>
           <div className="hero-glow" />
@@ -78,6 +102,10 @@ export default function Home() {
             </span>
           </div>
         </section>
+      </Reveal>
+
+      <Reveal delay={120}>
+        <HomeTapestryTeaser />
       </Reveal>
 
       <Reveal delay={160}>

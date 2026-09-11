@@ -103,6 +103,11 @@ async def main():
             assert await page.locator('.reader-summary h2').inner_text() == 'In summary'
             assert await page.locator('.reader-summary li').count() >= 1
 
+            # Verse refs are real links to the NWT reader; the personal-layer
+            # note field is present.
+            assert await page.locator('.ref-link[role="link"]').count() >= 1
+            assert await page.locator('.reader-note .note-field').count() == 1
+
             await page.screenshot(path=str(OUT / f'{label}-episode-ep1.png'), full_page=True)
 
             # Progression gating: a sealed episode reached by deep link shows

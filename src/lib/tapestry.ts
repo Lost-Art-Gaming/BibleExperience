@@ -95,3 +95,22 @@ export function buildTapestry(
 
   return { nodes, edges, total: edges.length, discovered, newlyWoven, wovenThreadIds };
 }
+
+/**
+ * The thread labels newly connected by completing `completedNowId` — a thread
+ * it belongs to that already reached at least one previously-completed
+ * episode. Used to surface "new connections woven" on completion.
+ */
+export function newlyWovenLabels(
+  entries: IndexEntry[],
+  completedNowId: string,
+  completedBefore: Set<string>,
+): string[] {
+  return entries
+    .filter(
+      (t) =>
+        t.episodes.includes(completedNowId) &&
+        t.episodes.some((o) => o !== completedNowId && completedBefore.has(o)),
+    )
+    .map((t) => t.label);
+}
