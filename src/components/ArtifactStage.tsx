@@ -73,7 +73,7 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
       <div className="diorama-stage">
         {isExactEden ? (
           <iframe
-            src="/garden-of-eden.html"
+            src="/eden-reference.html"
             title="The Garden of Eden — miniature diorama"
             loading="eager"
             allow="fullscreen"
