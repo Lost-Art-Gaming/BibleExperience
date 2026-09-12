@@ -1,15 +1,7 @@
 import { Component, lazy, Suspense, useMemo, useState, type ReactNode } from 'react';
-import * as THREE from 'three';
 import { CitationText } from './CitationText';
 import { Skeleton } from './Skeleton';
 import type { Artifact } from '../lib/artifacts';
-
-// The supplied Eden reference runs in a same-origin iframe. Expose the app's
-// bundled Three.js instance so the reference scene has no third-party runtime
-// dependency when embedded in BibleExperience.
-if (typeof window !== 'undefined') {
-  (window as Window & { __BIBLE_EXPERIENCE_THREE__?: typeof THREE }).__BIBLE_EXPERIENCE_THREE__ = THREE;
-}
 
 const ArtifactScene = lazy(() => import('../three/ArtifactScene'));
 
@@ -79,31 +71,15 @@ export function ArtifactStage({ artifact, compact = false }: ArtifactStageProps)
     <figure className={`diorama${compact ? ' diorama-compact' : ''}`} data-artifact={artifact.id}>
       <div className="diorama-stage">
         {isExactEden ? (
-          <>
-            <iframe
-              src={`${import.meta.env.BASE_URL}eden-reference.html`}
-              title="The Garden of Eden — miniature diorama"
-              loading="eager"
-              allow="fullscreen"
-              style={{ width: '100%', height: '100%', border: 0, display: 'block', background: 'transparent' }}
-            />
-            <div className="diorama-plate">
-              <h3>{artifact.name}</h3>
-              <p>{artifact.blurb}</p>
-            </div>
-            <div hidden aria-hidden="true">
-              <div className="diorama-fallback">Exact Eden renderer is hosted in the reference document.</div>
-              <aside className="diorama-legend">
-                <ul>
-                  <li>Tree of Life</li>
-                  <li>Tree of Knowledge</li>
-                  <li>Four rivers</li>
-                  <li>Adam &amp; Eve</li>
-                  <li>The living creatures</li>
-                </ul>
-              </aside>
-            </div>
-          </>
+          // The supplied reference document brings its own plate, legend and
+          // controls, so the host chrome would sit on top of them.
+          <iframe
+            src={`${import.meta.env.BASE_URL}eden-reference.html`}
+            title="The Garden of Eden — miniature diorama"
+            loading="eager"
+            allow="fullscreen"
+            style={{ width: '100%', height: '100%', border: 0, display: 'block', background: 'transparent' }}
+          />
         ) : (
           <>
             <div hidden={webglOK} aria-hidden={webglOK}>
