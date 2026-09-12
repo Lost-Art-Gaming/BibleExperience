@@ -146,17 +146,21 @@ async def main():
             # so the stage legitimately renders either the <canvas> or the
             # static `.diorama-fallback` — accept either, but the chrome
             # (plate, legend) must be there in both cases.
+            # Eden is the supplied reference scene, hosted in a same-origin
+            # iframe that keeps loading and animating — `networkidle` never
+            # settles on a route that shows it, so wait on the DOM instead.
             await page.evaluate("() => { for (const i of [1,2]) localStorage.setItem('be-episode-ep'+i,'done'); }")
-            await page.goto(BASE + '#/explore', wait_until='networkidle')
+            await page.goto(BASE + '#/explore', wait_until='domcontentloaded')
             await page.wait_for_selector('.diorama')
             assert await page.locator('.collection-count').inner_text() == '1'
             assert await page.locator('[data-artifact="eden"].artifact-card.sealed').count() == 0
             assert await page.locator('[data-artifact="ark"].artifact-card.sealed').count() == 1
-            assert await page.locator('.diorama-plate h3').inner_text() == 'Eden'
-            assert await page.locator('.diorama-legend li').count() >= 3
-            canvas_count = await page.locator('.diorama-stage canvas').count()
-            fallback_count = await page.locator('.diorama-fallback').count()
-            assert canvas_count >= 1 or fallback_count >= 1, 'expected canvas or .diorama-fallback on the stage'
+            # Eden carries the reference document's own plate, not the host's.
+            assert await page.locator('.diorama-stage iframe').count() == 1, 'Eden renders the reference document'
+            eden = page.frame_locator('.diorama-stage iframe')
+            await eden.locator('.plate h1').wait_for()
+            assert await eden.locator('.plate h1').inner_text() == 'The Garden of Eden'
+            assert await eden.locator('#legend li').count() >= 3
             # Scroll the grid into view so its reveal-on-scroll cards are
             # actually painted in the full-page screenshot.
             await page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
@@ -164,10 +168,32 @@ async def main():
             assert await page.locator('.artifact-card').count() == 4
             await page.screenshot(path=str(OUT / f'{label}-collection.png'), full_page=True)
 
+            # The models built on the app's own diorama stage carry the host
+            # chrome: a legend of their parts and the controls to turn them.
+            # Ark is the one with a cutaway, so it exercises all three.
+            # Re-enter the route so the new completion is read: the app is
+            # already on #/explore, and a goto to the identical hash URL is a
+            # same-document navigation that would not re-render.
+            await page.evaluate("() => localStorage.setItem('be-episode-ep6','done')")
+            await page.reload(wait_until='domcontentloaded')
+            await page.wait_for_selector('[data-artifact="ark"].artifact-card:not(.sealed)')
+            await page.locator('[data-artifact="ark"].artifact-card').click()
+            await page.wait_for_selector('.diorama[data-artifact="ark"]')
+            assert await page.locator('.diorama-plate h3').inner_text() == 'The Ark'
+            assert await page.locator('.diorama-legend li').count() >= 3
+            canvas_count = await page.locator('.diorama-stage canvas').count()
+            fallback_count = await page.locator('.diorama-fallback').count()
+            assert canvas_count >= 1 or fallback_count >= 1, 'expected canvas or .diorama-fallback on the stage'
+            if canvas_count:
+                assert await page.locator('.diorama-controls button').count() == 3
+            await page.evaluate("() => localStorage.removeItem('be-episode-ep6')")
+
             # The same model appears inside the episode that tells its story.
-            await page.goto(BASE + '#/episode/ep2', wait_until='networkidle')
+            await page.goto(BASE + '#/episode/ep2', wait_until='domcontentloaded')
             await page.wait_for_selector('.reader-model .diorama')
-            assert await page.locator('.reader-model .diorama-plate h3').inner_text() == 'Eden'
+            reader_eden = page.frame_locator('.reader-model .diorama-stage iframe')
+            await reader_eden.locator('.plate h1').wait_for()
+            assert await reader_eden.locator('.plate h1').inner_text() == 'The Garden of Eden'
             await page.wait_for_timeout(700)
             await page.screenshot(path=str(OUT / f'{label}-episode-ep2-model.png'), full_page=True)
             await page.evaluate("() => { for (const i of [1,2]) localStorage.removeItem('be-episode-ep'+i); }")
